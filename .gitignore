@@ -55,3 +55,13 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# My personal appsettings.json, make your own with the template!
+JobApplicationHelper/appsettings.json
+
+# User-specific bits
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+.vs/

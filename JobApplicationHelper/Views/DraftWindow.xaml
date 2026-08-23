@@ -1,0 +1,103 @@
+﻿<Window x:Class="JobApplicationHelper.Views.DraftWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JobApplicationHelper"
+        xmlns:viewModels="clr-namespace:JobApplicationHelper.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModels:DraftWindowViewModel}"
+        Title="DraftWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TabControl Grid.Row="0" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}" TabStripPlacement="Top">
+            <!-- Override the template to exclude the tab header panel -->
+            <TabControl.Style>
+                <Style TargetType="TabControl">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabControl">
+                                <Grid KeyboardNavigation.TabNavigation="Local">
+                                    <!-- This presenter displays the selected tab's content -->
+                                    <ContentPresenter Name="PART_SelectedContentHost" 
+                                              ContentSource="SelectedContent" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Style>
+            <TabItem>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Job Posting:"/>
+                    <TextBox Grid.Row="1"
+                             Text="{Binding JobPosting, Mode=TwoWay}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             MinHeight="150"
+                             Margin="0,5,0,10"/>
+
+                    <Label Grid.Row="2" Content="Additional Instructions:"/>
+                    <TextBox Grid.Row="3"
+                             Text="{Binding AdditionalPromptInstructions, Mode=TwoWay}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             MinHeight="100"
+                             Margin="0,5,0,10"/>
+
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Generate cover letter"
+                                Command="{Binding GenerateCoverLetterCommand}"
+                                Width="160"
+                                Margin="5"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Second part: show generated cover letter, editable, with Back and Save -->
+            <TabItem Margin="-2,-2,-2,2">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Generated Cover Letter:"/>
+                    <TextBox Grid.Row="1"
+                             Text="{Binding Draft, Mode=TwoWay}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             MinHeight="250"
+                             Margin="0,5,0,10"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Back to edit"
+                                Command="{Binding BackToEditCommand}"
+                                Width="110"
+                                Margin="5"/>
+                        <Button Content="Save cover letter"
+                                Command="{Binding SaveCoverLetterCommand}"
+                                Width="130"
+                                Margin="5"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="{Binding StatusMessage}" HorizontalAlignment="Left"/>
+    </Grid>
+</Window>

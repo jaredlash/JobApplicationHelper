@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="JobApplicationHelper/JobApplicationHelper.csproj" Id="a29e8c0d-567e-430d-9c95-a325ba9f9250" />
+  <Project Path="Tests/Tests.csproj" Id="b7e67022-da1d-4697-89d1-6e75f2f1bc72" />
+</Solution>
