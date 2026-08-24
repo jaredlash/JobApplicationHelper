@@ -70,6 +70,8 @@ public partial class App : Application
             options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
         });
 
+        builder.Services.AddScoped<IExperienceBankService, EfExperienceBankService>();
+
         // TODO: Evaluate if this should actually be transient
         builder.Services.AddSingleton<IChatClient>(sp =>
         {
