@@ -1,13 +1,18 @@
-﻿using JobApplicationHelper.Models;
+﻿using JobApplicationHelper.Configuration;
+using JobApplicationHelper.Data;
+using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
 using JobApplicationHelper.WindowService;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using OllamaSharp;
+using System.IO;
 using System.Net.Http;
 using System.Windows;
 
@@ -49,6 +54,21 @@ public partial class App : Application
             .Bind(builder.Configuration.GetSection("Candidate"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        builder.Services.AddOptions<ExperienceBankOptions>()
+            .Bind(builder.Configuration.GetSection("ExperienceBank"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
+        {
+            var configuration =
+                serviceProvider.GetRequiredService<IConfiguration>();
+
+            var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
+
+            options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
+        });
 
         // TODO: Evaluate if this should actually be transient
         builder.Services.AddSingleton<IChatClient>(sp =>
