@@ -85,7 +85,7 @@ public partial class App : Application
         });
 
         builder.Services.AddSingleton<MainWindow>();
-        builder.Services.AddSingleton<ExperienceBankService>();
+        builder.Services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         builder.Services.AddTransient<MainWindowViewModel>();
         builder.Services.AddTransient<DraftWindowViewModel>();
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
