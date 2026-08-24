@@ -14,7 +14,7 @@ public sealed class ExperienceEntity
 
     public int? StartMonth { get; set; }
 
-    public int StartYear { get; set; }
+    public int? StartYear { get; set; }
 
     public int? EndMonth { get; set; }
 
