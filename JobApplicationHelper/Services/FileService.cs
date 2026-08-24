@@ -11,7 +11,7 @@ public class FileService
     private readonly string templateBasePath;
     private readonly string applicationBasePath;
     private readonly LocationService locationService;
-    private readonly ExperienceBankService experienceBankService;
+    private readonly IExperienceBankImportService experienceBankService;
     private readonly ILogger<FileService> logger;
     private const string NotesFileName = "Notes.txt";
     private readonly string candidateFullName;
@@ -21,7 +21,7 @@ public class FileService
         return Path.Combine(templateBasePath, templateName);
     }
 
-    public FileService(IOptions<FileServiceOptions> options, IOptions<CandidateOptions> candidateOptions, LocationService locationService, ExperienceBankService experienceBankService, ILogger<FileService> logger)
+    public FileService(IOptions<FileServiceOptions> options, IOptions<CandidateOptions> candidateOptions, LocationService locationService, IExperienceBankImportService experienceBankService, ILogger<FileService> logger)
     {
         // Options are validated on startup via DI (ValidateOnStart). The constructor is only used by DI,
         // so null-check guards are unnecessary. Use null-forgiving operator to satisfy nullable analysis.
@@ -138,7 +138,7 @@ public class FileService
     public async Task<ExperienceBank> LoadExperienceBank()
     {
         string experienceBankPath = Path.Combine(templateBasePath, "experience.yaml");
-        return await experienceBankService.LoadAsync(experienceBankPath);
+        return await experienceBankService.ImportAsync(experienceBankPath);
     }
 
     public static void OpenFolder(string folderPath)

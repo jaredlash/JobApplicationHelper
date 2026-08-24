@@ -7,11 +7,11 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace JobApplicationHelper.Services;
 
-public sealed class ExperienceBankService
+public sealed class YamlExperienceBankImportService : IExperienceBankImportService
 {
     private readonly IDeserializer _deserializer;
 
-    public ExperienceBankService()
+    public YamlExperienceBankImportService()
     {
         _deserializer = new DeserializerBuilder()
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -20,9 +20,7 @@ public sealed class ExperienceBankService
             .Build();
     }
 
-    public async Task<ExperienceBank> LoadAsync(
-        string filePath,
-        CancellationToken cancellationToken = default)
+    public async Task<ExperienceBank> ImportAsync(string filePath, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
@@ -54,7 +52,7 @@ public sealed class ExperienceBankService
         {
             var experienceBank = _deserializer.Deserialize<ExperienceBank>(yaml)
                 ?? throw new InvalidDataException("The experience bank could not be deserialized.");
-            
+
             Validate(experienceBank, filePath);
 
             return experienceBank;
@@ -65,9 +63,7 @@ public sealed class ExperienceBankService
         }
     }
 
-    private static void Validate(
-        ExperienceBank bank,
-        string filePath)
+    private static void Validate(ExperienceBank bank, string filePath)
     {
         if (bank.Version <= 0)
         {
