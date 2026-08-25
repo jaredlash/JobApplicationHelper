@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
-using System.Security.Policy;
 
 namespace JobApplicationHelper.ViewModels;
 
@@ -14,44 +13,42 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
     public bool IsEditMode => _originalExperience is not null;
 
-    public string DialogTitle =>
-        IsEditMode ? "Edit Experience" : "Add Experience";
+    public string DialogTitle => IsEditMode ? "Edit Experience" : "Add Experience";
 
     [ObservableProperty]
-    private string _id = string.Empty;
+    private string id = string.Empty;
 
     [ObservableProperty]
-    private string _title = string.Empty;
+    private string title = string.Empty;
 
     [ObservableProperty]
-    private ExperienceType _type;
+    private ExperienceType type;
 
     [ObservableProperty]
-    private string? _organization;
+    private string? organization;
 
     [ObservableProperty]
-    private DateRange? _dateRange;
+    private DateRange? dateRange;
 
     [ObservableProperty]
-    private string? _summary;
+    private string? summary;
 
     [ObservableProperty]
-    private List<string> _skills = [];
+    private List<string> skills = [];
 
     [ObservableProperty]
-    private List<string> _evidence = [];
+    private List<string> evidence = [];
 
     [ObservableProperty]
-    private List<string> _contexts = [];
+    private List<string> contexts = [];
 
     [ObservableProperty]
-    private List<string> _links = [];
+    private List<string> links = [];
 
     [ObservableProperty]
-    private string? _notes;
+    private string? notes;
 
-    public ExperienceEditViewModel(
-        IExperienceBankService experienceBankService)
+    public ExperienceEditViewModel(IExperienceBankService experienceBankService)
     {
         _experienceBankService = experienceBankService;
     }
@@ -78,8 +75,6 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
     public void InitializeForEdit(Experience experience)
     {
-        ArgumentNullException.ThrowIfNull(experience);
-
         _originalExperience = experience;
 
         Id = experience.Id;
@@ -101,8 +96,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(Id) ||
-            string.IsNullOrWhiteSpace(Title))
+        if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(Title))
         {
             return;
         }

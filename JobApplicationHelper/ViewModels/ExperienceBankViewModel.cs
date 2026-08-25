@@ -14,13 +14,6 @@ public partial class ExperienceBankViewModel : ViewModelBase
     private readonly IExperienceBankService _experienceBankService;
     private readonly IWindowService _windowService;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedExperience))]
-    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
-    private int _selectedIndex = -1;
-
-    public ObservableCollection<Experience> Experiences { get; } = [];
-
     public Experience? SelectedExperience =>
         SelectedIndex >= 0 && SelectedIndex < Experiences.Count
             ? Experiences[SelectedIndex]
@@ -36,18 +29,22 @@ public partial class ExperienceBankViewModel : ViewModelBase
         _windowService = windowService;
     }
 
-    public async Task InitializeAsync(
-        CancellationToken cancellationToken = default)
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedExperience))]
+    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    private int selectedIndex = -1;
+
+    public ObservableCollection<Experience> Experiences { get; } = [];
+
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await ReloadAsync(cancellationToken: cancellationToken);
     }
 
-    private async Task ReloadAsync(
-    string? selectedExperienceId = null,
-    CancellationToken cancellationToken = default)
+    private async Task ReloadAsync(string? selectedExperienceId = null, CancellationToken cancellationToken = default)
     {
-        var experiences = await _experienceBankService.GetAllAsync(
-            cancellationToken);
+        var experiences = await _experienceBankService.GetAllAsync(cancellationToken);
 
         Experiences.Clear();
 
@@ -62,16 +59,14 @@ public partial class ExperienceBankViewModel : ViewModelBase
             return;
         }
 
+        // This approach was clearer than using LINQ to find the index of the experience with the specified ID.
         if (!string.IsNullOrWhiteSpace(selectedExperienceId))
         {
             var index = -1;
 
             for (var i = 0; i < Experiences.Count; i++)
             {
-                if (string.Equals(
-                    Experiences[i].Id,
-                    selectedExperienceId,
-                    StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(Experiences[i].Id, selectedExperienceId, StringComparison.OrdinalIgnoreCase))
                 {
                     index = i;
                     break;
@@ -89,8 +84,7 @@ public partial class ExperienceBankViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddAsync()
     {
-        var viewModel =
-            _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+        var viewModel = _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
 
         viewModel.InitializeForAdd();
 
@@ -114,8 +108,7 @@ public partial class ExperienceBankViewModel : ViewModelBase
 
         var experienceId = experience.Id;
 
-        var viewModel =
-            _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+        var viewModel = _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
 
         viewModel.InitializeForEdit(experience);
 
