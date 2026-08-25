@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace JobApplicationHelper.ViewModels;
@@ -38,11 +39,12 @@ public partial class ExperienceBankViewModel : ViewModelBase
     public async Task InitializeAsync(
         CancellationToken cancellationToken = default)
     {
-        await ReloadAsync(cancellationToken);
+        await ReloadAsync(cancellationToken: cancellationToken);
     }
 
     private async Task ReloadAsync(
-        CancellationToken cancellationToken = default)
+    string? selectedExperienceId = null,
+    CancellationToken cancellationToken = default)
     {
         var experiences = await _experienceBankService.GetAllAsync(
             cancellationToken);
@@ -57,28 +59,51 @@ public partial class ExperienceBankViewModel : ViewModelBase
         if (Experiences.Count == 0)
         {
             SelectedIndex = -1;
-        }
-        else if (SelectedIndex >= Experiences.Count)
-        {
-            SelectedIndex = Experiences.Count - 1;
+            return;
         }
 
-        OnPropertyChanged(nameof(SelectedExperience));
+        if (!string.IsNullOrWhiteSpace(selectedExperienceId))
+        {
+            var index = -1;
+
+            for (var i = 0; i < Experiences.Count; i++)
+            {
+                if (string.Equals(
+                    Experiences[i].Id,
+                    selectedExperienceId,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            SelectedIndex = index;
+            return;
+        }
+
+        // No experience was specified for selection.
+        SelectedIndex = -1;
     }
 
     [RelayCommand]
-    private void Add()
+    private async Task AddAsync()
     {
-        // TODO:
-        // Create the ExperienceEditViewModel using _serviceProvider.
-        //
-        // Show the dialog using _windowService.
-        //
-        // If the dialog returns true, reload the experience list.
+        var viewModel =
+            _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+
+        viewModel.InitializeForAdd();
+
+        var result = _windowService.ShowDialog(viewModel);
+
+        if (result == true)
+        {
+            await ReloadAsync();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanEdit))]
-    private void Edit()
+    private async Task EditAsync()
     {
         var experience = SelectedExperience;
 
@@ -87,13 +112,19 @@ public partial class ExperienceBankViewModel : ViewModelBase
             return;
         }
 
-        // TODO:
-        // Create the ExperienceEditViewModel using _serviceProvider.
-        // Pass 'experience' to it for editing.
-        //
-        // Show the dialog using _windowService.
-        //
-        // If the dialog returns true, reload the experience list.
+        var experienceId = experience.Id;
+
+        var viewModel =
+            _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+
+        viewModel.InitializeForEdit(experience);
+
+        var result = _windowService.ShowDialog(viewModel);
+
+        if (result == true)
+        {
+            await ReloadAsync(experienceId);
+        }
     }
 
     private bool CanEdit()
@@ -104,21 +135,18 @@ public partial class ExperienceBankViewModel : ViewModelBase
     [RelayCommand]
     private void Remove()
     {
-        // TODO:
-        // Implement removal later.
+        // TODO: Implement removal later.
     }
 
     [RelayCommand]
     private void Import()
     {
-        // TODO:
-        // Implement YAML import later.
+        // TODO: Implement YAML import later.
     }
 
     [RelayCommand]
     private void Export()
     {
-        // TODO:
-        // Implement YAML export later.
+        // TODO: Implement YAML export later.
     }
 }
