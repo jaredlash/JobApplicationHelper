@@ -2,7 +2,7 @@
 
 public sealed class ApplicationAnalysis
 {
-    public List<JobRequirement> JobRequirements { get; set; } = [];
+    public List<PreviousJobRequirementImpl> JobRequirements { get; set; } = [];
 
     public List<CandidateStrength> CandidateStrengths { get; set; } = [];
 

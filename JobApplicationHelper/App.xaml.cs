@@ -95,6 +95,7 @@ public partial class App : Application
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
         builder.Services.AddTransient<CoverLetterService>();
+        builder.Services.AddTransient<JobRequirementService>();
 
         AppHost = builder.Build();
 
