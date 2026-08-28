@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Data.Entities;
 using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -13,6 +15,7 @@ public partial class DraftWindowViewModel : ViewModelBase
 {
     private readonly FileService fileService;
     private readonly JobRequirementService jobRequirementService;
+    private readonly IExperienceBankService experienceBankService;
     private readonly CoverLetterService coverLetterService;
     private readonly IWindowService windowService;
     private readonly ILogger<DraftWindowViewModel> logger;
@@ -21,12 +24,14 @@ public partial class DraftWindowViewModel : ViewModelBase
     public DraftWindowViewModel(
         FileService fileService,
         JobRequirementService jobRequirementService,
+        IExperienceBankService experienceBankService,
         CoverLetterService coverLetterService,
         IWindowService windowService,
         ILogger<DraftWindowViewModel> logger)
     {
         this.fileService = fileService;
         this.jobRequirementService = jobRequirementService;
+        this.experienceBankService = experienceBankService;
         this.coverLetterService = coverLetterService;
         this.windowService = windowService;
         this.logger = logger;
@@ -57,6 +62,30 @@ public partial class DraftWindowViewModel : ViewModelBase
         : null;
 
     [ObservableProperty]
+    private IReadOnlyList<Experience> experiences = [];
+
+    private IReadOnlyList<Experience> _allExperiences = [];
+
+    [ObservableProperty]
+    private string experienceFilter = string.Empty;
+
+    partial void OnExperienceFilterChanged(string value)
+    {
+        Experiences = ApplyExperienceFilter(value);
+    }
+
+    private IReadOnlyList<Experience> ApplyExperienceFilter(string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return _allExperiences;
+
+        return _allExperiences
+            .Where(e => e.MatchFilter(filter))
+            .ToList();
+    }
+
+
+    [ObservableProperty]
     private string cvText = String.Empty;
 
     [ObservableProperty]
@@ -84,7 +113,14 @@ public partial class DraftWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
+        await LoadExperienceBank(cancellationToken);
         await LoadJobRequirements(cancellationToken);
+    }
+
+    private async Task LoadExperienceBank(CancellationToken cancellationToken = default)
+    {
+        _allExperiences = await experienceBankService.GetAllAsync(cancellationToken);
+        OnExperienceFilterChanged(ExperienceFilter);
     }
 
     [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements))]

@@ -23,4 +23,16 @@ public sealed class Experience
     public List<string> Links { get; set; } = [];
 
     public string Notes { get; set; } = string.Empty;
+
+    public bool MatchFilter(string filter)
+    {
+        return Id.Contains(filter, StringComparison.OrdinalIgnoreCase)
+            || Title.Contains(filter, StringComparison.OrdinalIgnoreCase)
+            || Organization.Contains(filter, StringComparison.OrdinalIgnoreCase)
+            || Summary.Contains(filter, StringComparison.OrdinalIgnoreCase)
+            || Skills.Any(s => s.Contains(filter, StringComparison.OrdinalIgnoreCase))
+            || Evidence.Any(e => e.Contains(filter, StringComparison.OrdinalIgnoreCase))
+            || Contexts.Any(c => c.Contains(filter, StringComparison.OrdinalIgnoreCase))
+            || Notes.Contains(filter, StringComparison.OrdinalIgnoreCase);
+    }
 }
