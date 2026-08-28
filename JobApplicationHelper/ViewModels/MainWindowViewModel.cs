@@ -53,6 +53,8 @@ namespace JobApplicationHelper.ViewModels
         private bool includeCoverLetter;
 
         [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required(ErrorMessage = "Job posting is required.")]
         private string jobPosting = string.Empty;
 
         [ObservableProperty]
