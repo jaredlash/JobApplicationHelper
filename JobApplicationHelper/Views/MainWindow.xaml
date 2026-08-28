@@ -65,7 +65,7 @@
         <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
             <CheckBox Margin="5" VerticalAlignment="Center" Content="Open Folder" 
                       IsChecked="{Binding OpenNewFolder, Mode=TwoWay}"/>
-            <Button Margin="5" Padding="5" Width="Auto" Content="Create Application Folder" 
+            <Button Margin="5" Padding="5" Width="Auto" Content="Create Application" 
                     Command="{Binding CreateApplicationCommand}"/>
         </StackPanel>
         <Label Grid.Row="10" Grid.Column="0" Margin="5" Content="{Binding StatusMessage}" Grid.ColumnSpan="2" HorizontalAlignment="Left"/>
