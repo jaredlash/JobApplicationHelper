@@ -54,6 +54,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
                 ?? throw new InvalidDataException("The experience bank could not be deserialized.");
 
             Validate(experienceBank, filePath);
+            Sanitize(experienceBank);
 
             return experienceBank;
         }
@@ -111,6 +112,16 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
             {
                 throw new InvalidDataException($"Experience '{experience.Id}' has no evidence collection.");
             }
+        }
+    }
+
+    private static void Sanitize(ExperienceBank bank)
+    {
+        foreach (var experience in bank.Experiences)
+        {
+            experience.Summary ??= string.Empty;
+            experience.Summary = experience.Summary.TrimEnd();
+            experience.Organization ??= string.Empty;
         }
     }
 }
