@@ -17,6 +17,7 @@ public partial class DraftWindowViewModel : ViewModelBase
     private readonly IWindowService windowService;
     private readonly ILogger<DraftWindowViewModel> logger;
 
+
     public DraftWindowViewModel(
         FileService fileService,
         JobRequirementService jobRequirementService,
@@ -32,7 +33,35 @@ public partial class DraftWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RequirementCount))]
+    [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
+    private JobRequirements requirements = new JobRequirements { Requirements = [] };
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedRequirementDisplay))]
+    [NotifyPropertyChangedFor(nameof(SelectedRequirement))]
+    [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
+    private int selectedRequirementIndex = -1;
+
+    public int RequirementCount => Requirements.Requirements.Count;
+
+    public string SelectedRequirementDisplay =>
+        SelectedRequirementIndex >= 0 && RequirementCount > 0
+            ? $"{SelectedRequirementIndex + 1} / {RequirementCount}"
+            : "0 / 0";
+
+    public JobRequirement? SelectedRequirement => SelectedRequirementIndex >= 0 && SelectedRequirementIndex < Requirements.Requirements.Count
+        ? Requirements.Requirements[SelectedRequirementIndex]
+        : null;
+
+    [ObservableProperty]
     private string cvText = String.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(LoadJobRequirementsCommand))]
+    private bool isLoadingJobRequirements = false;
 
     [ObservableProperty]
     private string outputFolder = String.Empty;
@@ -51,6 +80,58 @@ public partial class DraftWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string statusMessage = String.Empty;
+
+    [RelayCommand]
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        await LoadJobRequirements(cancellationToken);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements))]
+    private async Task LoadJobRequirements(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            IsLoadingJobRequirements = true;
+            StatusMessage = "Analyzing job requirements...";
+            SelectedRequirementIndex = -1;
+            Requirements = new JobRequirements { Requirements = [] }; // Reset requirements before loading new ones
+            Requirements = await jobRequirementService.ExtractRequirementsAsync(JobPosting, cancellationToken);
+            StatusMessage = "";
+            // Valid job requirements have at least one requirement
+            SelectedRequirementIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error loading job requirements");
+            StatusMessage = $"Error loading job requirements: {ex.Message}";
+        }
+        finally
+        {
+            IsLoadingJobRequirements = false;
+        }
+    }
+    public bool CanExecuteLoadJobRequirements => !IsLoadingJobRequirements;
+
+    [RelayCommand(CanExecute = nameof(CanGoToNextRequirement))]
+    private void NextRequirement()
+    {
+        if (SelectedRequirementIndex < Requirements.Requirements.Count - 1)
+        {
+            SelectedRequirementIndex++;
+        }
+    }
+    public bool CanGoToNextRequirement => SelectedRequirementIndex < Requirements.Requirements.Count - 1;
+
+    [RelayCommand(CanExecute = nameof(CanGoToPreviousRequirement))]
+    private void PreviousRequirement()
+    {
+        if (SelectedRequirementIndex > 0)
+        {
+            SelectedRequirementIndex--;
+        }
+    }
+    public bool CanGoToPreviousRequirement => SelectedRequirementIndex > 0;
 
     [RelayCommand]
     private async Task GenerateCoverLetter()
@@ -151,7 +232,7 @@ public partial class DraftWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void BackToEdit()
+    private void BackToRequirements()
     {
         SelectedTabIndex = 0;
     }
