@@ -1,0 +1,426 @@
+﻿ <UserControl x:Class="JobApplicationHelper.Views.JobRequirementsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:conv="clr-namespace:JobApplicationHelper.Converters"
+             mc:Ignorable="d"
+             d:Background="White"
+             d:Height="650"
+             d:Width="800"
+             >
+
+    <UserControl.Resources>
+        <conv:EnumDisplayConverter x:Key="EnumDisplayConverter" />
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Top buttons-->
+            <RowDefinition Height="Auto"/>
+            <!-- Requirement heading and relevant experience checkbox -->
+            <RowDefinition Height="Auto"/>
+            <!-- Requirement description -->
+            <RowDefinition Height="*"/>
+            <!-- Experience Bank and Evidence -->
+            <RowDefinition Height="Auto"/>
+            <!-- Notes label -->
+            <RowDefinition Height="Auto"/>
+            <!-- Notes textbox -->
+            <RowDefinition Height="Auto"/>
+            <!-- Generate Cover Letter button -->
+        </Grid.RowDefinitions>
+
+
+        <!-- Top buttons -->
+        <Grid Grid.Row="0"
+              Margin="0 10 0 0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Orientation="Horizontal">
+
+                <Button Command="{Binding PreviousRequirementCommand}">
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- Glyph for a Back arrow -->
+                        <TextBlock Text="&#xE09A;"
+                                   FontFamily="Segoe Fluent Icons"
+                                   FontSize="16"
+                                   Margin="5"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+                </Button>
+
+                <Label Content="{Binding SelectedRequirementDisplay}"/>
+
+                <Button Command="{Binding NextRequirementCommand}">
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- Glyph for a Forward arrow -->
+                        <TextBlock Text="&#xE09B;"
+                                   FontFamily="Segoe Fluent Icons"
+                                   FontSize="16"
+                                   Margin="5"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+                </Button>
+
+                <Label Margin="20 0 0 0"
+                       FontWeight="Bold">
+                    Priority:
+                </Label>
+
+                <Label Content="{Binding SelectedRequirement.Priority}"/>
+
+                <Label Margin="20 0 0 0"
+                       FontWeight="Bold">
+                    Category:
+                </Label>
+
+                <Label Content="{Binding SelectedRequirement.Category}"/>
+
+            </StackPanel>
+
+            <Button Grid.Column="2"
+                    Padding="5"
+                    Content="Open Job Posting"/>
+
+        </Grid>
+
+
+        <!-- Requirement heading and relevant experience checkbox -->
+        <Grid Grid.Row="1"
+              Margin="0 10 0 0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0"
+                   FontWeight="Bold"
+                   VerticalAlignment="Center">
+                Requirement Description
+            </Label>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+
+                <CheckBox Content="No relevant experience"
+                          IsChecked="{Binding NoSupportingEvidence}"/>
+
+            </StackPanel>
+
+        </Grid>
+
+
+        <!-- Requirement description -->
+        <TextBox Grid.Row="2"
+                 Height="100"
+                 Margin="0 0 0 10"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 IsReadOnly="True"
+                 Text="{Binding SelectedRequirement.Requirement}"/>
+
+
+        <!-- Experience Bank and Evidence -->
+        <Grid Grid.Row="3">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Label Grid.Row="0"
+                   Grid.Column="0"
+                   FontWeight="Bold">
+                Experience Bank
+            </Label>
+
+
+            <StackPanel Grid.Row="0"
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+
+                <Label FontWeight="Bold">
+                    Filter
+                </Label>
+
+                <TextBox Margin="0 0 0 5"
+                         Width="120"
+                         Text="{Binding ExperienceFilter}"/>
+
+            </StackPanel>
+
+
+            <Label Grid.Row="0"
+                   Grid.Column="3"
+                   FontWeight="Bold">
+                Evidence
+            </Label>
+
+
+            <!-- Experience Bank list -->
+            <ListBox Grid.Row="1"
+                     Grid.RowSpan="3"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="2"
+                     ItemsSource="{Binding Experiences}">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+
+                        <StackPanel>
+
+                            <!-- Organization OR type and then Title -->
+                            <StackPanel Orientation="Horizontal">
+
+                                <TextBlock Text="{Binding Organization}"
+                                           FontWeight="SemiBold">
+
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+
+                                            <Style.Triggers>
+
+                                                <DataTrigger Binding="{Binding Organization}"
+                                                             Value="">
+
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed" />
+
+                                                </DataTrigger>
+
+                                            </Style.Triggers>
+
+                                        </Style>
+                                    </TextBlock.Style>
+
+                                </TextBlock>
+
+
+                                <TextBlock Text="{Binding Type, Converter={StaticResource EnumDisplayConverter}}"
+                                           FontWeight="SemiBold">
+
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+
+                                            <Style.Triggers>
+
+                                                <DataTrigger Binding="{Binding Organization}"
+                                                             Value="">
+
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible" />
+
+                                                </DataTrigger>
+
+                                            </Style.Triggers>
+
+                                        </Style>
+                                    </TextBlock.Style>
+
+                                </TextBlock>
+
+
+                                <TextBlock Margin="8 0 8 0">
+                                    -
+                                </TextBlock>
+
+
+                                <TextBlock Text="{Binding Title}"
+                                           FontWeight="SemiBold"/>
+
+                            </StackPanel>
+
+
+                            <!-- Summary if no organization -->
+                            <TextBlock Text="{Binding Summary}"
+                                       Margin="0 0 0 0">
+
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+
+                                        <!-- Hidden by default -->
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed" />
+
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding Organization}"
+                                                         Value="">
+
+                                                <Setter Property="Visibility"
+                                                        Value="Visible" />
+
+                                            </DataTrigger>
+
+                                        </Style.Triggers>
+
+                                    </Style>
+                                </TextBlock.Style>
+
+                            </TextBlock>
+
+
+                            <!-- Type and date range when organization exists -->
+                            <StackPanel Orientation="Horizontal">
+
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding Organization}"
+                                                         Value="">
+
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed" />
+
+                                            </DataTrigger>
+
+                                        </Style.Triggers>
+
+                                    </Style>
+                                </StackPanel.Style>
+
+
+                                <TextBlock Text="{Binding Type, Converter={StaticResource EnumDisplayConverter}}" />
+
+                                <TextBlock Margin="8 0 0 0">
+                                    (date range goes here)
+                                </TextBlock>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+            </ListBox>
+
+
+            <!-- Add Evidence -->
+            <Button Grid.Row="1"
+                    Grid.Column="2"
+                    Padding="5"
+                    Margin="10 0">
+
+                <StackPanel Orientation="Horizontal">
+
+                    <TextBlock Text="Add Evidence "/>
+
+                    <TextBlock Text="&#xE0AB;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Center"/>
+
+                </StackPanel>
+
+            </Button>
+
+
+            <!-- Remove Evidence -->
+            <Button Grid.Row="3"
+                    Grid.Column="2"
+                    Padding="5"
+                    Margin="10 0">
+
+                <StackPanel Orientation="Horizontal">
+
+                    <TextBlock Text="&#xE0A6;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Text="Remove Evidence "/>
+
+                </StackPanel>
+
+            </Button>
+
+
+            <!-- Evidence list -->
+            <ListBox Grid.Row="1"
+                     Grid.RowSpan="3"
+                     Grid.Column="3"
+                     Width="175">
+
+            </ListBox>
+
+        </Grid>
+
+
+        <!-- Notes label -->
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    Margin="0 10 0 0">
+
+            <Label FontWeight="Bold">
+                Notes about selected experience
+            </Label>
+
+            <Label>
+                (optional)
+            </Label>
+
+        </StackPanel>
+
+
+        <!-- Notes textbox -->
+        <TextBox Grid.Row="5"
+                 Height="50"/>
+
+
+        <!-- Generate Cover Letter button -->
+        <Grid Grid.Row="6"
+              Margin="0 10">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1"
+                    Padding="5"
+                    Command="{Binding GenerateCoverLetterCommand}">
+                Generate Cover Letter
+            </Button>
+
+        </Grid>
+
+    </Grid>
+
+</UserControl>
