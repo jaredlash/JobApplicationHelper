@@ -1,13 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Data.Entities;
 using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace JobApplicationHelper.ViewModels;
 
@@ -89,7 +85,9 @@ public partial class DraftWindowViewModel : ViewModelBase
     private string cvText = String.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
     [NotifyCanExecuteChangedFor(nameof(LoadJobRequirementsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(GenerateCoverLetterCommand))]
     private bool isLoadingJobRequirements = false;
 
     [ObservableProperty]
@@ -102,13 +100,34 @@ public partial class DraftWindowViewModel : ViewModelBase
     private string additionalPromptInstructions = String.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
     private int selectedTabIndex = 0;
 
     [ObservableProperty]
     private string draft = String.Empty;
 
+    private string jobRequirementsError = String.Empty;
+    private string jobRequirementsStatus => IsLoadingJobRequirements
+        ? "Analyzing job requirements..."
+        : jobRequirementsError == string.Empty
+        ? FulfilledRequirementsMessage
+        : string.Empty;
+
     [ObservableProperty]
-    private string statusMessage = String.Empty;
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    private string coverLetterError = String.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    private string coverLetterStatus = String.Empty;
+
+    public string StatusMessage => SelectedTabIndex switch
+    {
+        0 => jobRequirementsError == string.Empty ? jobRequirementsStatus : jobRequirementsError,
+        1 => CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError,
+        _ => "Invalid tab"
+    };
+
 
     [RelayCommand]
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -129,18 +148,14 @@ public partial class DraftWindowViewModel : ViewModelBase
         try
         {
             IsLoadingJobRequirements = true;
-            StatusMessage = "Analyzing job requirements...";
-            SelectedRequirementIndex = -1;
-            Requirements = new JobRequirements { Requirements = [] }; // Reset requirements before loading new ones
             Requirements = await jobRequirementService.ExtractRequirementsAsync(JobPosting, cancellationToken);
-            StatusMessage = "";
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error loading job requirements");
-            StatusMessage = $"Error loading job requirements: {ex.Message}";
+            jobRequirementsError = $"Error loading job requirements: {ex.Message}";
         }
         finally
         {
@@ -169,19 +184,14 @@ public partial class DraftWindowViewModel : ViewModelBase
     }
     public bool CanGoToPreviousRequirement => SelectedRequirementIndex > 0;
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
     private async Task GenerateCoverLetter()
     {
         SelectedTabIndex = 1;
         try
         {
             var experienceBank = await this.fileService.LoadExperienceBank();
-            StatusMessage = "Analyzing job requirements...";
-
-            var jobRequirements = await jobRequirementService.ExtractRequirementsAsync(JobPosting);
-            StatusMessage = "Requirements extracted.";
-            
-            Draft = jobRequirements.ToString();
+            CoverLetterStatus = "Generating cover letter...";
 
             //var request = new Models.CoverLetterRequest(
             //    CvText,
@@ -263,9 +273,10 @@ public partial class DraftWindowViewModel : ViewModelBase
         catch (Exception ex)
         {
             logger.LogError(ex, "Error generating cover letter");
-            StatusMessage = $"Error generating cover letter: {ex.Message}";
+            CoverLetterError = $"Error generating cover letter: {ex.Message}";
         }
     }
+    public bool CanGenerateCoverLetter => !IsLoadingJobRequirements;
 
     [RelayCommand]
     private void BackToRequirements()
@@ -278,12 +289,12 @@ public partial class DraftWindowViewModel : ViewModelBase
     {
         try {
             fileService.SaveDraftToNotes(Draft, OutputFolder);
-            StatusMessage = "Cover letter saved successfully.";
+            CoverLetterStatus = "Cover letter saved successfully.";
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error saving cover letter");
-            StatusMessage = $"Error saving cover letter: {ex.Message}";
+            CoverLetterError = $"Error saving cover letter: {ex.Message}";
         }
     }
 
@@ -292,4 +303,7 @@ public partial class DraftWindowViewModel : ViewModelBase
         var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
         windowService.ShowDialog(verificationResultDialogViewModel);
     }
+
+    private string FulfilledRequirementsMessage =>
+        $"{Requirements.Requirements.Count(r => r.Evidence.IsSatisfied)} of {Requirements.Requirements.Count} requirements addressed";
 }

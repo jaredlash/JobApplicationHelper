@@ -705,7 +705,7 @@ public sealed class CoverLetterService
             sections);
     }
 
-    private static string FormatEvidence(IEnumerable<EvidenceReference> evidenceReferences)
+    private static string FormatEvidence(IEnumerable<Evidence> evidenceReferences)
     {
         var evidence = evidenceReferences.ToList();
 
@@ -714,7 +714,7 @@ public sealed class CoverLetterService
             return "    - No supporting evidence identified.";
         }
 
-        return string.Join(
+        return string.Empty; /* string.Join(
             Environment.NewLine,
             evidence.Select(e =>
             {
@@ -724,6 +724,6 @@ public sealed class CoverLetterService
 
                 return $"    - Source: {e.Source}{experienceIds}\n" +
                        $"      Evidence: {e.Evidence}";
-            }));
+            }));*/
     }
 }
