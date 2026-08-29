@@ -16,7 +16,7 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding InitializeCommand}" />
+            <i:InvokeCommandAction Command="{Binding JobRequirements.InitializeCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -46,11 +46,11 @@
             </TabControl.Style>
 
             <TabItem>
-                <views:JobRequirementsView />
+                <views:JobRequirementsView DataContext="{Binding JobRequirements}"/>
             </TabItem>
 
             <TabItem Margin="-2,-2,-2,2">
-                <views:CoverLetterView />
+                <views:CoverLetterView DataContext="{Binding CoverLetter}"/>
             </TabItem>
 
         </TabControl>

@@ -88,7 +88,30 @@ public partial class App : Application
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         builder.Services.AddTransient<MainWindowViewModel>();
-        builder.Services.AddTransient<DraftWindowViewModel>();
+        builder.Services.AddTransient<JobRequirementsViewModel>();
+        builder.Services.AddTransient<CoverLetterViewModel>();
+        builder.Services.AddTransient<DraftWindowViewModel>(sp =>
+        {
+            var navigation = new DraftNavigation();
+
+            var jobRequirements =
+                ActivatorUtilities.CreateInstance<JobRequirementsViewModel>(
+                    sp,
+                    navigation);
+
+            var coverLetter =
+                ActivatorUtilities.CreateInstance<CoverLetterViewModel>(
+                    sp,
+                    navigation);
+
+            var viewModel = new DraftWindowViewModel(
+                jobRequirements,
+                coverLetter);
+            navigation.Initialize(viewModel);
+
+            return viewModel;
+        });
+
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
         builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
         builder.Services.AddTransient<LocationService>();

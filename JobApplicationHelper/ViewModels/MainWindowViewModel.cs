@@ -121,9 +121,9 @@ namespace JobApplicationHelper.ViewModels
         {
             var draftWindowViewModel = serviceProvider.GetService<DraftWindowViewModel>() ?? throw new InvalidOperationException("DraftWindowViewModel not registered in DI container.");
 
-            draftWindowViewModel.CvText = _fileService.GetCVText(SelectedLocation.CountryCode);
-            draftWindowViewModel.OutputFolder = outputFolder;
-            draftWindowViewModel.JobPosting = jobPosting;
+            draftWindowViewModel.CoverLetter.CvText = _fileService.GetCVText(SelectedLocation.CountryCode);
+            draftWindowViewModel.CoverLetter.OutputFolder = outputFolder;
+            draftWindowViewModel.JobRequirements.JobPosting = jobPosting;
 
             windowService.ShowWindow(draftWindowViewModel);
         }

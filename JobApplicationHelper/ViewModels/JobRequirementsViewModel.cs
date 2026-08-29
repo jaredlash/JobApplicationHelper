@@ -11,6 +11,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 {
     private readonly JobRequirementService jobRequirementService;
     private readonly IExperienceBankService experienceBankService;
+    private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
     private readonly ILogger<JobRequirementsViewModel> logger;
 
@@ -18,11 +19,13 @@ public partial class JobRequirementsViewModel : ViewModelBase
     public JobRequirementsViewModel(
         JobRequirementService jobRequirementService,
         IExperienceBankService experienceBankService,
+        IDraftNavigation navigation,
         IWindowService windowService,
         ILogger<JobRequirementsViewModel> logger)
     {
         this.jobRequirementService = jobRequirementService;
         this.experienceBankService = experienceBankService;
+        this.navigation = navigation;
         this.windowService = windowService;
         this.logger = logger;
     }
@@ -105,10 +108,6 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [ObservableProperty]
     private string jobPosting = String.Empty;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StatusMessage))]
-    private int selectedTabIndex = 0;
-
     private string jobRequirementsError = String.Empty;
     private string jobRequirementsStatus => IsLoadingJobRequirements
         ? "Analyzing job requirements..."
@@ -177,7 +176,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
     private async Task GenerateCoverLetter()
     {
-        SelectedTabIndex = 1;
+        navigation.GoToTab(DraftTab.CoverLetterTab);
     }
 
     public bool CanGenerateCoverLetter => !IsLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
