@@ -107,7 +107,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center">Requirement Description</Label>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <CheckBox Content="No relevant experience" IsChecked="{Binding SelectedRequirement.Evidence.NoSupportingEvidence}"/>
+                            <CheckBox Content="No relevant experience" IsChecked="{Binding NoSupportingEvidence}"/>
                         </StackPanel>
                     </Grid>
 

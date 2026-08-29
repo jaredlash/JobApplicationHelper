@@ -42,16 +42,38 @@ public partial class DraftWindowViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRequirementDisplay))]
     [NotifyPropertyChangedFor(nameof(SelectedRequirement))]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    [NotifyPropertyChangedFor(nameof(NoSupportingEvidence))]
     [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
     [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
     private int selectedRequirementIndex = -1;
-
-    public int RequirementCount => Requirements.Requirements.Count;
 
     public string SelectedRequirementDisplay =>
         SelectedRequirementIndex >= 0 && RequirementCount > 0
             ? $"{SelectedRequirementIndex + 1} / {RequirementCount}"
             : "0 / 0";
+
+    public int RequirementCount => Requirements.Requirements.Count;
+    public int FulfilledRequirementCount => Requirements.Requirements.Count(r => r.Evidence.IsSatisfied);
+    private string FulfilledRequirementsMessage => $"{FulfilledRequirementCount} of {RequirementCount} requirements addressed";
+
+    public bool NoSupportingEvidence
+    {
+        get => SelectedRequirement?.Evidence.NoSupportingEvidence ?? false;
+        set
+        {
+            if (SelectedRequirement?.Evidence is null)
+                return;
+
+            if (SelectedRequirement.Evidence.NoSupportingEvidence == value)
+                return;
+
+            SelectedRequirement.Evidence.NoSupportingEvidence = value;
+
+            OnPropertyChanged(nameof(StatusMessage));
+            GenerateCoverLetterCommand.NotifyCanExecuteChanged();
+        }
+    }
 
     public JobRequirement? SelectedRequirement => SelectedRequirementIndex >= 0 && SelectedRequirementIndex < Requirements.Requirements.Count
         ? Requirements.Requirements[SelectedRequirementIndex]
@@ -276,7 +298,7 @@ public partial class DraftWindowViewModel : ViewModelBase
             CoverLetterError = $"Error generating cover letter: {ex.Message}";
         }
     }
-    public bool CanGenerateCoverLetter => !IsLoadingJobRequirements;
+    public bool CanGenerateCoverLetter => !IsLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
 
     [RelayCommand]
     private void BackToRequirements()
@@ -303,7 +325,4 @@ public partial class DraftWindowViewModel : ViewModelBase
         var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
         windowService.ShowDialog(verificationResultDialogViewModel);
     }
-
-    private string FulfilledRequirementsMessage =>
-        $"{Requirements.Requirements.Count(r => r.Evidence.IsSatisfied)} of {Requirements.Requirements.Count} requirements addressed";
 }
