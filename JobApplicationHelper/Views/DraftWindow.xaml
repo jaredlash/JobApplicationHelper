@@ -14,10 +14,6 @@
         Height="650"
         Width="800">
 
-    <Window.Resources>
-        <conv:EnumDisplayConverter x:Key="EnumDisplayConverter" />
-    </Window.Resources>
-
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding InitializeCommand}" />
@@ -27,7 +23,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TabControl Grid.Row="0"
@@ -59,32 +54,6 @@
             </TabItem>
 
         </TabControl>
-
-        <!-- Bottom status/load area -->
-        <Grid Grid.Row="1"
-              Grid.Column="0">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="0"
-                    Margin="5"
-                    Command="{Binding LoadJobRequirementsCommand}">
-                <TextBlock Text="&#xE117;"
-                           FontFamily="Segoe Fluent Icons"
-                           FontSize="10"
-                           Margin="5"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"/>
-            </Button>
-
-            <Label Grid.Column="1"
-                   Margin="5"
-                   Content="{Binding StatusMessage}"
-                   HorizontalAlignment="Left"/>
-        </Grid>
 
     </Grid>
 </Window>

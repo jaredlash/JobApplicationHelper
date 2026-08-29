@@ -17,20 +17,21 @@
     <Grid Margin="10">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <!-- Top buttons-->
             <RowDefinition Height="Auto"/>
             <!-- Requirement heading and relevant experience checkbox -->
             <RowDefinition Height="Auto"/>
             <!-- Requirement description -->
-            <RowDefinition Height="*"/>
-            <!-- Experience Bank and Evidence -->
             <RowDefinition Height="Auto"/>
+            <!-- Experience Bank and Evidence -->
+            <RowDefinition Height="*"/>
             <!-- Notes label -->
             <RowDefinition Height="Auto"/>
             <!-- Notes textbox -->
             <RowDefinition Height="Auto"/>
             <!-- Generate Cover Letter button -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
 
@@ -419,6 +420,31 @@
                 Generate Cover Letter
             </Button>
 
+        </Grid>
+        <!-- Bottom status/load area -->
+        <Grid Grid.Row="7"
+      Grid.Column="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+            Margin="5"
+            Command="{Binding LoadJobRequirementsCommand}">
+                <TextBlock Text="&#xE117;"
+                   FontFamily="Segoe Fluent Icons"
+                   FontSize="10"
+                   Margin="5"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"/>
+            </Button>
+
+            <Label Grid.Column="1"
+           Margin="5"
+           Content="{Binding StatusMessage}"
+           HorizontalAlignment="Left"/>
         </Grid>
 
     </Grid>
