@@ -388,7 +388,75 @@
                      ItemsSource="{Binding RequirementEvidenceExperiences}"
                      SelectedIndex="{Binding SelectedEvidenceIndex}"
                      >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
 
+                        <!-- Organization OR type and then Title -->
+                        <StackPanel Orientation="Horizontal">
+
+                            <TextBlock Text="{Binding Organization}"
+               FontWeight="SemiBold">
+
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding Organization}"
+                                 Value="">
+
+                                                <Setter Property="Visibility"
+                                Value="Collapsed" />
+
+                                            </DataTrigger>
+
+                                        </Style.Triggers>
+
+                                    </Style>
+                                </TextBlock.Style>
+
+                            </TextBlock>
+
+
+                            <TextBlock Text="{Binding Type, Converter={StaticResource EnumDisplayConverter}}"
+               FontWeight="SemiBold">
+
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+
+                                        <Setter Property="Visibility"
+                        Value="Collapsed" />
+
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding Organization}"
+                                 Value="">
+
+                                                <Setter Property="Visibility"
+                                Value="Visible" />
+
+                                            </DataTrigger>
+
+                                        </Style.Triggers>
+
+                                    </Style>
+                                </TextBlock.Style>
+
+                            </TextBlock>
+
+
+                            <TextBlock Margin="8 0 8 0">
+        -
+                            </TextBlock>
+
+
+                            <TextBlock Text="{Binding Title}"
+               FontWeight="SemiBold"/>
+
+                        </StackPanel>
+
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
 
         </Grid>
