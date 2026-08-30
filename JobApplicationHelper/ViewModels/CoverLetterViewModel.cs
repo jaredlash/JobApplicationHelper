@@ -13,6 +13,7 @@ public partial class CoverLetterViewModel : ViewModelBase
     private readonly CoverLetterService coverLetterService;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
+    private readonly CoverLetterDraftParameters draftParameters;
     private readonly ILogger<CoverLetterViewModel> logger;
 
 
@@ -21,12 +22,14 @@ public partial class CoverLetterViewModel : ViewModelBase
         CoverLetterService coverLetterService,
         IDraftNavigation navigation,
         IWindowService windowService,
+        CoverLetterDraftParameters draftParameters,
         ILogger<CoverLetterViewModel> logger)
     {
         this.fileService = fileService;
         this.coverLetterService = coverLetterService;
         this.navigation = navigation;
         this.windowService = windowService;
+        this.draftParameters = draftParameters;
         this.logger = logger;
     }
 
