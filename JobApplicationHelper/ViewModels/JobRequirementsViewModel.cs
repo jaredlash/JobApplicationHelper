@@ -41,6 +41,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(SelectedRequirement))]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
     [NotifyPropertyChangedFor(nameof(NoSupportingEvidence))]
+    [NotifyPropertyChangedFor(nameof(RequirementEvidenceExperiences))]
     [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
     [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
     private int selectedRequirementIndex = -1;
@@ -91,16 +92,46 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     private IReadOnlyList<Experience> ApplyExperienceFilter(string filter)
     {
+        var filteredExperiences = _allExperiences.Except(SelectedRequirement?.Evidence.Evidences.Select(ev => ev.Experience).ToList() ?? []);
         if (string.IsNullOrWhiteSpace(filter))
-            return _allExperiences;
+            return filteredExperiences.ToList();
 
-        return _allExperiences
+        return filteredExperiences
             .Where(e => e.MatchFilter(filter))
             .ToList();
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedExperience))]
+    [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
+    private int selectedExperienceIndex = -1;
+    partial void OnSelectedExperienceIndexChanged(int value)
+    {
+        if (value < 0) return;
+
+        SelectedEvidenceIndex = -1;
+    }
+
+    public Experience? SelectedExperience => _allExperiences.Count > 0 && SelectedExperienceIndex >= 0
+        ? _allExperiences[SelectedExperienceIndex]
+        : null;
+
+    // This always returns a new collection/reference which will refresh the listbox to which this is bound
+    // The evidence lists should be of negligible length so creating a new one on every update should be fine
+    public IReadOnlyList<Experience> RequirementEvidenceExperiences => SelectedRequirement?.Evidence.Evidences.Select(ev => ev.Experience).ToList() ?? [];
+
+    [ObservableProperty]
+    private int selectedEvidenceIndex = -1;
+    partial void OnSelectedEvidenceIndexChanged(int value)
+    {
+        if (value  < 0) return;
+
+        SelectedExperienceIndex = -1;
+    }
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
     [NotifyCanExecuteChangedFor(nameof(LoadJobRequirementsCommand))]
     [NotifyCanExecuteChangedFor(nameof(GenerateCoverLetterCommand))]
     private bool isLoadingJobRequirements = false;
@@ -117,6 +148,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     public string StatusMessage => jobRequirementsError == string.Empty ? jobRequirementsStatus : jobRequirementsError;
 
+ 
 
     [RelayCommand]
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -159,6 +191,8 @@ public partial class JobRequirementsViewModel : ViewModelBase
         if (SelectedRequirementIndex < Requirements.Requirements.Count - 1)
         {
             SelectedRequirementIndex++;
+
+            OnExperienceFilterChanged(ExperienceFilter);
         }
     }
     public bool CanGoToNextRequirement => SelectedRequirementIndex < Requirements.Requirements.Count - 1;
@@ -169,9 +203,25 @@ public partial class JobRequirementsViewModel : ViewModelBase
         if (SelectedRequirementIndex > 0)
         {
             SelectedRequirementIndex--;
+
+            OnExperienceFilterChanged(ExperienceFilter);
         }
     }
     public bool CanGoToPreviousRequirement => SelectedRequirementIndex > 0;
+
+    [RelayCommand(CanExecute = nameof(CanAddExperienceAsEvidence))]
+    private void AddExperienceAsEvidence()
+    {
+        if (SelectedRequirement is null || SelectedExperience is null) return;
+
+        SelectedRequirement.Evidence.AddEvidence(new Evidence(SelectedExperience, string.Empty));
+        OnPropertyChanged(nameof(RequirementEvidenceExperiences));
+        OnPropertyChanged(nameof(StatusMessage));
+        OnExperienceFilterChanged(ExperienceFilter);
+        GenerateCoverLetterCommand.NotifyCanExecuteChanged();
+    }
+    public bool CanAddExperienceAsEvidence => !IsLoadingJobRequirements && SelectedExperienceIndex >= 0;
+
 
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
     private async Task GenerateCoverLetter()

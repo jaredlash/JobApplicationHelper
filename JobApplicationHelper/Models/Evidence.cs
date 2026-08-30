@@ -1,3 +1,3 @@
 ﻿namespace JobApplicationHelper.Models;
 
-public record Evidence(string ExperienceId, string EvidenceNote);
+public record Evidence(Experience Experience, string EvidenceNote);

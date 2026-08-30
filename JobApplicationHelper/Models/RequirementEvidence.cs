@@ -12,7 +12,7 @@ public class RequirementEvidence
 
     public void AddEvidence(Evidence evidence)
     {
-        if (_evidences.Any(e => e != evidence))
+        if (_evidences.All(e => e != evidence))
         {
             _evidences.Add(evidence);
         }
