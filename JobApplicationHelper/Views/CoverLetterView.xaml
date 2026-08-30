@@ -20,10 +20,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="0"
-               Content="Generated Cover Letter:"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <TextBox Grid.Row="1"
+        <Label Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="2"  Content="Generated Cover Letter:"/>
+
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                  Text="{Binding Draft, Mode=TwoWay}"
                  AcceptsReturn="True"
                  TextWrapping="Wrap"
@@ -31,7 +35,12 @@
                  MinHeight="250"
                  Margin="0,5,0,10"/>
 
-        <StackPanel Grid.Row="2"
+        <Button Grid.Row="2" Grid.Column="0" Margin="5" Padding="5"
+                Content="Geneate Cover Letter"
+                Command="{Binding GenerateCoverLetterCommand}"
+                />
+
+        <StackPanel Grid.Row="2" Grid.Column="1"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
 
@@ -49,8 +58,7 @@
         </StackPanel>
 
         <!-- Bottom status/load area -->
-        <Grid Grid.Row="3"
-      Grid.Column="0">
+        <Grid Grid.Row="3" Grid.Column="0">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -58,10 +66,7 @@
             </Grid.ColumnDefinitions>
 
 
-            <Label Grid.Column="1"
-           Margin="5"
-           Content="{Binding StatusMessage}"
-           HorizontalAlignment="Left"/>
+            <Label Grid.Column="1" Margin="5" Content="{Binding StatusMessage}" HorizontalAlignment="Left"/>
         </Grid>
 
     </Grid>
