@@ -93,11 +93,12 @@ public partial class App : Application
         builder.Services.AddTransient<DraftWindowViewModel>(sp =>
         {
             var navigation = new DraftNavigation();
+            var draftParameters = new CoverLetterDraftParameters();
 
             var jobRequirements =
                 ActivatorUtilities.CreateInstance<JobRequirementsViewModel>(
                     sp,
-                    navigation);
+                    [navigation, draftParameters]);
 
             var coverLetter =
                 ActivatorUtilities.CreateInstance<CoverLetterViewModel>(

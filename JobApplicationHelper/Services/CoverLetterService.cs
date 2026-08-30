@@ -396,7 +396,7 @@ public sealed class CoverLetterService
 
 
     public async Task<ApplicationAnalysis> AnalyzeApplicationAsync(
-        CoverLetterRequest request,
+        CoverLetterDraftParameters request,
         CancellationToken cancellationToken = default)
     {
         var userPrompt = $"""
@@ -407,7 +407,7 @@ public sealed class CoverLetterService
             === END CANDIDATE CV ===
         
             === EXPERIENCE BANK ===
-            {FormatExperienceBank(request.ExperienceBank)}
+            FormatExperienceBank(request.ExperienceBank)
             === END EXPERIENCE BANK ===
         
             === JOB POSTING ===
@@ -471,7 +471,7 @@ public sealed class CoverLetterService
     }
 
     public async Task<string> GenerateCoverLetterAsync(
-        CoverLetterRequest request,
+        CoverLetterDraftParameters request,
         ApplicationAnalysis analysis,
         CancellationToken cancellationToken = default)
     {
@@ -488,7 +488,7 @@ public sealed class CoverLetterService
 
         var gaps = string.Join(Environment.NewLine, analysis.PotentialGaps.Select(g => $"- {g}"));
 
-        var experienceBank = FormatExperienceBank(request.ExperienceBank);
+        var experienceBank = string.Empty; // FormatExperienceBank(request.ExperienceBank);
 
         var userPrompt = $"""
             /no_think
@@ -595,11 +595,11 @@ public sealed class CoverLetterService
         .Replace('\u00A0', ' ');
 
     public async Task<VerificationResult> VerifyDraftAsync(
-        CoverLetterRequest request,
+        CoverLetterDraftParameters request,
         string draft,
         CancellationToken cancellationToken = default)
     {
-        var experienceBank = FormatExperienceBank(request.ExperienceBank);
+        var experienceBank = string.Empty; // FormatExperienceBank(request.ExperienceBank);
 
         var userPrompt = $"""
             Verify this cover letter.

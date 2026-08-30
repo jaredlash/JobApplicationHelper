@@ -13,6 +13,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     private readonly IExperienceBankService experienceBankService;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
+    private readonly CoverLetterDraftParameters draftParameters;
     private readonly ILogger<JobRequirementsViewModel> logger;
 
 
@@ -21,20 +22,34 @@ public partial class JobRequirementsViewModel : ViewModelBase
         IExperienceBankService experienceBankService,
         IDraftNavigation navigation,
         IWindowService windowService,
+        CoverLetterDraftParameters draftParameters,
         ILogger<JobRequirementsViewModel> logger)
     {
         this.jobRequirementService = jobRequirementService;
         this.experienceBankService = experienceBankService;
         this.navigation = navigation;
         this.windowService = windowService;
+        this.draftParameters = draftParameters;
         this.logger = logger;
     }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(RequirementCount))]
-    [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
-    [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
-    private JobRequirements requirements = new JobRequirements { Requirements = [] };
+    public JobRequirements Requirements
+    {
+        get => draftParameters.Requirements;
+        set
+        {
+            if (ReferenceEquals(draftParameters.Requirements, value))
+                return;
+
+            draftParameters.Requirements = value;
+
+            OnPropertyChanged(nameof(Requirements));
+            OnPropertyChanged(nameof(RequirementCount));
+
+            NextRequirementCommand.NotifyCanExecuteChanged();
+            PreviousRequirementCommand.NotifyCanExecuteChanged();
+        }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRequirementDisplay))]
@@ -142,15 +157,18 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
     [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RemoveEvidenceFromExperienceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(NextRequirementCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PreviousRequirementCommand))]
     [NotifyCanExecuteChangedFor(nameof(LoadJobRequirementsCommand))]
     [NotifyCanExecuteChangedFor(nameof(GenerateCoverLetterCommand))]
-    private bool isLoadingJobRequirements = false;
+    private bool isFinishedLoadingJobRequirements = false;
 
     [ObservableProperty]
     private string jobPosting = String.Empty;
 
     private string jobRequirementsError = String.Empty;
-    private string jobRequirementsStatus => IsLoadingJobRequirements
+    private string jobRequirementsStatus => !IsFinishedLoadingJobRequirements
         ? "Analyzing job requirements..."
         : jobRequirementsError == string.Empty
         ? FulfilledRequirementsMessage
@@ -178,8 +196,9 @@ public partial class JobRequirementsViewModel : ViewModelBase
     {
         try
         {
-            IsLoadingJobRequirements = true;
+            IsFinishedLoadingJobRequirements = false;
             Requirements = await jobRequirementService.ExtractRequirementsAsync(JobPosting, cancellationToken);
+
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;
         }
@@ -190,10 +209,10 @@ public partial class JobRequirementsViewModel : ViewModelBase
         }
         finally
         {
-            IsLoadingJobRequirements = false;
+            IsFinishedLoadingJobRequirements = true;
         }
     }
-    public bool CanExecuteLoadJobRequirements => !IsLoadingJobRequirements;
+    public bool CanExecuteLoadJobRequirements => IsFinishedLoadingJobRequirements;
 
     [RelayCommand(CanExecute = nameof(CanGoToNextRequirement))]
     private void NextRequirement()
@@ -205,7 +224,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
             OnExperienceFilterChanged(ExperienceFilter);
         }
     }
-    public bool CanGoToNextRequirement => SelectedRequirementIndex < Requirements.Requirements.Count - 1;
+    public bool CanGoToNextRequirement => IsFinishedLoadingJobRequirements && SelectedRequirementIndex < Requirements.Requirements.Count - 1;
 
     [RelayCommand(CanExecute = nameof(CanGoToPreviousRequirement))]
     private void PreviousRequirement()
@@ -217,7 +236,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
             OnExperienceFilterChanged(ExperienceFilter);
         }
     }
-    public bool CanGoToPreviousRequirement => SelectedRequirementIndex > 0;
+    public bool CanGoToPreviousRequirement => IsFinishedLoadingJobRequirements && SelectedRequirementIndex > 0;
 
     [RelayCommand(CanExecute = nameof(CanAddExperienceAsEvidence))]
     private void AddExperienceAsEvidence()
@@ -230,7 +249,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         OnExperienceFilterChanged(ExperienceFilter);
         GenerateCoverLetterCommand.NotifyCanExecuteChanged();
     }
-    public bool CanAddExperienceAsEvidence => !IsLoadingJobRequirements && SelectedExperienceIndex >= 0;
+    public bool CanAddExperienceAsEvidence => IsFinishedLoadingJobRequirements && SelectedExperienceIndex >= 0;
 
     [RelayCommand(CanExecute = nameof(CanRemoveEvidenceFromExperience))]
     private void RemoveEvidenceFromExperience()
@@ -243,7 +262,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         OnExperienceFilterChanged(ExperienceFilter);
         GenerateCoverLetterCommand.NotifyCanExecuteChanged();
     }
-    public bool CanRemoveEvidenceFromExperience => !IsLoadingJobRequirements && SelectedEvidenceIndex >= 0;
+    public bool CanRemoveEvidenceFromExperience => IsFinishedLoadingJobRequirements && SelectedEvidenceIndex >= 0;
 
 
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
@@ -252,5 +271,5 @@ public partial class JobRequirementsViewModel : ViewModelBase
         navigation.GoToTab(DraftTab.CoverLetterTab);
     }
 
-    public bool CanGenerateCoverLetter => !IsLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
+    public bool CanGenerateCoverLetter => IsFinishedLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
 }
