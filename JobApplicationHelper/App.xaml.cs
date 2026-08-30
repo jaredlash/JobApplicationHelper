@@ -103,7 +103,7 @@ public partial class App : Application
             var coverLetter =
                 ActivatorUtilities.CreateInstance<CoverLetterViewModel>(
                     sp,
-                    navigation);
+                    [navigation, draftParameters]);
 
             var viewModel = new DraftWindowViewModel(
                 jobRequirements,

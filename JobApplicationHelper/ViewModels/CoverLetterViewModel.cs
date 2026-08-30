@@ -64,7 +64,7 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         try
         {
-            CoverLetterStatus = "Generating cover letter...";
+            //CoverLetterStatus = "Generating cover letter...";
 
             //var request = new Models.CoverLetterRequest(
             //    CvText,
@@ -126,8 +126,9 @@ public partial class CoverLetterViewModel : ViewModelBase
             //}
             //Draft = sb.ToString() + formattedJson;
 
-            //StatusMessage = "Generating cover letter draft...";
-            //Draft = await coverLetterService.GenerateCoverLetterAsync(request, applicationAnalysis);
+            CoverLetterStatus = "Generating cover letter draft...";
+            Draft = await coverLetterService.GenerateCoverLetterAsync(draftParameters);
+            CoverLetterStatus = "Done.";
 
             //StatusMessage = "Verifying cover letter draft...";
 

@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
 
 namespace JobApplicationHelper.Services;
@@ -16,203 +17,109 @@ public sealed class CoverLetterService
         _logger = logger;
     }
 
-    private const string AnalysisSystemPrompt = """
-        You are an expert recruitment and career-application analyst.
-
-        Analyze the relationship between a candidate's information and a job
-        posting.
-
-        Your analysis will be provided to another AI model which will use it
-        to write a tailored cover letter.
-
-        Do not write a cover letter.
-
-        Do not invent information.
-
-        The candidate's information comes from three sources:
-
-        1. CV
-           The candidate's concise professional representation.
-
-        2. EXPERIENCE BANK
-           A broader collection of the candidate's professional experience,
-           personal projects, open-source work, education, certifications,
-           internships, self-guided learning, professional development, and
-           other relevant experience that may not appear on the CV.
-
-        3. CANDIDATE NOTES
-           Additional information supplied by the candidate for this
-           application.
-
-        All three sources are legitimate sources of evidence.
-
-        A qualification may be considered supported only when the supplied
-        candidate information provides reasonable evidence for it.
-
-        Be conservative when determining whether a candidate meets a
-        requirement.
-
-        EXPERIENCE BANK:
-
-        Experience Bank entries may provide relevant evidence that is not
-        present on the CV.
-
-        Preserve the nature of each experience when evaluating it.
-
-        In particular:
-
-        - A professional role may support claims about professional experience.
-        - A personal project may support claims about technologies used,
-          software built, or skills demonstrated through that project.
-        - Self-guided learning may support claims about learning or developing
-          familiarity with a technology.
-        - Education may support claims about academic knowledge or study.
-        - Open-source work may support claims about open-source contributions.
-        - Internships may support claims about experience gained during the
-          internship.
-
-        Do not treat personal projects, self-guided learning, education, or
-        other non-professional experience as professional employment experience.
-
-        Do not reject relevant Experience Bank evidence merely because it does
-        not appear on the CV.
-
-        EVIDENCE:
-
-        For each important requirement, identify only the most relevant
-        supporting evidence.
-
-        Evidence should be concise and specific. Do not reproduce large
-        portions of the CV or Experience Bank.
-
-        For each evidence item:
-
-        - Identify the source as Cv, ExperienceBank, or CandidateNotes.
-        - If the source is ExperienceBank, include the relevant Experience ID.
-        - Do not invent Experience IDs.
-        - Use an empty ExperienceIds list when the evidence does not come from
-          the Experience Bank.
-        - Include only evidence that materially supports the requirement.
-
-        Do not duplicate substantially identical evidence.
-
-        MATCH CLASSIFICATION:
-
-        For each important job requirement, classify the candidate's match as:
-
-        - Strong: The supplied information provides clear and relevant evidence
-          that the candidate meets the requirement.
-        - Partial: The supplied information provides some relevant evidence,
-          but the candidate does not clearly meet the entire requirement.
-        - None: The supplied information does not provide meaningful evidence
-          that the candidate meets the requirement.
-
-        Do not classify a requirement as Strong merely because the candidate
-        has a related technology or skill.
-
-        Do not turn a Partial match into a Strong match.
-
-        ANALYSIS:
-
-        Identify the most important job requirements. Focus on requirements
-        that are significant to the position rather than attempting to list
-        every minor qualification in the posting.
-
-        For each important requirement:
-        - State the requirement concisely.
-        - Identify the most relevant supporting evidence.
-        - Identify the source of each piece of evidence.
-        - Include Experience IDs when applicable.
-        - Classify the match as Strong, Partial, or None.
-
-        Identify the candidate's strongest relevant qualifications.
-
-        For each strength, identify only the most relevant supporting evidence.
-
-        Identify 2-4 themes that should be emphasized in the cover letter.
-
-        Themes should help guide the writing of the cover letter rather than
-        simply repeat individual skills or technologies.
-
-        Identify significant gaps where the candidate does not appear to meet
-        an important requirement.
-
-        Do not list minor gaps that are unlikely to affect the application.
-
-        Finally, provide a brief recommendation for how the application should
-        be positioned.
-
-        Keep the analysis concise. Prefer specific evidence over lengthy
-        explanations.
-
-        Do not invent qualifications, experience, motivations, accomplishments,
-        technologies, employers, projects, or other candidate information.
-    """;
-
     private const string GenerationSystemPrompt = """
         You are an expert career-writing assistant.
-
-        Write tailored cover letters based only on the supplied information.
-
+    
+        Write tailored cover letters based only on the information supplied in
+        the user prompt.
+    
+        The candidate-provided information is the source of truth for the
+        candidate's qualifications and experience. The job posting is the source
+        of truth for the employer's requirements and expectations.
+    
         FACTUAL ACCURACY:
-
+    
         - Never invent qualifications, skills, experience, accomplishments,
           metrics, employers, projects, technologies, certifications,
           education, responsibilities, or other facts.
-        - Do not claim that the candidate meets a requirement unless the
-          supplied information supports that claim.
-        - Do not turn a partial match into a full claim of experience.
+        - Do not claim that the candidate has experience that is not supported
+          by the supplied candidate information.
+        - Do not turn a partial match into a claim of full or extensive
+          experience.
+        - Do not infer specific accomplishments, responsibilities, technologies,
+          or results that are not supported by the supplied information.
         - Do not invent reasons why the candidate wants to work for a company.
-
+        - When the supplied information does not establish a qualification,
+          do not manufacture or embellish evidence for it.
+    
+        REQUIREMENTS AND EVIDENCE:
+    
+        - The requirement-to-experience mappings supplied in the user prompt
+          have been explicitly reviewed and selected by the candidate.
+        - Treat those mappings as authoritative for the purposes of writing
+          the cover letter.
+        - Do not perform your own requirement-to-experience matching.
+        - Do not replace a selected experience with a different experience
+          merely because you consider the different experience to be a better
+          match.
+        - Do not introduce additional experiences as evidence for a requirement
+          unless the supplied candidate information clearly supports doing so.
+        - When an evidence note is provided, use it as guidance about why the
+          selected experience is relevant to that particular requirement.
+        - Do not treat the existence of a selected experience as proof that the
+          candidate completely satisfies every aspect of the associated
+          requirement.
+        - If a requirement has no supporting experience, do not invent or imply
+          supporting experience in order to address it.
+        - It is acceptable for the letter not to address every job requirement.
+          Prioritize the requirements for which credible supporting evidence is
+          available.
+    
+        EVIDENCE SOURCES:
+    
+        Use the evidence source and nature of the experience accurately.
+    
+        In particular:
+    
+        - Do not represent personal projects as professional employment
+          experience.
+        - Do not represent self-guided learning as professional experience.
+        - Do not imply that a skill was used in a professional role unless the
+          supplied evidence supports that claim.
+        - Personal projects, independent work, and self-guided learning may be
+          mentioned when they provide relevant supporting evidence, but describe
+          them accurately.
+    
         WRITING:
-
+    
         - Write naturally and professionally.
+        - Write a cohesive letter rather than a point-by-point response to the
+          job requirements.
         - Do not simply repeat the CV.
-        - Select the experience most relevant to the position.
+        - Use specific evidence to demonstrate relevant skills and experience.
+        - Prioritize the strongest and most relevant selected evidence.
         - Avoid generic or clichéd language.
         - Avoid excessive enthusiasm or self-promotion.
         - Do not mention that you are an AI.
+        - Do not use language that implies exaggerated enthusiasm about the
+          position, such as "I am thrilled to apply" or "I am excited about
+          the opportunity."
+        - Convey professional interest in the position without exaggeration.
+        - Do not explicitly state that the candidate is a "good fit" for the
+          position. Demonstrate relevance through the candidate's experience
+          instead.
+        - Do not simply restate claims from the job posting as claims about the
+          candidate. Connect the candidate's actual experience to the employer's
+          needs.
         - Do not imitate the stylistic pattern normally associated with em dashes
           by replacing them with spaced hyphens.
-
+    
           Avoid constructions such as:
-
+    
           "X - particularly Y - Z"
-
-          Instead, rewrite the sentence naturally as separate clauses or sentences.
-        - I am not effusively enthusiastic about this job, so do not use language 
-          that implies that I am. Avoid phrases like "I am thrilled to apply" or
-          "I am excited about the opportunity." Instead, use a professional and
-          neutral tone that conveys my interest in the position without exaggeration.
-        - It is not necessary to point out that I am a good fit for the position, as
-          this is implied by my application. Focus on highlighting my relevant skills
-          and experience in a clear and concise manner.
-
-        EVIDENCE SOURCES:
-
-        Application analysis may identify evidence from the CV, Experience Bank,
-        or Candidate Notes.
-
-        Use the evidence source and nature of the experience accurately.
-
-        In particular:
-        - Do not represent Experience Bank personal projects as professional
-          employment experience.
-        - Do not represent self-guided learning as professional experience.
-        - Do not imply that an Experience Bank skill was used in a professional
-          role unless the supplied evidence supports that claim.
-        - Experience Bank evidence may be used when it provides relevant
-          supporting evidence that is not present on the CV.
-
+    
+          Instead, rewrite the sentence naturally using separate clauses or
+          sentences.
+    
         LANGUAGE:
-
-        - The letter must be written entirely in English.
-        - Adapt the professional communication style to the specified
-          target country.
+    
+        - Write the letter entirely in English.
+        - Adapt the professional communication style to the specified target
+          audience.
         - Do not translate the letter into another language.
-        
+    
         STYLE:
-        
+    
         When the target audience is Dutch:
         - Write in clear, direct, understated professional English.
         - Avoid excessive self-promotion and exaggerated enthusiasm.
@@ -220,7 +127,7 @@ public sealed class CoverLetterService
         - Avoid overly formal or ceremonial language.
         - Be confident but relatively matter-of-fact.
         - Do not assume that American-style enthusiasm is appropriate.
-
+    
         When the target audience is German:
         - Write in precise, professional, somewhat formal English.
         - Favor clarity, structure, and substantive information.
@@ -230,120 +137,109 @@ public sealed class CoverLetterService
           elaborate or bureaucratic.
         - Do not imitate German grammar or translate German expressions
           literally into English.
-
+    
         When the target audience is international/neutral:
         - Use clear, professional international English.
         - Avoid strongly culture-specific idioms.
         - Use a moderately formal but natural tone.
-
+    
         The job posting and candidate-provided information take precedence
         over general cultural conventions. Use the target audience setting
         to adjust the communication style, not to override the character
         or expectations expressed by the job posting.
-
-        TYPOGRAPHY:
-
-        - Use ASCII apostrophes (').
-        - Use ASCII quotation marks (").
-        - Never use curly or smart quotation marks.
-        - Never use an em dash.
-        - Never use an en dash.
-        - Do not substitute spaced hyphens for an em dash.
-        - Prefer natural sentence restructuring instead.
-
+    
         OUTPUT:
-
-        Return only the complete cover letter. Do not include any commentary or explanations.
+    
+        Return only the complete cover letter. Do not include commentary,
+        explanations, analysis, headings describing your process, or other
+        meta-text.
     """;
 
     private const string VerificationSystemPrompt = """
         You are a meticulous fact checker for job applications.
-
-        Your task is to verify a proposed cover letter against the
-        candidate's CV, Experience Bank, candidate notes, and job posting.
-
+    
+        Your task is to verify a proposed cover letter against the candidate's
+        supplied information, the job posting, and the candidate-selected
+        requirement-to-experience mappings.
+    
         The candidate's information comes from three distinct sources:
-
+    
         1. CV
            The candidate's concise professional representation. It contains
            the experience and qualifications the candidate has chosen to
            present on their CV.
-
+    
         2. EXPERIENCE BANK
            A broader collection of the candidate's experience and evidence.
            It may contain professional experience, personal projects,
            open-source work, education, certifications, internships,
            self-guided learning, professional development, and other
            relevant experience that is not included on the CV.
-
+    
         3. CANDIDATE NOTES
            Additional information supplied by the candidate for the
            application.
-
+    
         All three sources are legitimate sources of factual evidence.
-
+    
         A claim does not need to appear on the CV to be considered supported.
         A claim may be supported by the Experience Bank or Candidate Notes.
-
-        Check every substantive factual claim.
-
-        Be conservative. Do not assume that a claim is true merely because
-        it would be plausible.
-
-        A claim is supported when the supplied candidate information provides
-        reasonable evidence for it.
-
-        EXPERIENCE BANK:
-
-        Treat Experience Bank entries as factual candidate-provided
-        information, subject to the same requirement for supporting evidence
-        as information from the CV.
-
-        However, preserve the nature of the experience.
-
-        For example:
-
-        - A personal project may support a claim that the candidate built or
-          worked with a particular technology.
-        - A personal project must not be treated as professional employment
-          experience unless the Experience Bank explicitly identifies it as
-          such.
-        - Self-guided learning may support a claim that the candidate has
-          learned or developed familiarity with a technology.
-        - Self-guided learning must not be treated as professional experience
-          using that technology.
-        - Open-source contributions may support claims about contributing to
-          open-source software when the supplied evidence supports that claim.
-        - Education may support claims about academic knowledge or study, but
-          should not automatically be treated as professional experience.
-        - A personal project may support claims about what the candidate built,
-          designed, implemented, or learned, provided the Experience Bank
-          provides evidence for the claim.
-        - An internship may support claims about experience gained during the
-          internship, but should not be represented as a later or more senior
-          professional role.
-        - Professional experience in the Experience Bank may be used as
-          professional experience when the entry provides evidence supporting
-          the claim.
-
-        Do not reject a claim merely because it is absent from the CV when the
-        claim is supported by the Experience Bank.
-
-        Do not accept a claim merely because a related keyword appears in the
-        Experience Bank. The evidence must reasonably support the actual claim
-        made in the cover letter.
-
+    
+        REQUIREMENTS AND SELECTED EVIDENCE:
+    
+        The requirement-to-experience mappings supplied with the cover letter
+        have been explicitly reviewed and selected by the candidate.
+    
+        Treat these mappings as authoritative.
+    
+        Do not independently create alternative requirement-to-experience
+        matches. Your task is to verify the cover letter, not to redo the
+        candidate's evidence selection.
+    
+        A selected experience indicates that the candidate considers that
+        experience relevant to the associated requirement. It does not
+        necessarily establish that the candidate completely satisfies every
+        aspect of the requirement.
+    
+        In particular:
+    
+        - Do not treat a selected experience as proof of a qualification that
+          is not supported by the underlying candidate information.
+        - Do not turn a partial match into a claim of full qualification.
+        - Do not assume that the candidate satisfies a requirement simply
+          because an experience has been selected for it.
+        - Do not require the cover letter to address every requirement.
+        - Do not consider the omission of a requirement to be a factual error
+          when the supplied evidence does not credibly support that requirement.
+        - Do not penalize the cover letter merely because it uses only some of
+          the selected experiences or evidence. The writer is expected to
+          prioritize the strongest and most relevant material.
+    
+        EVIDENCE NOTES:
+    
+        A selected evidence item may contain a "Relevance to requirement"
+        note written specifically for that requirement.
+    
+        Use this note to understand why the candidate selected the experience,
+        but do not treat the note itself as evidence of facts that are not
+        supported by the underlying candidate information.
+    
+        Verify that claims made in the cover letter can be traced back to
+        actual information supplied about the candidate.
+    
         FACTUAL VERIFICATION:
-
+    
+        Check every substantive factual claim in the cover letter.
+    
         Identify:
-
+    
         - Unsupported skills or qualifications.
         - Unsupported years of experience.
         - Unsupported accomplishments or metrics.
         - Invented technologies, employers, projects, responsibilities,
           certifications, or education.
-        - Claims that the candidate satisfies requirements without sufficient
-          evidence.
+        - Claims that the candidate satisfies a requirement without sufficient
+          supporting evidence.
         - Incorrect company names or job titles.
         - Claims that contradict the CV, Experience Bank, or Candidate Notes.
         - Claims that incorrectly characterize the nature of an experience.
@@ -351,205 +247,210 @@ public sealed class CoverLetterService
           or self-guided experience as professional employment experience
           without supporting evidence.
         - Claims that imply professional experience with a technology when the
-          supplied evidence only supports personal, educational, or self-guided
-          experience.
+          supplied evidence only supports personal, educational, or
+          self-guided experience.
         - Unsupported claims about the company.
         - Unsupported claims about the candidate's motivations.
-        - Major tone or style violations.
-        - Em dashes, en dashes, or smart quotation marks.
-
+    
         When evaluating a claim, consider the complete candidate information.
         Evidence may come from the CV, Experience Bank, or Candidate Notes.
-
-        Do not require every claim in the cover letter to also appear on the
-        CV. The purpose of the Experience Bank is specifically to preserve
-        relevant candidate experience that may not be included in the concise
+    
+        Do not require every claim in the cover letter to appear on the CV.
+        The Experience Bank and Candidate Notes exist specifically to preserve
+        relevant candidate information that may not be included in the concise
         CV.
-
-        A cover letter may appropriately mention relevant personal projects,
-        professional development, self-guided learning, open-source work, or
-        other Experience Bank entries when doing so accurately represents the
-        candidate's experience.
-
-        However, the wording must accurately reflect the nature of that
-        experience.
-
-        For example, if the Experience Bank states that the candidate built a
-        personal C# project, the following type of claim may be supported:
-
-        "I have been developing my C# and .NET skills through a personal
-        software project."
-
-        But the following type of claim would not be supported unless the
-        candidate information provides professional experience:
-
-        "I have several years of professional experience developing C# and
-        .NET applications."
-
-        Do not penalize a cover letter simply because it mentions experience
-        that does not appear on the CV.
-
+    
+        EXPERIENCE BANK:
+    
+        Treat Experience Bank entries as factual candidate-provided information,
+        subject to the same requirement for supporting evidence as information
+        from the CV and Candidate Notes.
+    
+        However, preserve the nature of the experience.
+    
+        For example:
+    
+        - A personal project may support a claim that the candidate built or
+          worked with a particular technology.
+        - A personal project must not be represented as professional employment
+          experience unless the supplied information explicitly supports that
+          characterization.
+        - Self-guided learning may support a claim that the candidate has
+          learned or developed familiarity with a technology.
+        - Self-guided learning must not be represented as professional
+          experience using that technology.
+        - Open-source contributions may support claims about contributing to
+          open-source software when the supplied evidence supports that claim.
+        - Education may support claims about academic knowledge or study, but
+          should not automatically be treated as professional experience.
+        - An internship may support claims about experience gained during the
+          internship, but should not be represented as a later or more senior
+          professional role.
+        - Professional experience in the Experience Bank may be represented as
+          professional experience when the entry provides evidence supporting
+          the claim.
+    
+        Do not reject a claim merely because it is absent from the CV when the
+        claim is supported by the Experience Bank or Candidate Notes.
+    
+        Do not accept a claim merely because a related keyword appears in the
+        Experience Bank. The supplied evidence must reasonably support the
+        actual claim made in the cover letter.
+    
+        JOB RELEVANCE:
+    
+        Determine whether the cover letter is appropriately tailored to the
+        supplied job posting.
+    
+        The letter should make meaningful connections between the candidate's
+        supported experience and the employer's needs.
+    
+        Do not require every job requirement to be addressed.
+    
+        Do not consider the absence of a claim to satisfy an unsupported
+        requirement to be a defect.
+    
+        Do identify cases where the cover letter claims qualifications that
+        the supplied candidate information does not support.
+    
+        WRITING AND INSTRUCTION COMPLIANCE:
+    
+        Verify that the cover letter follows the requested tone, style,
+        professional culture, and other instructions supplied with the
+        application.
+    
+        In particular, identify:
+    
+        - Major tone or style violations.
+        - Excessive enthusiasm or self-promotion when inconsistent with the
+          requested style.
+        - Generic or substantially untailored writing.
+        - Failure to follow explicit formatting instructions.
+        - Unnecessary claims that the candidate is a "good fit" rather than
+          demonstrating relevance through evidence.
+        - Unnatural constructions that use spaced hyphens in place of an
+          em-dash-style construction.
+    
+        Do not penalize a cover letter simply because you would have written
+        a sentence differently.
+    
+        VERIFICATION STANDARD:
+    
+        Be conservative when evaluating factual claims.
+    
+        Do not assume that a claim is true merely because it is plausible,
+        common for someone with the candidate's background, or consistent
+        with the job requirements.
+    
+        At the same time, do not flag a claim as unsupported merely because
+        the exact wording does not appear in the source material. Reasonable
+        paraphrasing and synthesis are acceptable when the underlying claim
+        is supported.
+    
+        Distinguish between:
+    
+        - A factual error or unsupported claim.
+        - A misleading characterization of the candidate's experience.
+        - A violation of an explicit instruction.
+        - A merely subjective stylistic preference.
+    
+        Only report genuine problems.
+    
         Do not rewrite the cover letter.
-
+    
         Return only the verification result.
     """;
 
 
-    public async Task<ApplicationAnalysis> AnalyzeApplicationAsync(
-        CoverLetterDraftParameters request,
-        CancellationToken cancellationToken = default)
-    {
-        var userPrompt = $"""
-            Analyze this job application.
-        
-            === CANDIDATE CV ===
-            {request.Cv}
-            === END CANDIDATE CV ===
-        
-            === EXPERIENCE BANK ===
-            FormatExperienceBank(request.ExperienceBank)
-            === END EXPERIENCE BANK ===
-        
-            === JOB POSTING ===
-            {request.JobPosting}
-            === END JOB POSTING ===
-        
-            === CANDIDATE NOTES ===
-            {request.CandidateNotes}
-            === END CANDIDATE NOTES ===
-        
-            Identify the most important job requirements and evaluate the
-            candidate's evidence for each.
-        
-            For each requirement, identify concise supporting evidence, its source,
-            and classify the match as Strong, Partial, or None.
-        
-            When evidence comes from the Experience Bank, include the relevant
-            Experience ID.
-        
-            Identify the candidate's strongest relevant qualifications and their
-            supporting evidence.
-        
-            Identify 2-4 themes that should be emphasized in the cover letter.
-        
-            Identify significant gaps.
-        
-            Finally, provide a brief recommendation for positioning the application.
-        
-            Keep the analysis concise and avoid repeating large portions of the
-            supplied materials.
-        """;
-
-        var messages = new[]
-        {
-            new ChatMessage(ChatRole.System, AnalysisSystemPrompt),
-            new ChatMessage(ChatRole.User, userPrompt)
-        };
-
-        var options = new ChatOptions
-        {
-            Temperature = 0.2f,
-            MaxOutputTokens = 4000
-        };
-
-        ChatResponse<ApplicationAnalysis>? response = null;
-        try
-        {
-            response = await _chatClient.GetResponseAsync<ApplicationAnalysis>(
-                messages,
-                options,
-                useJsonSchemaResponseFormat: true,
-                cancellationToken);
-
-            return response.Result;
-        }
-        catch (JsonException)
-        {
-            _logger.LogInformation("Raw analysis response: {Response}", response?.Text);
-            throw;
-        }
-    }
-
     public async Task<string> GenerateCoverLetterAsync(
-        CoverLetterDraftParameters request,
-        ApplicationAnalysis analysis,
+        CoverLetterDraftParameters draftParameters,
         CancellationToken cancellationToken = default)
     {
-        var requirements = string.Join(Environment.NewLine, analysis.JobRequirements.Select(r =>
-            $"- Requirement: {r.Requirement}\n" +
-            $"  Match: {r.Match}\n" +
-            $"  Evidence:\n{FormatEvidence(r.Evidence)}"));
-
-        var strengths = string.Join(Environment.NewLine, analysis.CandidateStrengths.Select(s =>
-            $"- Strength: {s.Strength}\n" +
-            $"  Evidence:\n{FormatEvidence(s.Evidence)}"));
-
-        var themes = string.Join(Environment.NewLine, analysis.RecommendedThemes.Select(t => $"- {t}"));
-
-        var gaps = string.Join(Environment.NewLine, analysis.PotentialGaps.Select(g => $"- {g}"));
-
-        var experienceBank = string.Empty; // FormatExperienceBank(request.ExperienceBank);
+        var requirementsEvidence = FormatJobRequirements(draftParameters.Requirements);
 
         var userPrompt = $"""
             /no_think
-
-            Write a complete cover letter for this application.
-
+        
+            Write a complete cover letter for this job application.
+        
+            The information below contains the job posting, the candidate's background,
+            and requirements that have been explicitly matched to candidate experiences.
+            Use these materials as the basis for the letter.
+        
             === TARGET PROFESSIONAL CULTURE ===
-            {request.TargetAudience}
+            {draftParameters.TargetAudience}
             === END TARGET PROFESSIONAL CULTURE ===
-
+        
             === TONE ===
-            {request.Tone}
+            {draftParameters.Tone}
             === END TONE ===
-
+        
             === STYLE ===
-            {request.Style}
+            {draftParameters.Style}
             === END STYLE ===
-
+        
             === TARGET LENGTH ===
-            Approximately {request.DesiredWordCount} words.
+            Approximately {draftParameters.DesiredWordCount} words.
             === END TARGET LENGTH ===
-
-            === APPLICATION ANALYSIS ===
-
-            JOB REQUIREMENTS:
-            {requirements}
-
-            CANDIDATE STRENGTHS:
-            {strengths}
-
-            RECOMMENDED THEMES:
-            {themes}
-
-            POTENTIAL GAPS:
-            {gaps}
-
-            SUGGESTED APPROACH:
-            {analysis.SuggestedApproach}
-
-            === END APPLICATION ANALYSIS ===
-
+        
             === CANDIDATE CV ===
-            {request.Cv}
+            {draftParameters.Cv}
             === END CANDIDATE CV ===
-
-            === EXPERIENCE BANK ===
-            {experienceBank}
-            === END EXPERIENCE BANK ===
-
+        
+            === JOB REQUIREMENTS AND SELECTED SUPPORTING EXPERIENCE ===
+            The requirements below have been reviewed by the candidate. The experiences
+            listed under each requirement were explicitly selected as supporting evidence.
+        
+            Treat these requirement-to-experience selections as authoritative.
+            Do not invent additional experiences or claim that an experience supports
+            a requirement unless the provided materials support that claim.
+        
+            Where an experience includes a "Relevance to requirement" note, use it to
+            understand why the candidate considers that experience relevant to the
+            specific requirement.
+        
+            If a requirement has no supporting experience, do not attempt to manufacture
+            one. Do not make unsupported claims merely to address that requirement.
+        
+            {requirementsEvidence}
+            === END JOB REQUIREMENTS AND SELECTED SUPPORTING EXPERIENCE ===
+        
             === JOB POSTING ===
-            {request.JobPosting}
+            {draftParameters.JobPosting}
             === END JOB POSTING ===
-
+        
             === CANDIDATE NOTES ===
-            {request.CandidateNotes}
+            {draftParameters.CandidateNotes}
             === END CANDIDATE NOTES ===
-
+        
             === ADDITIONAL INSTRUCTIONS ===
-            Do not include any addressee / recipient top-matter.  Begin the letter with the salutation.
+            Do not include any addressee / recipient top-matter.
+            Begin the letter with the salutation.
+        
+            Write a natural, persuasive cover letter rather than a point-by-point
+            response to the requirements.
+        
+            Prioritize the strongest and most relevant evidence when deciding which
+            experiences to emphasize.
+        
+            Do not simply repeat the wording of the job posting. Connect the candidate's
+            actual experience to the employer's needs using specific evidence from the
+            supplied materials.
+        
+            Do not invent employers, job titles, responsibilities, accomplishments,
+            technologies, years of experience, metrics, projects, or other qualifications.
+        
+            Do not claim experience with a technology, tool, methodology, or practice
+            unless that experience is supported by the supplied candidate materials.
+        
+            Use the candidate's selected experiences to demonstrate qualifications rather
+            than merely stating that the candidate possesses them.
+        
+            The cover letter should read as a cohesive letter written specifically for
+            this position, not as a summary of the candidate's CV.
+        
             === END ADDITIONAL INSTRUCTIONS ===
-
+        
             Write the complete cover letter now.
         """;
 
@@ -595,39 +496,150 @@ public sealed class CoverLetterService
         .Replace('\u00A0', ' ');
 
     public async Task<VerificationResult> VerifyDraftAsync(
-        CoverLetterDraftParameters request,
+        CoverLetterDraftParameters draftParameters,
         string draft,
         CancellationToken cancellationToken = default)
     {
-        var experienceBank = string.Empty; // FormatExperienceBank(request.ExperienceBank);
+        var requirementsEvidence = FormatJobRequirements(draftParameters.Requirements);
 
         var userPrompt = $"""
-            Verify this cover letter.
-
-            === CV ===
-            {request.Cv}
-            === END CV ===
-
-            === JOB POSTING ===
-            {request.JobPosting}
-            === END JOB POSTING ===
-        
-            === EXPERIENCE BANK ===
-            {experienceBank}
-            === END EXPERIENCE BANK ===
-
-            === CANDIDATE NOTES ===
-            {request.CandidateNotes}
-            === END CANDIDATE NOTES ===
-
-            === COVER LETTER ===
-            {draft}
-            === END COVER LETTER ===
-
-            Determine whether the letter is factually supported,
-            appropriate for the job, and compliant with the requested
-            writing style.
-        """;
+        Verify the following cover letter against the supplied job and candidate
+        information.
+    
+        The purpose of this verification is to identify factual inaccuracies,
+        unsupported claims, misleading representations, poor use of the selected
+        evidence, and violations of the requested writing instructions.
+    
+        === CV ===
+        {draftParameters.Cv}
+        === END CV ===
+    
+        === JOB POSTING ===
+        {draftParameters.JobPosting}
+        === END JOB POSTING ===
+    
+        === JOB REQUIREMENTS AND SELECTED SUPPORTING EXPERIENCE ===
+        The requirement-to-experience mappings below were explicitly reviewed and
+        selected by the candidate.
+    
+        Treat these mappings as authoritative. Do not attempt to create alternative
+        requirement-to-experience matches.
+    
+        For each selected experience, verify that claims made in the cover letter
+        are actually supported by the supplied experience information. Pay
+        particular attention to the "Relevance to requirement" notes, but do not
+        treat those notes as evidence of facts that are not otherwise supported by
+        the candidate information.
+    
+        A selected experience being associated with a requirement does not mean
+        that the candidate necessarily satisfies every aspect of that requirement.
+        In particular, do not treat a partial match as evidence of full
+        qualification.
+    
+        If a requirement has no supporting experience, the cover letter must not
+        invent experience to address it.
+    
+        {requirementsEvidence}
+        === END JOB REQUIREMENTS AND SELECTED SUPPORTING EXPERIENCE ===
+    
+        === CANDIDATE NOTES ===
+        {draftParameters.CandidateNotes}
+        === END CANDIDATE NOTES ===
+    
+        === REQUESTED PROFESSIONAL CULTURE ===
+        {draftParameters.TargetAudience}
+        === END REQUESTED PROFESSIONAL CULTURE ===
+    
+        === REQUESTED TONE ===
+        {draftParameters.Tone}
+        === END REQUESTED TONE ===
+    
+        === REQUESTED STYLE ===
+        {draftParameters.Style}
+        === END REQUESTED STYLE ===
+    
+        === TARGET LENGTH ===
+        Approximately {draftParameters.DesiredWordCount} words.
+        === END TARGET LENGTH ===
+    
+        === COVER LETTER ===
+        {draft}
+        === END COVER LETTER ===
+    
+        Verify the cover letter according to the following criteria:
+    
+        1. FACTUAL ACCURACY
+           Determine whether every substantive claim about the candidate is
+           supported by the CV, Candidate Notes, or selected supporting
+           experiences.
+    
+           Flag claims that:
+           - invent qualifications, skills, technologies, responsibilities,
+             accomplishments, metrics, employers, projects, certifications,
+             education, or other facts;
+           - exaggerate the candidate's experience;
+           - turn a partial match into a claim of full qualification;
+           - attribute professional experience to a personal project or
+             self-guided learning;
+           - claim experience with a technology or practice that the supplied
+             information does not support.
+    
+        2. EVIDENCE FIDELITY
+           Verify that the selected experiences are represented accurately.
+    
+           The letter may summarize or synthesize the selected evidence, but it
+           must not introduce facts that are absent from the supplied information.
+    
+           Do not penalize the letter merely because it does not mention every
+           selected experience or every piece of evidence. The writer is expected
+           to select the strongest and most relevant material.
+    
+        3. REQUIREMENT COVERAGE
+           Determine whether the letter makes effective use of the strongest
+           supported requirements and experiences.
+    
+           It is not necessary for the letter to address every job requirement.
+           Do not consider an omission a defect when the candidate has no credible
+           supporting evidence for that requirement.
+    
+           Do not require the letter to claim that the candidate meets a
+           requirement when the supplied evidence only establishes a partial
+           match.
+    
+        4. JOB RELEVANCE
+           Determine whether the letter is clearly tailored to the supplied job
+           posting.
+    
+           The letter should connect relevant candidate experience to the
+           employer's needs rather than merely summarizing the CV or repeating
+           the job posting.
+    
+        5. WRITING STYLE
+           Verify that the letter follows the requested professional culture,
+           tone, and style.
+    
+           It should be professional and appropriately restrained, avoid generic
+           or clichéd language, and avoid exaggerated enthusiasm or
+           self-promotion.
+    
+           Do not require the letter to explicitly state that the candidate is
+           a "good fit." Relevance should be demonstrated through the candidate's
+           experience.
+    
+        6. FORMAT AND INSTRUCTIONS
+           Verify that the letter:
+           - begins with a salutation;
+           - does not contain addressee or recipient top-matter;
+           - is written entirely in English;
+           - is approximately the requested length;
+           - does not contain commentary or meta-text about the generation or
+             verification process.
+    
+        Report only genuine problems. Do not flag stylistic choices merely because
+        you would have written them differently.
+    
+        Determine whether the cover letter passes verification.
+    """;
 
         var messages = new[]
         {
@@ -656,6 +668,93 @@ public sealed class CoverLetterService
         { 
             _logger.LogError(ex, "Error verifying cover letter draft.");
             throw;
+        }
+
+    }
+
+    private string FormatJobRequirements(JobRequirements jobRequirements)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var requirement in jobRequirements.Requirements)
+        {
+            sb.AppendLine($"REQUIREMENT: {requirement.Requirement}");
+            sb.AppendLine($"CATEGORY: {requirement.Category}");
+            sb.AppendLine($"PRIORITY: {requirement.Priority}");
+
+            if (requirement.Evidence.NoSupportingEvidence)
+            {
+                sb.AppendLine("SUPPORTING EXPERIENCE: None identified.");
+            }
+            else if (requirement.Evidence.Evidences.Count == 0)
+            {
+                sb.AppendLine("SUPPORTING EXPERIENCE: None selected.");
+            }
+            else
+            {
+                sb.AppendLine("SUPPORTING EXPERIENCE:");
+
+                foreach (var evidence in requirement.Evidence.Evidences)
+                {
+                    var experience = evidence.Experience;
+
+                    FormatExperience(sb, experience);
+
+                    if (!string.IsNullOrWhiteSpace(evidence.EvidenceNote))
+                    {
+                        sb.AppendLine(
+                            $"    Relevance to requirement: {evidence.EvidenceNote}");
+                    }
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("---");
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
+
+    private static void FormatExperience(StringBuilder sb, Experience experience)
+    {
+        sb.AppendLine($"  - {experience.Title}");
+
+        if (!string.IsNullOrWhiteSpace(experience.Organization))
+        {
+            sb.AppendLine($"    Organization: {experience.Organization}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(experience.Summary))
+        {
+            sb.AppendLine($"    Summary: {experience.Summary}");
+        }
+
+        if (experience.Skills.Count > 0)
+        {
+            sb.AppendLine(
+                $"    Skills: {string.Join(", ", experience.Skills)}");
+        }
+
+        if (experience.Evidence.Count > 0)
+        {
+            sb.AppendLine("    Evidence:");
+
+            foreach (var item in experience.Evidence)
+            {
+                sb.AppendLine($"      - {item}");
+            }
+        }
+
+        if (experience.Contexts.Count > 0)
+        {
+            sb.AppendLine(
+                $"    Contexts: {string.Join(", ", experience.Contexts)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(experience.Notes))
+        {
+            sb.AppendLine($"    Notes: {experience.Notes}");
         }
 
     }
