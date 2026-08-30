@@ -104,6 +104,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedExperience))]
     [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RemoveEvidenceFromExperienceCommand))]
     private int selectedExperienceIndex = -1;
     partial void OnSelectedExperienceIndexChanged(int value)
     {
@@ -112,15 +113,21 @@ public partial class JobRequirementsViewModel : ViewModelBase
         SelectedEvidenceIndex = -1;
     }
 
-    public Experience? SelectedExperience => _allExperiences.Count > 0 && SelectedExperienceIndex >= 0
-        ? _allExperiences[SelectedExperienceIndex]
+    public Experience? SelectedExperience => Experiences.Count > 0 && SelectedExperienceIndex >= 0
+        ? Experiences[SelectedExperienceIndex]
         : null;
 
     // This always returns a new collection/reference which will refresh the listbox to which this is bound
     // The evidence lists should be of negligible length so creating a new one on every update should be fine
     public IReadOnlyList<Experience> RequirementEvidenceExperiences => SelectedRequirement?.Evidence.Evidences.Select(ev => ev.Experience).ToList() ?? [];
 
+    private IReadOnlyList<Evidence> RequirementEvidences => SelectedRequirement?.Evidence.Evidences ?? [];
+
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedEvidence))]
+    [NotifyPropertyChangedFor(nameof(CanEditEvidenceNote))]
+    [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RemoveEvidenceFromExperienceCommand))]
     private int selectedEvidenceIndex = -1;
     partial void OnSelectedEvidenceIndexChanged(int value)
     {
@@ -128,6 +135,9 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
         SelectedExperienceIndex = -1;
     }
+
+    public Evidence? SelectedEvidence => SelectedEvidenceIndex >= 0 ? RequirementEvidences[SelectedEvidenceIndex] : null;
+    public bool CanEditEvidenceNote => SelectedEvidenceIndex >= 0;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
@@ -214,13 +224,26 @@ public partial class JobRequirementsViewModel : ViewModelBase
     {
         if (SelectedRequirement is null || SelectedExperience is null) return;
 
-        SelectedRequirement.Evidence.AddEvidence(new Evidence(SelectedExperience, string.Empty));
+        SelectedRequirement.Evidence.AddEvidence(new Evidence { Experience = SelectedExperience });
         OnPropertyChanged(nameof(RequirementEvidenceExperiences));
         OnPropertyChanged(nameof(StatusMessage));
         OnExperienceFilterChanged(ExperienceFilter);
         GenerateCoverLetterCommand.NotifyCanExecuteChanged();
     }
     public bool CanAddExperienceAsEvidence => !IsLoadingJobRequirements && SelectedExperienceIndex >= 0;
+
+    [RelayCommand(CanExecute = nameof(CanRemoveEvidenceFromExperience))]
+    private void RemoveEvidenceFromExperience()
+    {
+        if (SelectedRequirement is null || SelectedEvidence is null) return;
+
+        SelectedRequirement.Evidence.RemoveEvidence(SelectedEvidence);
+        OnPropertyChanged(nameof(RequirementEvidenceExperiences));
+        OnPropertyChanged(nameof(StatusMessage));
+        OnExperienceFilterChanged(ExperienceFilter);
+        GenerateCoverLetterCommand.NotifyCanExecuteChanged();
+    }
+    public bool CanRemoveEvidenceFromExperience => !IsLoadingJobRequirements && SelectedEvidenceIndex >= 0;
 
 
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]

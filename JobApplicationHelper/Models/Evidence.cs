@@ -1,3 +1,7 @@
 ﻿namespace JobApplicationHelper.Models;
 
-public record Evidence(Experience Experience, string EvidenceNote);
+public class Evidence
+{
+    public required Experience Experience { get; init; }
+    public string EvidenceNote { get; set; } = string.Empty;
+}

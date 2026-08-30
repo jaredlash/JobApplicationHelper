@@ -174,7 +174,7 @@
 
                 <TextBox Margin="0 0 0 5"
                          Width="120"
-                         Text="{Binding ExperienceFilter}"/>
+                         Text="{Binding ExperienceFilter, UpdateSourceTrigger=PropertyChanged}"/>
 
             </StackPanel>
 
@@ -361,7 +361,9 @@
             <Button Grid.Row="3"
                     Grid.Column="2"
                     Padding="5"
-                    Margin="10 0">
+                    Margin="10 0"
+                    Command="{Binding RemoveEvidenceFromExperienceCommand}"
+                    >
 
                 <StackPanel Orientation="Horizontal">
 
@@ -398,7 +400,7 @@
                     Margin="0 10 0 0">
 
             <Label FontWeight="Bold">
-                Notes about selected experience
+                Notes about selected evidence
             </Label>
 
             <Label>
@@ -410,7 +412,15 @@
 
         <!-- Notes textbox -->
         <TextBox Grid.Row="5"
-                 Height="50"/>
+                 Height="50"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto"
+                 IsEnabled="{Binding CanEditEvidenceNote}"
+                 Text="{Binding SelectedEvidence.EvidenceNote,
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged}"
+                 />
 
 
         <!-- Generate Cover Letter button -->
