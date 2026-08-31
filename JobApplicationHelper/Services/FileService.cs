@@ -94,7 +94,10 @@ public class FileService
                                   $"Position: {applicationFile.PositionTitle}\n" +
                                   $"Location: {(string.IsNullOrEmpty(applicationFile.City) ? "" : applicationFile.City + ", ")}{applicationFile.CountryCode}\n" +
                                   $"URL: {applicationFile.URL}\n" +
-                                  $"Date Created: {DateTime.Now:yyyy-MM-dd}\n";
+                                  $"Date Created: {DateTime.Now:yyyy-MM-dd}\n\n" +
+                                  $"Job Posting:\n" +
+                                  applicationFile.JobPosting;
+
         File.WriteAllText(notesFilePath, notesFileContents);
 
         return folderPath;
