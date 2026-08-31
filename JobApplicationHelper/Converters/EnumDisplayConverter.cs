@@ -21,8 +21,7 @@ public sealed class EnumDisplayConverter : IValueConverter
             .GetMember(enumValue.ToString())
             .FirstOrDefault();
 
-        var displayAttribute = member?
-            .GetCustomAttribute<DisplayAttribute>();
+        var displayAttribute = member?.GetCustomAttribute<DisplayAttribute>();
 
         return displayAttribute?.GetName()
             ?? enumValue.ToString();

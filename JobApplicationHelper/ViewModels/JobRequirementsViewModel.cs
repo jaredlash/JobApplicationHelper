@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;
@@ -141,6 +142,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedEvidence))]
     [NotifyPropertyChangedFor(nameof(CanEditEvidenceNote))]
+    [NotifyPropertyChangedFor(nameof(EvidenceNoteLabelText))]
     [NotifyCanExecuteChangedFor(nameof(AddExperienceAsEvidenceCommand))]
     [NotifyCanExecuteChangedFor(nameof(RemoveEvidenceFromExperienceCommand))]
     private int selectedEvidenceIndex = -1;
@@ -150,6 +152,13 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
         SelectedExperienceIndex = -1;
     }
+
+    public string EvidenceNoteLabelText => SelectedEvidence is null
+        ? "Notes about selected evidence"
+        : "Notes about " + (string.IsNullOrWhiteSpace(SelectedEvidence.Experience.Organization)
+            ? SelectedEvidence.Experience.Type.ToDisplayValue() : SelectedEvidence.Experience.Organization)
+        + $" - {SelectedEvidence.Experience.Title}";
+
 
     public Evidence? SelectedEvidence => SelectedEvidenceIndex >= 0 ? RequirementEvidences[SelectedEvidenceIndex] : null;
     public bool CanEditEvidenceNote => SelectedEvidenceIndex >= 0;
