@@ -70,7 +70,8 @@ public partial class App : Application
             options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
         });
 
-        builder.Services.AddScoped<IExperienceBankService, EfExperienceBankService>();
+        //builder.Services.AddScoped<IExperienceBankService, EfExperienceBankService>();
+        builder.Services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();
 
         // TODO: Evaluate if this should actually be transient
         builder.Services.AddSingleton<IChatClient>(sp =>
@@ -87,7 +88,31 @@ public partial class App : Application
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         builder.Services.AddTransient<MainWindowViewModel>();
-        builder.Services.AddTransient<DraftWindowViewModel>();
+        builder.Services.AddTransient<JobRequirementsViewModel>();
+        builder.Services.AddTransient<CoverLetterViewModel>();
+        builder.Services.AddTransient<DraftWindowViewModel>(sp =>
+        {
+            var navigation = new DraftNavigation();
+            var draftParameters = new CoverLetterDraftParameters();
+
+            var jobRequirements =
+                ActivatorUtilities.CreateInstance<JobRequirementsViewModel>(
+                    sp,
+                    [navigation, draftParameters]);
+
+            var coverLetter =
+                ActivatorUtilities.CreateInstance<CoverLetterViewModel>(
+                    sp,
+                    [navigation, draftParameters]);
+
+            var viewModel = new DraftWindowViewModel(
+                jobRequirements,
+                coverLetter);
+            navigation.Initialize(viewModel);
+
+            return viewModel;
+        });
+
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
         builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
         builder.Services.AddTransient<LocationService>();
@@ -95,6 +120,7 @@ public partial class App : Application
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
         builder.Services.AddTransient<CoverLetterService>();
+        builder.Services.AddTransient<JobRequirementService>();
 
         AppHost = builder.Build();
 

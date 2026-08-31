@@ -2,7 +2,16 @@
 
 public sealed class JobRequirement
 {
-    public string Requirement { get; set; } = string.Empty;
-    public List<EvidenceReference> Evidence { get; set; } = [];
-    public MatchStrength Match { get; set; } = MatchStrength.None;
+    private readonly RequirementEvidence _evidence;
+    public JobRequirement()
+    {
+        _evidence = new RequirementEvidence();
+    }
+    public string Requirement { get; init; } = "";
+
+    public RequirementCategory Category { get; init; }
+
+    public RequirementPriority Priority { get; init; }
+
+    public RequirementEvidence Evidence => _evidence;
 }

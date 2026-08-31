@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="JobApplicationHelper.Views.CoverLetterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:JobApplicationHelper.ViewModels"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:Background="White"
+             d:Height="650"
+             d:Width="800"
+             d:DataContext="{d:DesignInstance viewModels:CoverLetterViewModel}"
+             >
+
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="2"  Content="Generated Cover Letter:"/>
+
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                 Text="{Binding Draft, Mode=TwoWay}"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 MinHeight="250"
+                 Margin="0,5,0,10"/>
+
+        <Button Grid.Row="2" Grid.Column="0" Margin="5" Padding="5"
+                Content="Geneate Cover Letter"
+                Command="{Binding GenerateCoverLetterCommand}"
+                />
+
+        <StackPanel Grid.Row="2" Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+
+            <Button Content="Back to requirements"
+                    Command="{Binding BackToRequirementsCommand}"
+                    Padding="5"
+                    Margin="5"/>
+
+            <Button Content="Save cover letter"
+                    Command="{Binding SaveCoverLetterCommand}"
+                    Padding="5"
+                    Width="130"
+                    Margin="5"/>
+
+        </StackPanel>
+
+        <!-- Bottom status/load area -->
+        <Grid Grid.Row="3" Grid.Column="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Label Grid.Column="1" Margin="5" Content="{Binding StatusMessage}" HorizontalAlignment="Left"/>
+        </Grid>
+
+    </Grid>
+
+</UserControl>
