@@ -10,18 +10,26 @@ public class RequirementEvidence
 
     public bool IsSatisfied => NoSupportingEvidence || Evidences.Count > 0;
 
-    public void AddEvidence(Evidence evidence)
+    public bool AddEvidence(Evidence evidence)
     {
         if (_evidences.All(e => e.Experience.Id != evidence.Experience.Id))
         {
             _evidences.Add(evidence);
+            return true;
         }
+
+        return false;
     }
 
-    public void RemoveEvidence(Evidence evidence)
+    public bool RemoveEvidence(Evidence evidence)
     {
         var index = _evidences.FindIndex(ev => ev.Experience.Id == evidence.Experience.Id);
 
-        if (index >= 0) _evidences.RemoveAt(index);
+        if (index >= 0) {
+            _evidences.RemoveAt(index);
+            return true;
+        }
+
+        return false;
     }
 }

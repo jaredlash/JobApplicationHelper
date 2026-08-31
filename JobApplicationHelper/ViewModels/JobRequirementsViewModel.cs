@@ -243,13 +243,23 @@ public partial class JobRequirementsViewModel : ViewModelBase
     {
         if (SelectedRequirement is null || SelectedExperience is null) return;
 
-        SelectedRequirement.Evidence.AddEvidence(new Evidence { Experience = SelectedExperience });
+        var evidence = new Evidence { Experience = SelectedExperience };
+        var result = SelectedRequirement.Evidence.AddEvidence(evidence);
+        if (result) SelectLastEvidence();
         OnPropertyChanged(nameof(RequirementEvidenceExperiences));
         OnPropertyChanged(nameof(StatusMessage));
         OnExperienceFilterChanged(ExperienceFilter);
         GenerateCoverLetterCommand.NotifyCanExecuteChanged();
     }
     public bool CanAddExperienceAsEvidence => IsFinishedLoadingJobRequirements && SelectedExperienceIndex >= 0;
+
+
+    private void SelectLastEvidence()
+    {
+        var lastIndex = RequirementEvidences.Count - 1;
+        if (lastIndex >= 0)
+            SelectedEvidenceIndex = lastIndex;
+    }
 
     [RelayCommand(CanExecute = nameof(CanRemoveEvidenceFromExperience))]
     private void RemoveEvidenceFromExperience()
