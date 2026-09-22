@@ -11,11 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OllamaSharp;
 using OpenAI;
 using OpenAI.Chat;
-using System.IO;
-using System.Net.Http;
 using System.Windows;
 
 namespace JobApplicationHelper;
