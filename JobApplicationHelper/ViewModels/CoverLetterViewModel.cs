@@ -55,94 +55,37 @@ public partial class CoverLetterViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
     private string coverLetterStatus = String.Empty;
 
-    public string StatusMessage => CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    private string verificationStatus = String.Empty;
+
+    public string StatusMessage => (CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError) + "  " + VerificationStatus;
 
 
 
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
-    private async Task GenerateCoverLetter()
+    private async Task GenerateCoverLetter(CancellationToken cancellationToken = default)
     {
         try
         {
-            //CoverLetterStatus = "Generating cover letter...";
-
-            //var request = new Models.CoverLetterRequest(
-            //    CvText,
-            //    JobPosting,
-            //    AdditionalPromptInstructions,
-            //    "Professional",
-            //    "Formal, concise",
-            //    "Dutch professional audience",
-            //    /* Other potential audiences:
-            //     * German professional audience
-            //     * International/neutral professional audience
-            //     */
-            //    experienceBank,
-            //    350);
-            //var applicationAnalysis = await coverLetterService.AnalyzeApplicationAsync(request);
-            //StatusMessage = "Analysis complete.";
-
-            //var options = new JsonSerializerOptions { WriteIndented = true };
-            //options.Converters.Add(new JsonStringEnumConverter());
-
-            //// Serialize and print
-            //string formattedJson = JsonSerializer.Serialize(applicationAnalysis, options);
-
-            //// Verify experience bank IDs are real
-            //var experienceBankIds = new HashSet<string>(experienceBank.Experiences.Select(e => e.Id));
-            //var sb = new System.Text.StringBuilder("Verifying experience bank IDs...\n");
-            //int foundErrorCount = 0;
-            //foreach (var req in applicationAnalysis.JobRequirements)
-            //{
-            //    foreach (var evidenceRef in req.Evidence)
-            //    {
-            //        if (evidenceRef.Source != EvidenceSource.ExperienceBank)
-            //        {
-            //            if (evidenceRef.ExperienceIds.Count > 0)
-            //            {
-            //                sb.AppendLine("Found id not from experience bank for requirement " + req.Requirement);
-            //                foundErrorCount++;
-            //                continue;
-            //            }
-            //        }
-
-            //        foreach (var expId in evidenceRef.ExperienceIds)
-            //        {
-            //            if (!experienceBankIds.Contains(expId))
-            //            {
-            //                sb.AppendLine($"Experience ID '{expId}' in requirement '{req.Requirement}' does not exist in the experience bank.");
-            //                foundErrorCount++;
-            //            }
-            //        }
-            //    };
-            //};
-            //if (foundErrorCount == 0)
-            //{
-            //    sb.AppendLine("All experience bank IDs are valid.");
-            //}
-            //else
-            //{
-            //    sb.AppendLine($"Found {foundErrorCount} invalid experience bank IDs.");
-            //}
-            //Draft = sb.ToString() + formattedJson;
-
             CoverLetterStatus = "Generating cover letter draft...";
-            Draft = await coverLetterService.GenerateCoverLetterAsync(draftParameters);
+            VerificationStatus = string.Empty;
+            Draft = await coverLetterService.GenerateCoverLetterAsync(draftParameters, cancellationToken);
             CoverLetterStatus = "Done.";
 
-            //StatusMessage = "Verifying cover letter draft...";
+            VerificationStatus = "Verifying cover letter draft...";
 
-            //var verificationResult = await coverLetterService.VerifyDraftAsync(request, Draft);
+            var verificationResult = await coverLetterService.VerifyDraftAsync(draftParameters, Draft, cancellationToken);
 
-            //if (!verificationResult.IsValid)
-            //{
-            //    StatusMessage = "Verification failed. Please review the issues.";
-            //    DisplayVerificationResult(verificationResult);
-            //}
-            //else
-            //{
-            //    StatusMessage = "Done. Verification passed.";
-            //}
+            if (!verificationResult.IsValid)
+            {
+                VerificationStatus = "Verification failed. Please review the issues.";
+                DisplayVerificationResult(verificationResult);
+            }
+            else
+            {
+                VerificationStatus = "Verification passed.";
+            }
         }
         catch (Exception ex)
         {
