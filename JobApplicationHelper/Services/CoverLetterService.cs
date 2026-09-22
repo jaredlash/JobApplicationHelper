@@ -462,8 +462,8 @@ public sealed class CoverLetterService
 
         var options = new ChatOptions
         {
-            Temperature = 0.7f,
-            MaxOutputTokens = 2000
+            Temperature = 0.7f
+            //MaxOutputTokens = 2000
         };
 
         var response = await _chatClient.GetResponseAsync(
@@ -649,8 +649,8 @@ public sealed class CoverLetterService
 
         var options = new ChatOptions
         {
-            Temperature = 0.1f,
-            MaxOutputTokens = 1000
+            Temperature = 0.1f
+            //MaxOutputTokens = 1000
         };
         try
         {

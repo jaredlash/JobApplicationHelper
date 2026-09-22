@@ -349,8 +349,8 @@ public sealed class JobRequirementService
 
         var options = new ChatOptions
         {
-            Temperature = 0.1f,
-            MaxOutputTokens = 3000
+            Temperature = 0.1f
+            //MaxOutputTokens = 3000 // Previously used for Ollama, but broke llama.cpp responses. Might make configurable later.
         };
 
         Exception? lastException = null;
