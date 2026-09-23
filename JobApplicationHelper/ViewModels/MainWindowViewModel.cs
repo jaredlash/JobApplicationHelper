@@ -52,10 +52,16 @@ namespace JobApplicationHelper.ViewModels
         [ObservableProperty]
         private bool includeCoverLetter;
 
+        partial void OnIncludeCoverLetterChanged(bool value)
+        {
+            ValidateProperty(JobPosting, nameof(JobPosting));
+        }
+
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Required(ErrorMessage = "Job posting is required.")]
+        [CustomValidation(typeof(MainWindowViewModel), nameof(ValidateJobPosting))]
         private string jobPosting = string.Empty;
+
 
         [ObservableProperty]
         private bool openNewFolder;
@@ -126,6 +132,18 @@ namespace JobApplicationHelper.ViewModels
             draftWindowViewModel.JobRequirements.JobPosting = jobPosting;
 
             windowService.ShowWindow(draftWindowViewModel);
+        }
+        public static ValidationResult? ValidateJobPosting(string? jobPosting, ValidationContext context)
+        {
+            var viewModel = (MainWindowViewModel)context.ObjectInstance;
+
+            if (!viewModel.IncludeCoverLetter)
+                return ValidationResult.Success;
+
+            if (!string.IsNullOrWhiteSpace(jobPosting))
+                return ValidationResult.Success;
+
+            return new ValidationResult("Job posting is required when generating a cover letter.", [nameof(JobPosting)]);
         }
     }
 }
