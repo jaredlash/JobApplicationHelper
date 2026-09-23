@@ -49,8 +49,8 @@
                  Text="{Binding Url, Mode=TwoWay}"/>
         <CheckBox Grid.Row="5" Grid.Column="1" Margin="5" Content="Include cover letter" 
                   IsChecked="{Binding IncludeCoverLetter, Mode=TwoWay}"/>
-        <Label Grid.Row="6" Grid.Column="0" Margin="5" Content="Job Posting:" Visibility="{Binding IncludeCoverLetter, Converter={StaticResource BoolToVis}}"/>
-        <TextBox Grid.Row="6" Grid.Column="1" Visibility="{Binding IncludeCoverLetter, Converter={StaticResource BoolToVis}}"
+        <Label Grid.Row="6" Grid.Column="0" Margin="5" Content="Job Posting:"/>
+        <TextBox Grid.Row="6" Grid.Column="1"
             Text="{Binding JobPosting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             AcceptsReturn="True"
             TextWrapping="Wrap"
