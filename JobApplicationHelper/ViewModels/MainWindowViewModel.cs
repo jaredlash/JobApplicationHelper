@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobApplicationHelper.ViewModels
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ViewModelBase //, IValidatableObject
     {
 
         private readonly FileService _fileService;
@@ -52,10 +52,16 @@ namespace JobApplicationHelper.ViewModels
         [ObservableProperty]
         private bool includeCoverLetter;
 
+        partial void OnIncludeCoverLetterChanged(bool value)
+        {
+            ValidateProperty(JobPosting, nameof(JobPosting));
+        }
+
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Required(ErrorMessage = "Job posting is required.")]
+        [RequiredIf(nameof(IncludeCoverLetter), true, ErrorMessage = "Job posting is required when generating a cover letter.")]
         private string jobPosting = string.Empty;
+
 
         [ObservableProperty]
         private bool openNewFolder;
@@ -127,5 +133,13 @@ namespace JobApplicationHelper.ViewModels
 
             windowService.ShowWindow(draftWindowViewModel);
         }
+
+        //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        //{
+        //    if (IncludeCoverLetter && string.IsNullOrWhiteSpace(JobPosting))
+        //    {
+        //        yield return new ValidationResult("Job posting is required when generating a cover letter.", [nameof(JobPosting)]);
+        //    }
+        //}
     }
 }
