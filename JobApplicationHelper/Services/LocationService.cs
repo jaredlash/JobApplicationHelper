@@ -1,4 +1,4 @@
-﻿using JobApplicationHelper.Models;
+﻿using JobApplicationHelper.Domain.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

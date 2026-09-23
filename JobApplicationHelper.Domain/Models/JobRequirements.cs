@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace JobApplicationHelper.Models;
+namespace JobApplicationHelper.Domain.Models;
 
 public sealed class JobRequirements
 {

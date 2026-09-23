@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JobApplicationHelper.Models;
+namespace JobApplicationHelper.Domain.Models;
 
 public enum ExperienceType
 {

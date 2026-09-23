@@ -1,4 +1,4 @@
-﻿namespace JobApplicationHelper.Models;
+﻿namespace JobApplicationHelper.Domain.Models;
 
 public enum RequirementCategory
 {
