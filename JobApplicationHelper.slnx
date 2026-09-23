@@ -4,6 +4,7 @@
   </Folder>
   <Project Path="Api/JobApplicationHelper.Api.csproj" />
   <Project Path="AppHost/JobApplicationHelper.AppHost.csproj" Id="79399dff-869b-4880-a8e4-cc2e990bba74" />
+  <Project Path="JobApplicationHelper.Domain/JobApplicationHelper.Domain.csproj" Id="0c3b03ac-5e74-4b52-936d-af0c5f55b84d" />
   <Project Path="JobApplicationHelper/JobApplicationHelper.csproj" Id="a29e8c0d-567e-430d-9c95-a325ba9f9250" />
   <Project Path="Tests/Tests.csproj" Id="b7e67022-da1d-4697-89d1-6e75f2f1bc72" />
 </Solution>
