@@ -1,5 +1,5 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.Api>("api");
+builder.AddProject<Projects.JobApplicationHelper_Api>("api");
 
 builder.Build().Run();
