@@ -1,8 +1,8 @@
 ﻿using JobApplicationHelper.Configuration;
 using JobApplicationHelper.Data;
-using JobApplicationHelper.Models;
-using JobApplicationHelper.Services;
+using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.ViewModels;
+using JobApplicationHelper.Services;
 using JobApplicationHelper.Views;
 using JobApplicationHelper.WindowService;
 using Microsoft.EntityFrameworkCore;

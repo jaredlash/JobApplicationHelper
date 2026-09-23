@@ -1,4 +1,4 @@
-﻿using JobApplicationHelper.Models;
+﻿using JobApplicationHelper.Domain.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using System.Text;

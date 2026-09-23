@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Models;
+using JobApplicationHelper.Domain.Models;
 
 namespace JobApplicationHelper.ViewModels;
 

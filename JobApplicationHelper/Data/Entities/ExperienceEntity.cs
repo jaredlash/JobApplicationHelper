@@ -1,4 +1,4 @@
-﻿using JobApplicationHelper.Models;
+﻿using JobApplicationHelper.Domain.Models;
 
 namespace JobApplicationHelper.Data.Entities;
 

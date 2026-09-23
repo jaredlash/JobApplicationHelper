@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Extensions;
-using JobApplicationHelper.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;

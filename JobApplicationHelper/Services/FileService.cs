@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.IO;
-using JobApplicationHelper.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using JobApplicationHelper.Domain.Models;
 
 namespace JobApplicationHelper.Services;
 

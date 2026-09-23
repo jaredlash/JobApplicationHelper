@@ -1,6 +1,6 @@
 ﻿using JobApplicationHelper.Data;
 using JobApplicationHelper.Data.Entities;
-using JobApplicationHelper.Models;
+using JobApplicationHelper.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobApplicationHelper.Services;

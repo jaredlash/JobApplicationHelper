@@ -1,4 +1,4 @@
-﻿using JobApplicationHelper.Models;
+﻿using JobApplicationHelper.Domain.Models;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
