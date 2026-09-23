@@ -27,6 +27,8 @@ public sealed class JobPostingConverter
             .RemoveScripts()
             .RemoveStyles()
             .Remove("img")
+            .Unwrap("c-job-detail")
+            .Unwrap("lightning-formatted-rich-text")
             .Unwrap("span, font");
 
         _converter = new Converter(config);
@@ -41,6 +43,8 @@ public sealed class JobPostingConverter
 
         if (string.IsNullOrWhiteSpace(html))
             return string.Empty;
+
+        html = AddSpacingToAdjacentSpans(html);
 
         var markdown = _converter.Convert(html);
 
@@ -67,5 +71,14 @@ public sealed class JobPostingConverter
         markdown = Regex.Replace(markdown, @"\n{3,}", "\n\n");
 
         return markdown.Trim();
+    }
+
+    private static string AddSpacingToAdjacentSpans(string html)
+    {
+        return Regex.Replace(
+            html,
+            @"</span>\s*<span\b",
+            "</span> <span",
+            RegexOptions.IgnoreCase);
     }
 }
