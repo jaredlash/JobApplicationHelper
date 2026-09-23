@@ -1,6 +1,7 @@
-﻿using System.Windows;
+﻿using JobApplicationHelper.Services;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
-using JobApplicationHelper.Services;
 
 namespace JobApplicationHelper.Behaviors;
 
@@ -58,10 +59,11 @@ public static class PasteAsMarkdownBehavior
         {
             markdown = Converter.ConvertHtmlToMarkdown(html);
         }
-        catch
+        catch (Exception ex)
         {
             // If conversion fails, don't interfere with the normal
             // WPF paste operation.
+            Debug.WriteLine($"PasteAsMarkdownBehavior: HTML-to-Markdown conversion failed: {ex}");
             return;
         }
 
