@@ -1,22 +1,15 @@
-﻿using JobApplicationHelper.Configuration;
-using JobApplicationHelper.Domain.Models;
+﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.ViewModels;
-using JobApplicationHelper.Services;
 using JobApplicationHelper.Views;
 using JobApplicationHelper.WindowService;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using OpenAI;
-using OpenAI.Chat;
 using System.Windows;
 using WpfApplication = System.Windows.Application;
-using JobApplicationHelper.Application.Services;
-using JobApplicationHelper.Infrastructure.Services;
-using JobApplicationHelper.Infrastructure.Data;
+using JobApplicationHelper.Application;
+using JobApplicationHelper.Infrastructure;
 
 namespace JobApplicationHelper;
 
@@ -38,67 +31,8 @@ public partial class App : WpfApplication
 
         builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-        builder.Services.AddOptions<LocationsOptions>()
-            .Configure(options =>
-            {
-                var locs = builder.Configuration.GetSection("Locations").Get<List<Location>>();
-                options.Locations = locs ?? [];
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddOptions<FileServiceOptions>()
-            .Bind(builder.Configuration.GetSection("FileService"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddOptions<CandidateOptions>()
-            .Bind(builder.Configuration.GetSection("Candidate"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddOptions<ExperienceBankOptions>()
-            .Bind(builder.Configuration.GetSection("ExperienceBank"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
-        {
-            var configuration =
-                serviceProvider.GetRequiredService<IConfiguration>();
-
-            var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
-
-            options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
-        });
-
-        //builder.Services.AddScoped<IExperienceBankService, EfExperienceBankService>();
-        builder.Services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();
-
-        builder.Services.AddSingleton<IChatClient>(sp =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-
-            var endpoint = configuration["LLM:Endpoint"]
-                ?? throw new InvalidOperationException("LLM endpoint is not configured.");
-
-            var model = configuration["LLM:Model"]
-                ?? throw new InvalidOperationException("LLM model is not configured.");
-
-            var chatClient = new ChatClient(
-                model: model,
-                credential: new System.ClientModel.ApiKeyCredential("not-needed"),
-                options: new OpenAIClientOptions
-                {
-                    Endpoint = new Uri(endpoint),
-                    NetworkTimeout = TimeSpan.FromMinutes(10)
-                });
-
-            return chatClient.AsIChatClient();
-        });
 
         builder.Services.AddSingleton<MainWindow>();
-        builder.Services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         builder.Services.AddTransient<MainWindowViewModel>();
         builder.Services.AddTransient<JobRequirementsViewModel>();
         builder.Services.AddTransient<CoverLetterViewModel>();
@@ -127,13 +61,13 @@ public partial class App : WpfApplication
 
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
         builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
-        builder.Services.AddTransient<LocationService>();
-        builder.Services.AddTransient<FileService>();
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
-        builder.Services.AddTransient<CoverLetterService>();
-        builder.Services.AddTransient<JobRequirementService>();
+
+        // Temporary refactoring, these will be moved to the API DI
+        builder.Services.AddApplication(builder.Configuration);
+        builder.Services.AddInfrastructure(builder.Configuration);
 
         AppHost = builder.Build();
 

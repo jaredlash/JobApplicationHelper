@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobApplicationHelper.Domain.Models;
+namespace JobApplicationHelper.Infrastructure.Configuration;
 
 public record CandidateOptions
 {

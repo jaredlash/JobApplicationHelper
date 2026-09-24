@@ -1,6 +1,7 @@
+using JobApplicationHelper.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace JobApplicationHelper.Domain.Models;
+namespace JobApplicationHelper.Application.Configuration;
 
 public class LocationsOptions
 {

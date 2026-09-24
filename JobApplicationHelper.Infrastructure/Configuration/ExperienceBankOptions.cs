@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JobApplicationHelper.Configuration;
+namespace JobApplicationHelper.Infrastructure.Configuration;
 
 public sealed class ExperienceBankOptions
 {

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Infrastructure.Configuration;
 
 namespace JobApplicationHelper.Services;
 

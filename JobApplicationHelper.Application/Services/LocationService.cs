@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Domain.Models;
+﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Domain.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
