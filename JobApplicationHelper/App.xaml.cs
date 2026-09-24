@@ -1,5 +1,4 @@
 ﻿using JobApplicationHelper.Configuration;
-using JobApplicationHelper.Data;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Services;
@@ -14,13 +13,17 @@ using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Chat;
 using System.Windows;
+using WpfApplication = System.Windows.Application;
+using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Infrastructure.Services;
+using JobApplicationHelper.Infrastructure.Data;
 
 namespace JobApplicationHelper;
 
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App : WpfApplication
 {
     public static IHost? AppHost { get; private set; }
 

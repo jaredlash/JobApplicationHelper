@@ -1,11 +1,11 @@
-﻿using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Serialization;
-using System.IO;
+﻿using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Infrastructure.Serialization;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Infrastructure.Services;
 
 public sealed class YamlExperienceBankImportService : IExperienceBankImportService
 {

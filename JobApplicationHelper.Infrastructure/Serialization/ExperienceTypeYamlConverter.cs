@@ -3,7 +3,7 @@ using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace JobApplicationHelper.Serialization;
+namespace JobApplicationHelper.Infrastructure.Serialization;
 
 public sealed class ExperienceTypeYamlConverter : IYamlTypeConverter
 {

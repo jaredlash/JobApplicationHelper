@@ -26,7 +26,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\JobApplicationHelper.Application\JobApplicationHelper.Application.csproj" />
 	  <ProjectReference Include="..\JobApplicationHelper.Domain\JobApplicationHelper.Domain.csproj" />
+	  <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="appsettings-example.json">

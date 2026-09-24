@@ -2,7 +2,7 @@
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Application.Services;
 
 public sealed class JobRequirementService
 {

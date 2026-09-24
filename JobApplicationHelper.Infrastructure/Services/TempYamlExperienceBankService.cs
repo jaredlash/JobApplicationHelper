@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Domain.Models;
+﻿using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Domain.Models;
 
 namespace JobApplicationHelper.Services;
 

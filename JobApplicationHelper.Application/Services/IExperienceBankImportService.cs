@@ -1,6 +1,6 @@
 ﻿using JobApplicationHelper.Domain.Models;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Application.Services;
 
 public interface IExperienceBankImportService
 {

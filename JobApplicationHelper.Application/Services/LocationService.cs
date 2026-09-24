@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Application.Services;
 
 public class LocationService
 {

@@ -1,7 +1,7 @@
-﻿using JobApplicationHelper.Data.Entities;
+﻿using JobApplicationHelper.Infrastructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace JobApplicationHelper.Data;
+namespace JobApplicationHelper.Infrastructure.Data;
 
 public sealed class ExperienceBankDbContext : DbContext
 {

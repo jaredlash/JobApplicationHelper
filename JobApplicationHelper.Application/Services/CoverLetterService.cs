@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Application.Services;
 
 public sealed class CoverLetterService
 {
