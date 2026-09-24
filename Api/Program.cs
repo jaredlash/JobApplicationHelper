@@ -1,6 +1,8 @@
 using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobRequirements;
+using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +43,41 @@ app.MapPost(
 
         return Results.Ok(response);
     });
+
+app.MapGet(
+    "/api/experiences",
+    async (
+        IExperienceBankService service,
+        CancellationToken cancellationToken) =>
+    {
+        var experiences = await service.GetAllAsync(cancellationToken);
+
+        var response = experiences
+            .Select(e => new ExperienceDto(
+                e.Id,
+                e.Title,
+                e.Type.ToString(),
+                e.Organization,
+                e.DateRange is null
+                    ? null
+                    : new DateRangeDto(
+                        e.DateRange.Start is null
+                            ? null
+                            : new PartialDateDto(e.DateRange.Start.Year, e.DateRange.Start.Month, e.DateRange.Start.Day),
+                        e.DateRange.End is null
+                            ? null
+                            : new PartialDateDto(e.DateRange.End.Year, e.DateRange.End.Month, e.DateRange.End.Day)),
+                e.Summary,
+                e.Skills,
+                e.Evidence,
+                e.Contexts,
+                e.Links,
+                e.Notes))
+            .ToList();
+
+        return Results.Ok(response);
+    });
+
 
 app.Run();
 
