@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services;
 using JobApplicationHelper.WindowService;

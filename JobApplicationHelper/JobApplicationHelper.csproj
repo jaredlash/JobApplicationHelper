@@ -17,6 +17,8 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.10.0" />
 		<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.10.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.12" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.12" />
@@ -26,7 +28,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\JobApplicationHelper.Application\JobApplicationHelper.Application.csproj" />
 	  <ProjectReference Include="..\JobApplicationHelper.Domain\JobApplicationHelper.Domain.csproj" />
+	  <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="appsettings-example.json">
