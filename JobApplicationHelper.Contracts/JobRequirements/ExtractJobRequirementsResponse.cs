@@ -1,0 +1,3 @@
+﻿namespace JobApplicationHelper.Contracts.JobRequirements;
+
+public sealed record ExtractJobRequirementsResponse(IReadOnlyList<JobRequirementDto> Requirements);

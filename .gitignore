@@ -58,6 +58,7 @@ nunit-*.xml
 
 # My personal appsettings.json, make your own with the template!
 JobApplicationHelper/appsettings.json
+Api/appsettings.json
 
 # User-specific bits
 *.user

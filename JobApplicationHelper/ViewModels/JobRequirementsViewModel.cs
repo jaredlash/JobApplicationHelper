@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Extensions;
+using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +11,7 @@ namespace JobApplicationHelper.ViewModels;
 
 public partial class JobRequirementsViewModel : ViewModelBase
 {
-    private readonly JobRequirementService jobRequirementService;
+    private readonly JobRequirementsApiClient jobRequirementsApiClient;
     private readonly IExperienceBankService experienceBankService;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
@@ -19,14 +20,14 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
 
     public JobRequirementsViewModel(
-        JobRequirementService jobRequirementService,
+        JobRequirementsApiClient jobRequirementsApiClient,
         IExperienceBankService experienceBankService,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
         ILogger<JobRequirementsViewModel> logger)
     {
-        this.jobRequirementService = jobRequirementService;
+        this.jobRequirementsApiClient = jobRequirementsApiClient;
         this.experienceBankService = experienceBankService;
         this.navigation = navigation;
         this.windowService = windowService;
@@ -206,7 +207,8 @@ public partial class JobRequirementsViewModel : ViewModelBase
         try
         {
             IsFinishedLoadingJobRequirements = false;
-            Requirements = await jobRequirementService.ExtractRequirementsAsync(JobPosting, cancellationToken);
+
+            Requirements = await jobRequirementsApiClient.ExtractAsync(JobPosting, cancellationToken);
 
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;
