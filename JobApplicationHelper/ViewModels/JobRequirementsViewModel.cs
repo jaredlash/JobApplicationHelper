@@ -12,7 +12,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class JobRequirementsViewModel : ViewModelBase
 {
     private readonly JobRequirementsApiClient jobRequirementsApiClient;
-    private readonly IExperienceBankService experienceBankService;
+    private readonly ExperienceBankApiClient experienceBankApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
     private readonly CoverLetterDraftParameters draftParameters;
@@ -21,14 +21,14 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     public JobRequirementsViewModel(
         JobRequirementsApiClient jobRequirementsApiClient,
-        IExperienceBankService experienceBankService,
+        ExperienceBankApiClient experienceBankApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
         ILogger<JobRequirementsViewModel> logger)
     {
         this.jobRequirementsApiClient = jobRequirementsApiClient;
-        this.experienceBankService = experienceBankService;
+        this.experienceBankApiClient = experienceBankApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
         this.draftParameters = draftParameters;
@@ -197,7 +197,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     private async Task LoadExperienceBank(CancellationToken cancellationToken = default)
     {
-        _allExperiences = await experienceBankService.GetAllAsync(cancellationToken);
+        _allExperiences = await experienceBankApiClient.GetAllAsync(cancellationToken);
         OnExperienceFilterChanged(ExperienceFilter);
     }
 

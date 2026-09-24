@@ -41,6 +41,13 @@ public partial class App : WpfApplication
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
+        builder.Services.AddHttpClient<ExperienceBankApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["Api:BaseUrl"]
+                ?? throw new InvalidOperationException(
+                    "API base URL is not configured."));
+        });
 
 
         builder.Services.AddSingleton<MainWindow>();
