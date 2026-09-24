@@ -1,4 +1,7 @@
-﻿using JobApplicationHelper.Domain.Models;
+﻿using JobApplicationHelper.Application;
+using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Infrastructure;
+using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
 using JobApplicationHelper.WindowService;
@@ -8,8 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
 using WpfApplication = System.Windows.Application;
-using JobApplicationHelper.Application;
-using JobApplicationHelper.Infrastructure;
 
 namespace JobApplicationHelper;
 
@@ -30,6 +31,16 @@ public partial class App : WpfApplication
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
         builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+        builder.Services.AddHttpClient<JobRequirementsApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["Api:BaseUrl"]
+                ?? throw new InvalidOperationException("API base URL is not configured."));
+
+            client.Timeout = TimeSpan.FromMinutes(10);
+        });
+
 
 
         builder.Services.AddSingleton<MainWindow>();
@@ -64,6 +75,8 @@ public partial class App : WpfApplication
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
+
+
 
         // Temporary refactoring, these will be moved to the API DI
         builder.Services.AddApplication(builder.Configuration);

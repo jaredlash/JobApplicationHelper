@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JobApplicationHelper.Application\JobApplicationHelper.Application.csproj" />
+    <ProjectReference Include="..\JobApplicationHelper.Contracts\JobApplicationHelper.Contracts.csproj" />
+    <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

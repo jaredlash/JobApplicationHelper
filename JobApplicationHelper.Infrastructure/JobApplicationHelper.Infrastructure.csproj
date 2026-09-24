@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\JobApplicationHelper.Application\JobApplicationHelper.Application.csproj" />
+    <ProjectReference Include="..\JobApplicationHelper.Domain\JobApplicationHelper.Domain.csproj" />
   </ItemGroup>
 
 </Project>
