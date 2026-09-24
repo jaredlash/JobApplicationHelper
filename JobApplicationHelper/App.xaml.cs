@@ -129,6 +129,7 @@ public partial class App : WpfApplication
         builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
         builder.Services.AddTransient<LocationService>();
         builder.Services.AddTransient<FileService>();
+        builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
         builder.Services.AddTransient<CoverLetterService>();

@@ -14,13 +14,20 @@ namespace JobApplicationHelper.ViewModels
     {
 
         private readonly FileService _fileService;
+        private readonly IFolderLauncher folderLauncher;
         private readonly IWindowService windowService;
         private readonly IServiceProvider serviceProvider;
 
-        public MainWindowViewModel(LocationService locationService, FileService fileService, IWindowService windowService, IServiceProvider serviceProvider)
+        public MainWindowViewModel(
+            LocationService locationService,
+            FileService fileService,
+            IFolderLauncher folderLauncher,
+            IWindowService windowService,
+            IServiceProvider serviceProvider)
         {
             Locations = new BindingList<Location>([.. locationService.GetLocations()]);
             this._fileService = fileService;
+            this.folderLauncher = folderLauncher;
             this.windowService = windowService;
             this.serviceProvider = serviceProvider;
             ResetForm();
@@ -96,7 +103,7 @@ namespace JobApplicationHelper.ViewModels
 
                 if (OpenNewFolder)
                 {
-                    FileService.OpenFolder(newFolder);
+                    folderLauncher.OpenFolder(newFolder);
                 }
 
                 if (IncludeCoverLetter)
