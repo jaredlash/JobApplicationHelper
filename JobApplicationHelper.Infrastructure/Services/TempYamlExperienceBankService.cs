@@ -1,9 +1,9 @@
 ﻿using JobApplicationHelper.Application.Configuration;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure.Services;
+using Microsoft.Extensions.Options;
 
-namespace JobApplicationHelper.Services;
+namespace JobApplicationHelper.Infrastructure.Services;
 
 public class TempYamlExperienceBankService : IExperienceBankService
 {
@@ -11,10 +11,10 @@ public class TempYamlExperienceBankService : IExperienceBankService
     private readonly ApplicationDocumentOptions documentOptions;
     private ExperienceBank? experienceBank = null;
 
-    public TempYamlExperienceBankService(IExperienceBankImportService experienceBankImportService, ApplicationDocumentOptions documentOptions)
+    public TempYamlExperienceBankService(IExperienceBankImportService experienceBankImportService, IOptions<ApplicationDocumentOptions> documentOptions)
     {
         this.experienceBankImportService = experienceBankImportService;
-        this.documentOptions = documentOptions;
+        this.documentOptions = documentOptions.Value;
     }
 
     public Task AddAsync(Experience experience, CancellationToken cancellationToken = default)

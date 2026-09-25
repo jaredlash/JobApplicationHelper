@@ -3,7 +3,6 @@ using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
 using JobApplicationHelper.Infrastructure.Data;
 using JobApplicationHelper.Infrastructure.Services;
-using JobApplicationHelper.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;

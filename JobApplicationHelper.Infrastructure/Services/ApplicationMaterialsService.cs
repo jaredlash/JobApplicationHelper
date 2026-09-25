@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Application.Configuration;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.Extensions.Options;
 using System.Text;
 
 namespace JobApplicationHelper.Infrastructure.Services;
@@ -11,10 +12,10 @@ public class ApplicationMaterialsService : IApplicationMaterialsService
     private readonly ApplicationDocumentOptions documentOptions;
     private readonly CandidateContentOptions candidateOptions;
 
-    public ApplicationMaterialsService(ApplicationDocumentOptions documentOptions, CandidateContentOptions candidateOptions)
+    public ApplicationMaterialsService(IOptions<ApplicationDocumentOptions> documentOptions, IOptions<CandidateContentOptions> candidateOptions)
     {
-        this.documentOptions = documentOptions;
-        this.candidateOptions = candidateOptions;
+        this.documentOptions = documentOptions.Value;
+        this.candidateOptions = candidateOptions.Value;
     }
 
     public JobApplicationId CreateApplicationMaterials(ApplicationFile application)

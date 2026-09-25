@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Application.Configuration;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.Extensions.Options;
 using System.Text;
 
 namespace JobApplicationHelper.Infrastructure.Services;
@@ -10,10 +11,10 @@ public class CandidateContentProvider : ICandidateContentProvider
     private readonly CandidateContentOptions candidateContentOptions;
     private readonly ApplicationDocumentOptions documentOptions;
 
-    public CandidateContentProvider(CandidateContentOptions candidateContentOptions, ApplicationDocumentOptions documentOptions)
+    public CandidateContentProvider(IOptions<CandidateContentOptions> candidateContentOptions, IOptions<ApplicationDocumentOptions> documentOptions)
     {
-        this.candidateContentOptions = candidateContentOptions;
-        this.documentOptions = documentOptions;
+        this.candidateContentOptions = candidateContentOptions.Value;
+        this.documentOptions = documentOptions.Value;
     }
 
     public async Task<CandidateContent> GetAsync(string countryCode, CancellationToken cancellationToken = default)
