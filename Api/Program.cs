@@ -2,6 +2,7 @@ using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobRequirements;
+using JobApplicationHelper.Contracts.Locations;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
 
@@ -78,6 +79,20 @@ app.MapGet(
         return Results.Ok(response);
     });
 
+app.MapGet(
+    "/api/locations",
+    (LocationService service) =>
+    {
+        var locations = service.GetLocations();
+
+        var response = locations
+            .Select(location => new LocationDto(location.CountryCode, location.CountryName))
+            .ToList();
+
+        return Results.Ok(response);
+    });
+
+app.MapGet("/health", () => Results.Ok());
 
 app.Run();
 

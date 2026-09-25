@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure.Services;
+using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
@@ -13,23 +13,26 @@ namespace JobApplicationHelper.ViewModels
     public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IApplicationMaterialsService applicationMaterialsService;
+        private readonly IApiHealthService apiHealthService;
         private readonly IFolderLauncher folderLauncher;
         private readonly IWindowService windowService;
         private readonly IServiceProvider serviceProvider;
 
         public MainWindowViewModel(
             IApplicationMaterialsService applicationMaterialsService,
-            LocationService locationService,
+            LocationsApiClient locationsApiClient,
+            IApiHealthService apiHealthService,
             IFolderLauncher folderLauncher,
             IWindowService windowService,
             IServiceProvider serviceProvider)
         {
-            Locations = new BindingList<Location>([.. locationService.GetLocations()]);
+            
             this.applicationMaterialsService = applicationMaterialsService;
+            this.apiHealthService = apiHealthService;
             this.folderLauncher = folderLauncher;
             this.windowService = windowService;
             this.serviceProvider = serviceProvider;
-            ResetForm();
+            Locations = [];
         }
 
         [ObservableProperty]
@@ -75,6 +78,18 @@ namespace JobApplicationHelper.ViewModels
 
         [ObservableProperty]
         private string statusMessage = string.Empty;
+
+        [RelayCommand]
+        public async Task InitializeAsync(CancellationToken cancellationToken = default)
+        {
+            await apiHealthService.WaitUntilReadyAsync(cancellationToken);
+
+            var locations = await serviceProvider.GetRequiredService<LocationsApiClient>().GetAllAsync(cancellationToken);
+            Locations = new BindingList<Location>([.. locations]);
+
+            ResetForm();
+        }
+
 
         [RelayCommand]
         private void CreateApplication()
