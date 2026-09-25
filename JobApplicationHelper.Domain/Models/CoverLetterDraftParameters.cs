@@ -2,7 +2,7 @@
 
 public sealed class CoverLetterDraftParameters
 {
-    public string Cv { get; set; } = string.Empty;
+    public string CountryCode { get; set; } = string.Empty;
     public string JobPosting { get; set; } = string.Empty;
     public string CandidateNotes { get; set; } = string.Empty;
     public string Tone { get; set; } = string.Empty;

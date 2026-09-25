@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Services;
+using JobApplicationHelper.Infrastructure.Services;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
@@ -12,21 +12,20 @@ namespace JobApplicationHelper.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-
-        private readonly FileService _fileService;
+        private readonly IApplicationMaterialsService applicationMaterialsService;
         private readonly IFolderLauncher folderLauncher;
         private readonly IWindowService windowService;
         private readonly IServiceProvider serviceProvider;
 
         public MainWindowViewModel(
+            IApplicationMaterialsService applicationMaterialsService,
             LocationService locationService,
-            FileService fileService,
             IFolderLauncher folderLauncher,
             IWindowService windowService,
             IServiceProvider serviceProvider)
         {
             Locations = new BindingList<Location>([.. locationService.GetLocations()]);
-            this._fileService = fileService;
+            this.applicationMaterialsService = applicationMaterialsService;
             this.folderLauncher = folderLauncher;
             this.windowService = windowService;
             this.serviceProvider = serviceProvider;
@@ -98,7 +97,9 @@ namespace JobApplicationHelper.ViewModels
             );
             try
             {
-                string newFolder = _fileService.CreateApplicationDocuments(applicationFile);
+                
+                var applicationId = applicationMaterialsService.CreateApplicationMaterials(applicationFile);
+                string newFolder = applicationMaterialsService.GetApplicationFolder(applicationId);
                 StatusMessage = $"Application folder for {CompanyName} - {PositionTitle} created successfully.";
 
                 if (OpenNewFolder)
@@ -108,7 +109,7 @@ namespace JobApplicationHelper.ViewModels
 
                 if (IncludeCoverLetter)
                 {
-                    OpenCoverletterDraftWindow(newFolder, JobPosting);
+                    OpenCoverletterDraftWindow(applicationId, JobPosting);
                 }
             }
             catch (Exception ex)
@@ -131,12 +132,12 @@ namespace JobApplicationHelper.ViewModels
             ClearErrors();
         }
 
-        private void OpenCoverletterDraftWindow(string outputFolder, string jobPosting)
+        private void OpenCoverletterDraftWindow(JobApplicationId applicationId, string jobPosting)
         {
             var draftWindowViewModel = serviceProvider.GetService<DraftWindowViewModel>() ?? throw new InvalidOperationException("DraftWindowViewModel not registered in DI container.");
 
-            draftWindowViewModel.CoverLetter.CvText = _fileService.GetCVText(SelectedLocation.CountryCode);
-            draftWindowViewModel.CoverLetter.OutputFolder = outputFolder;
+            draftWindowViewModel.CoverLetter.ApplicationId = applicationId;
+            draftWindowViewModel.CoverLetter.CountryCode = SelectedLocation.CountryCode; // TODO: Remove this when persisting the applications in a database
             draftWindowViewModel.JobRequirements.JobPosting = jobPosting;
 
             windowService.ShowWindow(draftWindowViewModel);

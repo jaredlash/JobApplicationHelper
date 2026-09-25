@@ -1,16 +1,20 @@
-﻿using JobApplicationHelper.Application.Services;
+﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Infrastructure.Services;
 
 namespace JobApplicationHelper.Services;
 
 public class TempYamlExperienceBankService : IExperienceBankService
 {
-    private readonly FileService fileService;
+    private readonly IExperienceBankImportService experienceBankImportService;
+    private readonly ApplicationDocumentOptions documentOptions;
     private ExperienceBank? experienceBank = null;
 
-    public TempYamlExperienceBankService(FileService fileService)
+    public TempYamlExperienceBankService(IExperienceBankImportService experienceBankImportService, ApplicationDocumentOptions documentOptions)
     {
-        this.fileService = fileService;
+        this.experienceBankImportService = experienceBankImportService;
+        this.documentOptions = documentOptions;
     }
 
     public Task AddAsync(Experience experience, CancellationToken cancellationToken = default)
@@ -25,7 +29,7 @@ public class TempYamlExperienceBankService : IExperienceBankService
 
     public async Task<IReadOnlyList<Experience>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        experienceBank ??= await fileService.LoadExperienceBank();
+        experienceBank ??= await LoadExperienceBank();
         
         return experienceBank.Experiences.AsReadOnly();
     }
@@ -40,5 +44,11 @@ public class TempYamlExperienceBankService : IExperienceBankService
     public Task UpdateAsync(Experience experience, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
+    }
+
+    private async Task<ExperienceBank> LoadExperienceBank()
+    {
+        string experienceBankPath = Path.Combine(documentOptions.TemplateBasePath, "experience.yaml");
+        return await experienceBankImportService.ImportAsync(experienceBankPath);
     }
 }

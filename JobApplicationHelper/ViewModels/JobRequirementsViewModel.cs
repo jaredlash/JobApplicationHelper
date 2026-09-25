@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
@@ -186,7 +185,6 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     public string StatusMessage => jobRequirementsError == string.Empty ? jobRequirementsStatus : jobRequirementsError;
 
- 
 
     [RelayCommand]
     public async Task InitializeAsync(CancellationToken cancellationToken = default)

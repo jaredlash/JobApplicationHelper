@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Application.Services;
+﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
 using JobApplicationHelper.Infrastructure.Data;
 using JobApplicationHelper.Infrastructure.Services;
@@ -22,18 +23,15 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddOptions<FileServiceOptions>()
-            .Bind(configuration.GetSection("FileService"))
+        services.AddOptions<ApplicationDocumentOptions>()
+            .Bind(configuration.GetSection("ApplicationDocuments"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        // TODO: Remove this when the CandidateOptions are no longer needed in the infrastructure layer.
-        services.AddOptions<CandidateOptions>()
-            .Bind(configuration.GetSection("Candidate"))
+        services.AddOptions<CandidateContentOptions>()
+            .Bind(configuration.GetSection("CandidateContent"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        services.AddTransient<FileService>();
 
         services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         services.AddSingleton<IChatClient>(sp =>
@@ -57,15 +55,19 @@ public static class DependencyInjection
 
             return chatClient.AsIChatClient();
         });
-        services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
-        {
-            var configuration =
-                serviceProvider.GetRequiredService<IConfiguration>();
+        //services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
+        //{
+        //    var configuration =
+        //        serviceProvider.GetRequiredService<IConfiguration>();
 
-            var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
+        //    var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
 
-            options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
-        });
+        //    options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
+        //});
+
+        services.AddSingleton<ICandidateContentProvider, CandidateContentProvider>();
+        services.AddSingleton<IApplicationMaterialsService, ApplicationMaterialsService>();
+
 
         //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();
         services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();
