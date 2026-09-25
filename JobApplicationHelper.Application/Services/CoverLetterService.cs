@@ -9,11 +9,13 @@ namespace JobApplicationHelper.Application.Services;
 public sealed class CoverLetterService
 {
     private readonly IChatClient _chatClient;
+    private readonly ICandidateContentProvider candidateContentProvider;
     private readonly ILogger<CoverLetterService> _logger;
 
-    public CoverLetterService(IChatClient chatClient, ILogger<CoverLetterService> logger)
+    public CoverLetterService(IChatClient chatClient, ICandidateContentProvider candidateContentProvider, ILogger<CoverLetterService> logger)
     {
         _chatClient = chatClient;
+        this.candidateContentProvider = candidateContentProvider;
         _logger = logger;
     }
 
@@ -368,6 +370,10 @@ public sealed class CoverLetterService
     {
         var requirementsEvidence = FormatJobRequirements(draftParameters.Requirements);
 
+        var content = await candidateContentProvider.GetAsync(draftParameters.CountryCode, cancellationToken);
+
+        string cvText = content.CvText;
+
         var userPrompt = $"""
             /no_think
         
@@ -394,7 +400,7 @@ public sealed class CoverLetterService
             === END TARGET LENGTH ===
         
             === CANDIDATE CV ===
-            {draftParameters.Cv}
+            {cvText}
             === END CANDIDATE CV ===
         
             === JOB REQUIREMENTS AND SELECTED SUPPORTING EXPERIENCE ===
@@ -502,6 +508,9 @@ public sealed class CoverLetterService
     {
         var requirementsEvidence = FormatJobRequirements(draftParameters.Requirements);
 
+        var cvText = string.Empty;
+
+
         var userPrompt = $"""
         Verify the following cover letter against the supplied job and candidate
         information.
@@ -511,7 +520,7 @@ public sealed class CoverLetterService
         evidence, and violations of the requested writing instructions.
     
         === CV ===
-        {draftParameters.Cv}
+        {cvText}
         === END CV ===
     
         === JOB POSTING ===

@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Services;
+using JobApplicationHelper.Infrastructure.Services;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +10,7 @@ namespace JobApplicationHelper.ViewModels;
 
 public partial class CoverLetterViewModel : ViewModelBase
 {
-    private readonly FileService fileService;
+    private readonly IApplicationMaterialsService applicationMaterialsService;
     private readonly CoverLetterService coverLetterService;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
@@ -19,14 +19,14 @@ public partial class CoverLetterViewModel : ViewModelBase
 
 
     public CoverLetterViewModel(
-        FileService fileService,
+        IApplicationMaterialsService applicationMaterialsService,
         CoverLetterService coverLetterService,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
         ILogger<CoverLetterViewModel> logger)
     {
-        this.fileService = fileService;
+        this.applicationMaterialsService = applicationMaterialsService;
         this.coverLetterService = coverLetterService;
         this.navigation = navigation;
         this.windowService = windowService;
@@ -34,31 +34,25 @@ public partial class CoverLetterViewModel : ViewModelBase
         this.logger = logger;
     }
 
+    public string CountryCode { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string cvText = String.Empty;
+    private JobApplicationId? applicationId;
 
     [ObservableProperty]
-    private string outputFolder = String.Empty;
-
-    [ObservableProperty]
-    private string additionalPromptInstructions = String.Empty;
-
-    [ObservableProperty]
-    private string draft = String.Empty;
-
+    private string draft = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
-    private string coverLetterError = String.Empty;
+    private string coverLetterError = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
-    private string coverLetterStatus = String.Empty;
+    private string coverLetterStatus = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
-    private string verificationStatus = String.Empty;
+    private string verificationStatus = string.Empty;
 
     public string StatusMessage => (CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError) + "  " + VerificationStatus;
 
@@ -69,8 +63,11 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         try
         {
+            ArgumentNullException.ThrowIfNull(ApplicationId);
+
             CoverLetterStatus = "Generating cover letter draft...";
             VerificationStatus = string.Empty;
+            draftParameters.CountryCode = CountryCode;
             Draft = await coverLetterService.GenerateCoverLetterAsync(draftParameters, cancellationToken);
             CoverLetterStatus = "Done.";
 
@@ -107,7 +104,9 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         try
         {
-            fileService.SaveDraftToNotes(Draft, OutputFolder);
+            ArgumentNullException.ThrowIfNull(ApplicationId);
+
+            applicationMaterialsService.SaveCoverLetterDraft(ApplicationId, Draft);
             CoverLetterStatus = "Cover letter saved successfully.";
         }
         catch (Exception ex)
