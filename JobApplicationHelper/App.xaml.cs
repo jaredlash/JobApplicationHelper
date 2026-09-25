@@ -9,6 +9,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Windows;
 using WpfApplication = System.Windows.Application;
 
@@ -32,23 +33,53 @@ public partial class App : WpfApplication
 
         builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-        builder.Services.AddHttpClient<JobRequirementsApiClient>(client =>
+        builder.Services.AddOptions<ApiOptions>()
+            .BindConfiguration("Api")
+            .ValidateDataAnnotations()
+            .Validate(
+                options =>
+                {
+                    if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri))
+                        return false;
+
+                    return uri.Scheme == Uri.UriSchemeHttp
+                        || uri.Scheme == Uri.UriSchemeHttps;
+                },
+                "Api:BaseUrl must be a valid HTTP or HTTPS URL.")
+            .ValidateOnStart();
+
+        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
         {
-            client.BaseAddress = new Uri(
-                builder.Configuration["Api:BaseUrl"]
-                ?? throw new InvalidOperationException("API base URL is not configured."));
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BaseUrl);
 
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
-        builder.Services.AddHttpClient<ExperienceBankApiClient>(client =>
+        builder.Services.AddHttpClient<ExperienceBankApiClient>((serviceProvider, client) =>
         {
-            client.BaseAddress = new Uri(
-                builder.Configuration["Api:BaseUrl"]
-                ?? throw new InvalidOperationException(
-                    "API base URL is not configured."));
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BaseUrl);
         });
 
+        builder.Services.AddHttpClient<LocationsApiClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BaseUrl);
+        });
+
+        builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
+            (serviceProvider, client) =>
+            {
+                var options = serviceProvider
+                    .GetRequiredService<IOptions<ApiOptions>>()
+                    .Value;
+
+                client.BaseAddress = new Uri(options.BaseUrl);
+            });
 
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddTransient<MainWindowViewModel>();
