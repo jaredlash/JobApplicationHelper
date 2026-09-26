@@ -10,8 +10,8 @@ namespace JobApplicationHelper.ViewModels;
 
 public partial class CoverLetterViewModel : ViewModelBase
 {
-    private readonly IApplicationMaterialsService applicationMaterialsService;
     private readonly CoverLettersApiClient coverLettersApiClient;
+    private readonly JobApplicationsApiClient jobApplicationsApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
     private readonly CoverLetterDraftParameters draftParameters;
@@ -19,15 +19,15 @@ public partial class CoverLetterViewModel : ViewModelBase
 
 
     public CoverLetterViewModel(
-        IApplicationMaterialsService applicationMaterialsService,
         CoverLettersApiClient coverLettersApiClient,
+        JobApplicationsApiClient jobApplicationsApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
         ILogger<CoverLetterViewModel> logger)
     {
-        this.applicationMaterialsService = applicationMaterialsService;
         this.coverLettersApiClient = coverLettersApiClient;
+        this.jobApplicationsApiClient = jobApplicationsApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
         this.draftParameters = draftParameters;
@@ -100,13 +100,13 @@ public partial class CoverLetterViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void SaveCoverLetter()
+    private async Task SaveCoverLetter()
     {
         try
         {
             ArgumentNullException.ThrowIfNull(ApplicationId);
 
-            applicationMaterialsService.SaveCoverLetterDraft(ApplicationId, Draft);
+            await jobApplicationsApiClient.SaveCoverLetter(ApplicationId, Draft);
             CoverLetterStatus = "Cover letter saved successfully.";
         }
         catch (Exception ex)

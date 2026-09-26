@@ -13,6 +13,7 @@ namespace JobApplicationHelper.ViewModels
     public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IApplicationMaterialsService applicationMaterialsService;
+        private readonly JobApplicationsApiClient jobApplicationsApiClient;
         private readonly IApiHealthService apiHealthService;
         private readonly IFolderLauncher folderLauncher;
         private readonly IWindowService windowService;
@@ -20,6 +21,7 @@ namespace JobApplicationHelper.ViewModels
 
         public MainWindowViewModel(
             IApplicationMaterialsService applicationMaterialsService,
+            JobApplicationsApiClient jobApplicationsApiClient,
             LocationsApiClient locationsApiClient,
             IApiHealthService apiHealthService,
             IFolderLauncher folderLauncher,
@@ -28,6 +30,7 @@ namespace JobApplicationHelper.ViewModels
         {
             
             this.applicationMaterialsService = applicationMaterialsService;
+            this.jobApplicationsApiClient = jobApplicationsApiClient;
             this.apiHealthService = apiHealthService;
             this.folderLauncher = folderLauncher;
             this.windowService = windowService;
@@ -92,7 +95,7 @@ namespace JobApplicationHelper.ViewModels
 
 
         [RelayCommand]
-        private void CreateApplication()
+        private async Task CreateApplication()
         {
             ValidateAllProperties();
             if (HasErrors)
@@ -112,9 +115,8 @@ namespace JobApplicationHelper.ViewModels
             );
             try
             {
-                
-                var applicationId = applicationMaterialsService.CreateApplicationMaterials(applicationFile);
-                string newFolder = applicationMaterialsService.GetApplicationFolder(applicationId);
+                var applicationId = await jobApplicationsApiClient.CreateJobApplicationAsync(applicationFile);
+                string newFolder = await jobApplicationsApiClient.GetApplicationFolderAsync(applicationId);
                 StatusMessage = $"Application folder for {CompanyName} - {PositionTitle} created successfully.";
 
                 if (OpenNewFolder)
