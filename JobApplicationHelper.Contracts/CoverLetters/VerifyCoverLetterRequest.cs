@@ -1,0 +1,3 @@
+﻿namespace JobApplicationHelper.Contracts.CoverLetters;
+
+public sealed record VerifyCoverLetterRequest(CoverLetterDraftParametersDto DraftParameters, string Draft);

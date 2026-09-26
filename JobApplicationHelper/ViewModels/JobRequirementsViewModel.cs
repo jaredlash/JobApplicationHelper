@@ -287,6 +287,11 @@ public partial class JobRequirementsViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
     private async Task GenerateCoverLetter()
     {
+        // TODO: Create a way of making sure all these parameters are set before generating the cover letter
+        draftParameters.JobPosting = JobPosting;
+        draftParameters.TargetAudience = "Dutch";
+        draftParameters.Style = "Professional";
+        draftParameters.Tone = "semi-formal, factual, not overly enthusiastic";
         navigation.GoToTab(DraftTab.CoverLetterTab);
     }
 

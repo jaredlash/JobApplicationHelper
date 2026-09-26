@@ -4,6 +4,7 @@
   </Folder>
   <Project Path="Api/JobApplicationHelper.Api.csproj" />
   <Project Path="AppHost/JobApplicationHelper.AppHost.csproj" Id="79399dff-869b-4880-a8e4-cc2e990bba74" />
+  <Project Path="JobApplicationHelper.ApiMappings/JobApplicationHelper.ApiMappings.csproj" Id="989a2e64-b5e3-46f7-895d-7044644567bd" />
   <Project Path="JobApplicationHelper.Application/JobApplicationHelper.Application.csproj" Id="a4de2a1e-7357-48c2-b300-5684e96b764b" />
   <Project Path="JobApplicationHelper.Contracts/JobApplicationHelper.Contracts.csproj" Id="f2855931-6d6e-43c7-b2c0-e20e54435a65" />
   <Project Path="JobApplicationHelper.Domain/JobApplicationHelper.Domain.csproj" Id="0c3b03ac-5e74-4b52-936d-af0c5f55b84d" />

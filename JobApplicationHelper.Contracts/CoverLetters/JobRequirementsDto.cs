@@ -1,0 +1,5 @@
+﻿using JobApplicationHelper.Contracts.JobRequirements;
+
+namespace JobApplicationHelper.Contracts.CoverLetters;
+
+public sealed record JobRequirementsDto(IReadOnlyList<JobRequirementWithEvidenceDto> Requirements);

@@ -1,0 +1,3 @@
+﻿namespace JobApplicationHelper.Contracts.CoverLetters;
+
+public sealed record GenerateCoverLetterRequest(CoverLetterDraftParametersDto DraftParameters);

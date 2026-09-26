@@ -1,5 +1,6 @@
 ﻿using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.ApiMappings.ToDomain;
 using System.Net.Http;
 using System.Net.Http.Json;
 
@@ -33,16 +34,7 @@ public sealed class JobRequirementsApiClient
         return new JobRequirements
         {
             Requirements = apiResponse.Requirements
-                .Select(r => new JobRequirement
-                {
-                    Requirement = r.Requirement,
-                    Category = Enum.Parse<RequirementCategory>(
-                        r.Category,
-                        ignoreCase: true),
-                    Priority = Enum.Parse<RequirementPriority>(
-                        r.Priority,
-                        ignoreCase: true)
-                })
+                .Select(r => r.ToDomain())
                 .ToList()
         };
     }

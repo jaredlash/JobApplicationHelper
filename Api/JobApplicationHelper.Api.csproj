@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JobApplicationHelper.ApiMappings\JobApplicationHelper.ApiMappings.csproj" />
     <ProjectReference Include="..\JobApplicationHelper.Application\JobApplicationHelper.Application.csproj" />
     <ProjectReference Include="..\JobApplicationHelper.Contracts\JobApplicationHelper.Contracts.csproj" />
     <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
