@@ -1,14 +1,15 @@
+using JobApplicationHelper.ApiMappings.ToDomain;
+using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Contracts.CoverLetters;
 using JobApplicationHelper.Contracts.Experiences;
+using JobApplicationHelper.Contracts.JobApplications;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Contracts.Locations;
-using JobApplicationHelper.ApiMappings.ToDto;
-using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
-using JobApplicationHelper.Contracts.CoverLetters;
-using JobApplicationHelper.Contracts.JobApplications;
+using JobApplicationHelper.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
