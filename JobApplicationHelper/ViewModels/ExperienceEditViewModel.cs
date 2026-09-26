@@ -7,7 +7,7 @@ namespace JobApplicationHelper.ViewModels;
 
 public partial class ExperienceEditViewModel : ViewModelBase
 {
-    private readonly IExperienceBankService _experienceBankService;
+    //private readonly IExperienceBankService _experienceBankService;
 
     private Experience? _originalExperience;
 
@@ -48,9 +48,8 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [ObservableProperty]
     private string? notes;
 
-    public ExperienceEditViewModel(IExperienceBankService experienceBankService)
+    public ExperienceEditViewModel()
     {
-        _experienceBankService = experienceBankService;
     }
 
     public void InitializeForAdd()
@@ -96,21 +95,21 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(Title))
-        {
-            return;
-        }
+        //if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(Title))
+        //{
+        //    return;
+        //}
 
-        var experience = CreateExperience();
+        //var experience = CreateExperience();
 
-        if (IsEditMode)
-        {
-            await _experienceBankService.UpdateAsync(experience);
-        }
-        else
-        {
-            await _experienceBankService.AddAsync(experience);
-        }
+        //if (IsEditMode)
+        //{
+        //    await _experienceBankService.UpdateAsync(experience);
+        //}
+        //else
+        //{
+        //    await _experienceBankService.AddAsync(experience);
+        //}
 
         TryClose(true);
     }
@@ -121,29 +120,29 @@ public partial class ExperienceEditViewModel : ViewModelBase
         TryClose(false);
     }
 
-    private Experience CreateExperience()
-    {
-        return new Experience
-        {
-            Id = Id.Trim(),
-            Title = Title.Trim(),
-            Type = Type,
-            Organization = string.IsNullOrWhiteSpace(Organization)
-                ? null
-                : Organization.Trim(),
-            DateRange = CloneDateRange(DateRange),
-            Summary = string.IsNullOrWhiteSpace(Summary)
-                ? null
-                : Summary.Trim(),
-            Skills = [.. Skills],
-            Evidence = [.. Evidence],
-            Contexts = [.. Contexts],
-            Links = [.. Links],
-            Notes = string.IsNullOrWhiteSpace(Notes)
-                ? null
-                : Notes.Trim()
-        };
-    }
+    //private Experience CreateExperience()
+    //{
+    //    return new Experience
+    //    {
+    //        Id = Id.Trim(),
+    //        Title = Title.Trim(),
+    //        Type = Type,
+    //        Organization = string.IsNullOrWhiteSpace(Organization)
+    //            ? null
+    //            : Organization.Trim(),
+    //        DateRange = CloneDateRange(DateRange),
+    //        Summary = string.IsNullOrWhiteSpace(Summary)
+    //            ? null
+    //            : Summary.Trim(),
+    //        Skills = [.. Skills],
+    //        Evidence = [.. Evidence],
+    //        Contexts = [.. Contexts],
+    //        Links = [.. Links],
+    //        Notes = string.IsNullOrWhiteSpace(Notes)
+    //            ? null
+    //            : Notes.Trim()
+    //    };
+    //}
 
     private static DateRange? CloneDateRange(DateRange? dateRange)
     {
