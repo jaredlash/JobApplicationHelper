@@ -1,6 +1,4 @@
-﻿using JobApplicationHelper.Application;
-using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure;
+﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
@@ -133,8 +131,8 @@ public partial class App : WpfApplication
 
 
         // Temporary refactoring, these will be moved to the API DI
-        builder.Services.AddApplication(builder.Configuration);
-        builder.Services.AddInfrastructure(builder.Configuration);
+        //builder.Services.AddApplication(builder.Configuration);
+        //builder.Services.AddInfrastructure(builder.Configuration);
 
         AppHost = builder.Build();
 

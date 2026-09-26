@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
@@ -12,7 +11,6 @@ namespace JobApplicationHelper.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-        private readonly IApplicationMaterialsService applicationMaterialsService;
         private readonly JobApplicationsApiClient jobApplicationsApiClient;
         private readonly IApiHealthService apiHealthService;
         private readonly IFolderLauncher folderLauncher;
@@ -20,7 +18,6 @@ namespace JobApplicationHelper.ViewModels
         private readonly IServiceProvider serviceProvider;
 
         public MainWindowViewModel(
-            IApplicationMaterialsService applicationMaterialsService,
             JobApplicationsApiClient jobApplicationsApiClient,
             LocationsApiClient locationsApiClient,
             IApiHealthService apiHealthService,
@@ -28,8 +25,6 @@ namespace JobApplicationHelper.ViewModels
             IWindowService windowService,
             IServiceProvider serviceProvider)
         {
-            
-            this.applicationMaterialsService = applicationMaterialsService;
             this.jobApplicationsApiClient = jobApplicationsApiClient;
             this.apiHealthService = apiHealthService;
             this.folderLauncher = folderLauncher;
