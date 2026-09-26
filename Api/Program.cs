@@ -3,8 +3,11 @@ using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Contracts.Locations;
+using JobApplicationHelper.ApiMappings.ToDto;
+using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
+using JobApplicationHelper.Contracts.CoverLetters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +48,37 @@ app.MapPost(
         return Results.Ok(response);
     });
 
+app.MapPost(
+    "/api/cover-letters",
+    async (
+        GenerateCoverLetterRequest request,
+        CoverLetterService coverLetterService,
+        CancellationToken cancellationToken) =>
+    {
+        var draft = await coverLetterService.GenerateCoverLetterAsync(
+            request.DraftParameters.ToDomain(),
+            cancellationToken);
+
+        var response = new GenerateCoverLetterResponse(draft);
+
+        return Results.Ok(response);
+    });
+
+app.MapPost(
+    "/api/cover-letters/verify",
+    async (
+        VerifyCoverLetterRequest request,
+        CoverLetterService coverLetterService,
+        CancellationToken cancellationToken) =>
+    {
+        var verificationResult = await coverLetterService.VerifyDraftAsync(
+            request.DraftParameters.ToDomain(),
+            request.Draft,
+            cancellationToken);
+
+        return Results.Ok(verificationResult.ToDto());
+    });
+
 app.MapGet(
     "/api/experiences",
     async (
@@ -54,26 +88,7 @@ app.MapGet(
         var experiences = await service.GetAllAsync(cancellationToken);
 
         var response = experiences
-            .Select(e => new ExperienceDto(
-                e.Id,
-                e.Title,
-                e.Type.ToString(),
-                e.Organization,
-                e.DateRange is null
-                    ? null
-                    : new DateRangeDto(
-                        e.DateRange.Start is null
-                            ? null
-                            : new PartialDateDto(e.DateRange.Start.Year, e.DateRange.Start.Month, e.DateRange.Start.Day),
-                        e.DateRange.End is null
-                            ? null
-                            : new PartialDateDto(e.DateRange.End.Year, e.DateRange.End.Month, e.DateRange.End.Day)),
-                e.Summary,
-                e.Skills,
-                e.Evidence,
-                e.Contexts,
-                e.Links,
-                e.Notes))
+            .Select(e => e.ToDto())
             .ToList();
 
         return Results.Ok(response);

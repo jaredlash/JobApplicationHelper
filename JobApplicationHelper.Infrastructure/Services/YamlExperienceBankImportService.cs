@@ -14,7 +14,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
     public YamlExperienceBankImportService()
     {
         _deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .WithTypeConverter(new ExperienceTypeYamlConverter())
             .IgnoreUnmatchedProperties()
             .Build();

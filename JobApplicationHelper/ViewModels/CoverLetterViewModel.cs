@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure.Services;
+using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +11,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class CoverLetterViewModel : ViewModelBase
 {
     private readonly IApplicationMaterialsService applicationMaterialsService;
-    private readonly CoverLetterService coverLetterService;
+    private readonly CoverLettersApiClient coverLettersApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
     private readonly CoverLetterDraftParameters draftParameters;
@@ -20,14 +20,14 @@ public partial class CoverLetterViewModel : ViewModelBase
 
     public CoverLetterViewModel(
         IApplicationMaterialsService applicationMaterialsService,
-        CoverLetterService coverLetterService,
+        CoverLettersApiClient coverLettersApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
         ILogger<CoverLetterViewModel> logger)
     {
         this.applicationMaterialsService = applicationMaterialsService;
-        this.coverLetterService = coverLetterService;
+        this.coverLettersApiClient = coverLettersApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
         this.draftParameters = draftParameters;
@@ -68,12 +68,12 @@ public partial class CoverLetterViewModel : ViewModelBase
             CoverLetterStatus = "Generating cover letter draft...";
             VerificationStatus = string.Empty;
             draftParameters.CountryCode = CountryCode;
-            Draft = await coverLetterService.GenerateCoverLetterAsync(draftParameters, cancellationToken);
+            Draft = await coverLettersApiClient.GenerateCoverLetterAsync(draftParameters, cancellationToken);
             CoverLetterStatus = "Done.";
 
             VerificationStatus = "Verifying cover letter draft...";
 
-            var verificationResult = await coverLetterService.VerifyDraftAsync(draftParameters, Draft, cancellationToken);
+            var verificationResult = await coverLettersApiClient.VerifyDraftAsync(draftParameters, Draft, cancellationToken);
 
             if (!verificationResult.IsValid)
             {

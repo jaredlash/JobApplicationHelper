@@ -508,7 +508,10 @@ public sealed class CoverLetterService
     {
         var requirementsEvidence = FormatJobRequirements(draftParameters.Requirements);
 
-        var cvText = string.Empty;
+
+        var content = await candidateContentProvider.GetAsync(draftParameters.CountryCode, cancellationToken);
+
+        string cvText = content.CvText;
 
 
         var userPrompt = $"""
@@ -732,6 +735,11 @@ public sealed class CoverLetterService
         if (!string.IsNullOrWhiteSpace(experience.Organization))
         {
             sb.AppendLine($"    Organization: {experience.Organization}");
+        }
+
+        if (experience.DateRange is not null)
+        {
+            sb.AppendLine($"    Dates: {experience.DateRange.ToString()}");
         }
 
         if (!string.IsNullOrWhiteSpace(experience.Summary))

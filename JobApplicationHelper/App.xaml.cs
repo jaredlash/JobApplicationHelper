@@ -57,6 +57,15 @@ public partial class App : WpfApplication
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
+        builder.Services.AddHttpClient<CoverLettersApiClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BaseUrl);
+
+            client.Timeout = TimeSpan.FromMinutes(10);
+        });
+
         builder.Services.AddHttpClient<ExperienceBankApiClient>((serviceProvider, client) =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
