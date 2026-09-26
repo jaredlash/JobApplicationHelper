@@ -8,6 +8,7 @@ using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
 using JobApplicationHelper.Contracts.CoverLetters;
+using JobApplicationHelper.Contracts.JobApplications;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +106,36 @@ app.MapGet(
             .ToList();
 
         return Results.Ok(response);
+    });
+
+
+app.MapGet(
+    "/api/job-applications/{id}/folder",
+    (string id) =>
+    {
+        return Results.Ok(new ApplicationFolderResponse(id));
+    });
+
+app.MapPut(
+    "/api/job-applications/{id}/cover-letter",
+    (
+        string id,
+        SaveCoverLetterRequest request,
+        IApplicationMaterialsService applicationMaterialsService) =>
+    {
+        applicationMaterialsService.SaveCoverLetterDraft(new JobApplicationId(id), request.CoverLetter);
+
+        return Results.NoContent();
+    });
+
+app.MapPost(
+    "/api/job-applications",
+    (
+        CreateJobApplicationRequest request,
+        IApplicationMaterialsService applicationMaterialsService) =>
+    {
+        var applicationId = applicationMaterialsService.CreateApplicationMaterials(request.ToDomain());
+        return Results.Ok(new CreateJobApplicationResponse(applicationId.Value));
     });
 
 app.MapGet("/health", () => Results.Ok());

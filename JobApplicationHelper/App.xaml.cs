@@ -80,6 +80,13 @@ public partial class App : WpfApplication
             client.BaseAddress = new Uri(options.BaseUrl);
         });
 
+        builder.Services.AddHttpClient<JobApplicationsApiClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BaseUrl);
+        });
+
         builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
             (serviceProvider, client) =>
             {
