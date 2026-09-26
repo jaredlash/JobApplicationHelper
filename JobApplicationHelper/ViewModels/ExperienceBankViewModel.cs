@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -11,7 +11,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class ExperienceBankViewModel : ViewModelBase
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IExperienceBankService _experienceBankService;
+    private readonly ExperienceBankApiClient experienceBankApiClient;
     private readonly IWindowService _windowService;
 
     public Experience? SelectedExperience =>
@@ -21,11 +21,11 @@ public partial class ExperienceBankViewModel : ViewModelBase
 
     public ExperienceBankViewModel(
         IServiceProvider serviceProvider,
-        IExperienceBankService experienceBankService,
+        ExperienceBankApiClient experienceBankApiClient,
         IWindowService windowService)
     {
         _serviceProvider = serviceProvider;
-        _experienceBankService = experienceBankService;
+        this.experienceBankApiClient = experienceBankApiClient;
         _windowService = windowService;
     }
 
@@ -44,7 +44,7 @@ public partial class ExperienceBankViewModel : ViewModelBase
 
     private async Task ReloadAsync(string? selectedExperienceId = null, CancellationToken cancellationToken = default)
     {
-        var experiences = await _experienceBankService.GetAllAsync(cancellationToken);
+        var experiences = await experienceBankApiClient.GetAllAsync(cancellationToken);
 
         Experiences.Clear();
 
