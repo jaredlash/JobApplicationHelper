@@ -112,31 +112,34 @@ app.MapGet(
 
 app.MapGet(
     "/api/job-applications/{id}/folder",
-    (string id) =>
+    async (string id, IApplicationMaterialsService applicationMaterialsService, CancellationToken cancellationToken) =>
     {
-        return Results.Ok(new ApplicationFolderResponse(id));
+        var folderPath = await applicationMaterialsService.GetApplicationFolderAsync(new JobApplicationId(Guid.Parse(id)), cancellationToken);
+        return Results.Ok(new ApplicationFolderResponse(folderPath));
     });
 
 app.MapPut(
     "/api/job-applications/{id}/cover-letter",
-    (
+    async (
         string id,
         SaveCoverLetterRequest request,
-        IApplicationMaterialsService applicationMaterialsService) =>
+        IApplicationMaterialsService applicationMaterialsService,
+        CancellationToken cancellationToken) =>
     {
-        applicationMaterialsService.SaveCoverLetterDraft(new JobApplicationId(id), request.CoverLetter);
+        await applicationMaterialsService.SaveCoverLetterDraftAsync(new JobApplicationId(Guid.Parse(id)), request.CoverLetter, cancellationToken);
 
         return Results.NoContent();
     });
 
 app.MapPost(
     "/api/job-applications",
-    (
+    async (
         CreateJobApplicationRequest request,
-        IApplicationMaterialsService applicationMaterialsService) =>
+        IApplicationMaterialsService applicationMaterialsService,
+        CancellationToken cancellationToken) =>
     {
-        var applicationId = applicationMaterialsService.CreateApplicationMaterials(request.ToDomain());
-        return Results.Ok(new CreateJobApplicationResponse(applicationId.Value));
+        var applicationId = await applicationMaterialsService.CreateApplicationMaterialsAsync(request.ToDomain(), cancellationToken);
+        return Results.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
     });
 
 app.MapGet("/health", () => Results.Ok());

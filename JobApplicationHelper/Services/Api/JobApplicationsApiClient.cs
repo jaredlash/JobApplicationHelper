@@ -30,13 +30,13 @@ public sealed class JobApplicationsApiClient
             await httpResponse.Content.ReadFromJsonAsync<CreateJobApplicationResponse>(cancellationToken)
             ?? throw new InvalidOperationException("The job application API returned an empty response.");
 
-        return new JobApplicationId(response.JobApplicationId);
+        return new JobApplicationId(Guid.Parse(response.JobApplicationId));
     }
 
     public async Task<string> GetApplicationFolderAsync(JobApplicationId jobApplicationId,
         CancellationToken cancellationToken = default)
     {
-        var applicationId = Uri.EscapeDataString(jobApplicationId.Value);
+        var applicationId = Uri.EscapeDataString(jobApplicationId.Value.ToString());
 
         using var httpResponse = await _httpClient.GetAsync(
             $"api/job-applications/{applicationId}/folder",
@@ -55,7 +55,7 @@ public sealed class JobApplicationsApiClient
         string coverLetter,
         CancellationToken cancellationToken = default)
     {
-        var applicationId = Uri.EscapeDataString(jobApplicationId.Value);
+        var applicationId = Uri.EscapeDataString(jobApplicationId.Value.ToString());
 
         using var httpResponse = await _httpClient.PutAsJsonAsync(
             $"api/job-applications/{applicationId}/cover-letter",

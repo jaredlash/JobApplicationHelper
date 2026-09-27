@@ -35,8 +35,8 @@ public partial class CoverLetterViewModel : ViewModelBase
 
     public string CountryCode { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    private JobApplicationId? applicationId;
+
+    public JobApplicationId? ApplicationId { get; set; }
 
     [ObservableProperty]
     private string draft = string.Empty;
@@ -103,9 +103,13 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(ApplicationId);
+            if (ApplicationId is null)
+            {
+                throw new InvalidOperationException("ApplicationId has not been set.");
+            }
 
-            await jobApplicationsApiClient.SaveCoverLetter(ApplicationId, Draft);
+            await jobApplicationsApiClient.SaveCoverLetter(ApplicationId.Value, Draft);
+
             CoverLetterStatus = "Cover letter saved successfully.";
         }
         catch (Exception ex)

@@ -4,9 +4,9 @@ namespace JobApplicationHelper.Application.Services;
 
 public interface IApplicationMaterialsService
 {
-    JobApplicationId CreateApplicationMaterials(ApplicationFile application);
+    Task<JobApplicationId> CreateApplicationMaterialsAsync(ApplicationFile application, CancellationToken cancellationToken = default);
 
-    void SaveCoverLetterDraft(JobApplicationId applicationId, string draft);
+    Task SaveCoverLetterDraftAsync(JobApplicationId applicationId, string draft, CancellationToken cancellationToken = default);
 
-    string GetApplicationFolder(JobApplicationId applicationId);
+    Task<string> GetApplicationFolderAsync(JobApplicationId applicationId, CancellationToken cancellationToken = default);
 }

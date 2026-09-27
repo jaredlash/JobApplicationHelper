@@ -1,3 +1,3 @@
 ﻿namespace JobApplicationHelper.Domain.Models;
 
-public record JobApplicationId(string Value);
+public readonly record struct JobApplicationId(Guid Value);
