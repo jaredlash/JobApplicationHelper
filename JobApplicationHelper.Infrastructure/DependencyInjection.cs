@@ -35,6 +35,11 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<BackgroundJobOptions>()
+            .Bind(configuration.GetSection("BackgroundJobs"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
         services.AddSingleton<IChatClient>(sp =>
         {
@@ -99,6 +104,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
+        services.AddScoped<IBackgroundJobService, BackgroundJobService>();
 
 
         //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();

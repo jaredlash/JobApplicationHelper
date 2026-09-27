@@ -6,7 +6,7 @@ public sealed class BackgroundJob
 
     public required BackgroundJobType Type { get; init; }
 
-    public BackgroundJobStatus Status { get; private set; }
+    public BackgroundJobStatus Status { get; private set; } = BackgroundJobStatus.Pending;
 
     public DateTime CreatedAt { get; init; }
 
@@ -63,6 +63,16 @@ public sealed class BackgroundJob
 
         Status = BackgroundJobStatus.Cancelled;
         CompletedAt = DateTime.UtcNow;
+    }
+
+    public static BackgroundJob Create(BackgroundJobType type)
+    {
+        return new BackgroundJob
+        {
+            Id = new BackgroundJobId(Guid.NewGuid()),
+            Type = type,
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     public static BackgroundJob Rehydrate(
