@@ -10,11 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" Version="13.5.4-preview.1.26464.4" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.12" />
+	<PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.5.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Api\JobApplicationHelper.Api.csproj" />
+    <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

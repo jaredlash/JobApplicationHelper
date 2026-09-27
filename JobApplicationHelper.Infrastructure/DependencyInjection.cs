@@ -1,7 +1,10 @@
 ﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
 using JobApplicationHelper.Infrastructure.Data;
+using JobApplicationHelper.Infrastructure.Persistence;
+using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using JobApplicationHelper.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -64,8 +67,37 @@ public static class DependencyInjection
         //    options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
         //});
 
-        services.AddSingleton<ICandidateContentProvider, CandidateContentProvider>();
-        services.AddSingleton<IApplicationMaterialsService, ApplicationMaterialsService>();
+        //services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
+        //{
+        //    var configuration = serviceProvider
+        //        .GetRequiredService<IConfiguration>();
+
+        //    var connectionString = configuration.GetConnectionString("jobapplicationhelper")
+        //        ?? throw new InvalidOperationException("The jobapplicationhelper database connection string is not configured.");
+
+        //    options.UseNpgsql(connectionString);
+        //});
+
+        services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
+        {
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+            var connectionString = configuration.GetConnectionString("jobapplicationhelper");
+
+            if (connectionString is null)
+            {
+                options.UseNpgsql();
+            }
+            else
+            {
+                options.UseNpgsql(connectionString);
+            }
+        });
+
+        services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+
+        services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
+        services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
 
 
         //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();

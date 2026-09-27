@@ -1,4 +1,5 @@
 ﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
 using Microsoft.Extensions.Options;
@@ -11,14 +12,19 @@ public class ApplicationMaterialsService : IApplicationMaterialsService
     private const string NotesFileName = "Notes.txt";
     private readonly ApplicationDocumentOptions documentOptions;
     private readonly CandidateContentOptions candidateOptions;
+    private readonly IJobApplicationRepository jobApplicationRepository;
 
-    public ApplicationMaterialsService(IOptions<ApplicationDocumentOptions> documentOptions, IOptions<CandidateContentOptions> candidateOptions)
+    public ApplicationMaterialsService(
+        IOptions<ApplicationDocumentOptions> documentOptions,
+        IOptions<CandidateContentOptions> candidateOptions,
+        IJobApplicationRepository jobApplicationRepository)
     {
         this.documentOptions = documentOptions.Value;
         this.candidateOptions = candidateOptions.Value;
+        this.jobApplicationRepository = jobApplicationRepository;
     }
 
-    public JobApplicationId CreateApplicationMaterials(ApplicationFile application)
+    public async Task<JobApplicationId> CreateApplicationMaterialsAsync(ApplicationFile application, CancellationToken cancellationToken = default)
     {
         if (!Directory.Exists(documentOptions.ApplicationsBasePath))
         {
@@ -52,44 +58,86 @@ public class ApplicationMaterialsService : IApplicationMaterialsService
         }
 
         // All pre-checks passed — create application folder and copy files
-        string folderName = $"{DateTime.Now:yyyy-MM-dd} {application.CompanyName} - {application.PositionTitle} ({(string.IsNullOrEmpty(application.City) ? "" : application.City + ", ")}{application.CountryCode})";
+        var applicationId = new JobApplicationId(Guid.NewGuid());
+        var createdAt = DateTime.UtcNow;
+
+        string folderName =
+            $"{createdAt.ToLocalTime():yyyy-MM-dd} " +
+            $"{application.CompanyName} - {application.PositionTitle} " +
+            $"({(string.IsNullOrEmpty(application.City) ? "" : application.City + ", ")}" +
+            $"{application.CountryCode})";
         string folderPath = Path.Combine(documentOptions.ApplicationsBasePath, folderName);
-        if (!Directory.Exists(folderPath))
+
+        var jobApplication = new JobApplication
         {
-            Directory.CreateDirectory(folderPath);
+            Id = applicationId,
+            CountryCode = application.CountryCode,
+            IncludeCoverLetter = application.IncludeCoverLetter,
+            CompanyName = application.CompanyName,
+            PositionTitle = application.PositionTitle,
+            URL = application.URL,
+            City = application.City,
+            JobPosting = application.JobPosting,
+            CreatedAt = createdAt,
+            ApplicationFolder = folderPath
+        };
+
+        await jobApplicationRepository.AddAsync(jobApplication, cancellationToken);
+
+
+        try
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            // Copy CV template
+            string cvDestinationPath = Path.Combine(folderPath, $"{candidateOptions.CandidateFullName} - CV.odt");
+            File.Copy(cvTemplatePath, cvDestinationPath, overwrite: true);
+
+            // Copy cover letter template if needed
+            if (application.IncludeCoverLetter)
+            {
+                string coverLetterDestinationPath = Path.Combine(folderPath, $"{candidateOptions.CandidateFullName} - Cover Letter.odt");
+                File.Copy(coverLetterTemplatePath!, coverLetterDestinationPath, overwrite: true);
+            }
+
+            // Create Notes.txt
+            string notesFilePath = Path.Combine(folderPath, NotesFileName);
+            string notesFileContents = $"Company: {application.CompanyName}{Environment.NewLine}" +
+                                      $"Position: {application.PositionTitle}{Environment.NewLine}" +
+                                      $"Location: {(string.IsNullOrEmpty(application.City) ? "" : application.City + ", ")}{application.CountryCode}{Environment.NewLine}" +
+                                      $"URL: {application.URL}{Environment.NewLine}" +
+                                      $"Date Created: {jobApplication.CreatedAt.ToLocalTime():yyyy-MM-dd}{Environment.NewLine}{Environment.NewLine}" +
+                                      $"Job Posting:{Environment.NewLine}" +
+                                      application.JobPosting;
+
+            File.WriteAllText(notesFilePath, notesFileContents);
+        }
+        catch
+        {
+            await jobApplicationRepository.DeleteAsync(applicationId, CancellationToken.None);
+
+            throw;
         }
 
-        // Copy CV template
-        string cvDestinationPath = Path.Combine(folderPath, $"{candidateOptions.CandidateFullName} - CV.odt");
-        File.Copy(cvTemplatePath, cvDestinationPath, overwrite: true);
-
-        // Copy cover letter template if needed
-        if (application.IncludeCoverLetter)
-        {
-            string coverLetterDestinationPath = Path.Combine(folderPath, $"{candidateOptions.CandidateFullName} - Cover Letter.odt");
-            File.Copy(coverLetterTemplatePath!, coverLetterDestinationPath, overwrite: true);
-        }
-
-        // Create Notes.txt
-        string notesFilePath = Path.Combine(folderPath, NotesFileName);
-        string notesFileContents = $"Company: {application.CompanyName}\n" +
-                                  $"Position: {application.PositionTitle}\n" +
-                                  $"Location: {(string.IsNullOrEmpty(application.City) ? "" : application.City + ", ")}{application.CountryCode}\n" +
-                                  $"URL: {application.URL}\n" +
-                                  $"Date Created: {DateTime.Now:yyyy-MM-dd}\n\n" +
-                                  $"Job Posting:\n" +
-                                  application.JobPosting;
-
-        File.WriteAllText(notesFilePath, notesFileContents);
-
-        return new JobApplicationId(folderPath);
+        return jobApplication.Id;
     }
 
-    public string GetApplicationFolder(JobApplicationId applicationId) => applicationId.Value;
-
-    public void SaveCoverLetterDraft(JobApplicationId applicationId, string draft)
+    public async Task<string> GetApplicationFolderAsync(
+        JobApplicationId applicationId,
+        CancellationToken cancellationToken = default)
     {
-        var folderPath = GetApplicationFolder(applicationId);
+        var application = await jobApplicationRepository.GetAsync(applicationId, cancellationToken);
+
+        return application?.ApplicationFolder
+            ?? throw new KeyNotFoundException($"Job application '{applicationId.Value}' was not found.");
+    }
+
+    public async Task SaveCoverLetterDraftAsync(JobApplicationId applicationId, string draft, CancellationToken cancellationToken = default)
+    {
+        var folderPath = await GetApplicationFolderAsync(applicationId, cancellationToken);
 
         string notesFilePath = Path.Combine(folderPath, NotesFileName);
 
