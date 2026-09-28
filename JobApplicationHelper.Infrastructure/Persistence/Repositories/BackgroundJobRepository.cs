@@ -35,7 +35,8 @@ public sealed class BackgroundJobRepository(JobApplicationHelperDbContext dbCont
         var entities = await dbContext.BackgroundJobs
             .AsNoTracking()
             .Where(job => job.Status == BackgroundJobStatus.Pending)
-            .OrderBy(job => job.CreatedAt)
+            .OrderByDescending(job => job.Priority)
+            .ThenBy(job => job.CreatedAt)
             .ToListAsync(cancellationToken);
 
         return entities
@@ -57,7 +58,6 @@ public sealed class BackgroundJobRepository(JobApplicationHelperDbContext dbCont
             throw new KeyNotFoundException($"Background job '{job.Id.Value}' was not found.");
         }
 
-        entity.Type = job.Type;
         entity.Status = job.Status;
         entity.CreatedAt = job.CreatedAt;
         entity.StartedAt = job.StartedAt;

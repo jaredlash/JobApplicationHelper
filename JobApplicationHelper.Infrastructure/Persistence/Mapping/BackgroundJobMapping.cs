@@ -9,6 +9,7 @@ internal static class BackgroundJobMapping
     {
         Id = job.Id.Value,
         Type = job.Type,
+        Priority = job.Priority,
         Status = job.Status,
         CreatedAt = job.CreatedAt,
         StartedAt = job.StartedAt,
@@ -20,6 +21,7 @@ internal static class BackgroundJobMapping
         BackgroundJob.Rehydrate(
             new BackgroundJobId(entity.Id),
             entity.Type,
+            entity.Priority,
             entity.Status,
             entity.CreatedAt,
             entity.StartedAt,

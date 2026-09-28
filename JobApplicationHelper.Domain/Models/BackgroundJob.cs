@@ -6,6 +6,8 @@ public sealed class BackgroundJob
 
     public required BackgroundJobType Type { get; init; }
 
+    public BackgroundJobPriority Priority { get; init; }
+
     public BackgroundJobStatus Status { get; private set; } = BackgroundJobStatus.Pending;
 
     public DateTime CreatedAt { get; init; }
@@ -65,12 +67,13 @@ public sealed class BackgroundJob
         CompletedAt = DateTime.UtcNow;
     }
 
-    public static BackgroundJob Create(BackgroundJobType type)
+    public static BackgroundJob Create(BackgroundJobType type, BackgroundJobPriority priority)
     {
         return new BackgroundJob
         {
             Id = new BackgroundJobId(Guid.NewGuid()),
             Type = type,
+            Priority = priority,
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -78,6 +81,7 @@ public sealed class BackgroundJob
     public static BackgroundJob Rehydrate(
         BackgroundJobId id,
         BackgroundJobType type,
+        BackgroundJobPriority priority,
         BackgroundJobStatus status,
         DateTime createdAt,
         DateTime? startedAt,
@@ -88,6 +92,7 @@ public sealed class BackgroundJob
         {
             Id = id,
             Type = type,
+            Priority = priority,
             Status = status,
             CreatedAt = createdAt,
             StartedAt = startedAt,

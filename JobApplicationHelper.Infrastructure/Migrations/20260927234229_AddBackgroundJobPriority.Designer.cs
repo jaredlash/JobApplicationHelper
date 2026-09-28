@@ -3,6 +3,7 @@ using System;
 using JobApplicationHelper.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobApplicationHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(JobApplicationHelperDbContext))]
-    partial class JobApplicationHelperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260927234229_AddBackgroundJobPriority")]
+    partial class AddBackgroundJobPriority
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -2,14 +2,14 @@
 
 namespace JobApplicationHelper.Application.Services;
 
-public interface IBackgroundJobService
+public interface IBackgroundJobQueue
 {
-    Task<BackgroundJobId> CreateAsync(
-        BackgroundJobType type,
+    ValueTask EnqueueAsync(
+        BackgroundJobId jobId,
         BackgroundJobPriority priority,
+        DateTime createdAt,
         CancellationToken cancellationToken = default);
 
-    Task<BackgroundJob?> GetAsync(
-        BackgroundJobId id,
+    ValueTask<BackgroundJobId> DequeueAsync(
         CancellationToken cancellationToken = default);
 }

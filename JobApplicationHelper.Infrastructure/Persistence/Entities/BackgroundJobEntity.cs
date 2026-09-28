@@ -8,6 +8,8 @@ public sealed class BackgroundJobEntity
 
     public BackgroundJobType Type { get; set; }
 
+    public BackgroundJobPriority Priority { get; set; }
+
     public BackgroundJobStatus Status { get; set; }
 
     public DateTime CreatedAt { get; set; }

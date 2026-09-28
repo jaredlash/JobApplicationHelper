@@ -17,6 +17,10 @@ public sealed class BackgroundJobEntityConfiguration : IEntityTypeConfiguration<
             .HasConversion<string>()
             .IsRequired();
 
+        builder.Property(x => x.Priority)
+            .HasConversion<string>()
+            .IsRequired();
+
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .IsRequired();
