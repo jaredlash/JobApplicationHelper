@@ -25,6 +25,8 @@ public static class DependencyInjection
         services.AddScoped<JobRequirementService>();
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
 
+        services.AddScoped<IBackgroundJobExecutor, NoOpBackgroundJobExecutor>();
+
         return services;
     }
 }
