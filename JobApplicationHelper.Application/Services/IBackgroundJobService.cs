@@ -12,4 +12,6 @@ public interface IBackgroundJobService
     Task<BackgroundJob?> GetAsync(
         BackgroundJobId id,
         CancellationToken cancellationToken = default);
+
+    Task RecoverPendingJobsAsync(CancellationToken cancellationToken = default);
 }

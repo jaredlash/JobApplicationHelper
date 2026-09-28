@@ -11,4 +11,6 @@ public interface IBackgroundJobRepository
     Task<IReadOnlyList<BackgroundJob>> GetPendingAsync(CancellationToken cancellationToken = default);
 
     Task UpdateAsync(BackgroundJob job, CancellationToken cancellationToken = default);
+
+    Task RecoverRunningAsync(CancellationToken cancellationToken = default);
 }

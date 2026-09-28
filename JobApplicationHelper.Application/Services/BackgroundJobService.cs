@@ -28,4 +28,20 @@ public sealed class BackgroundJobService(
 
     public Task<BackgroundJob?> GetAsync(BackgroundJobId id, CancellationToken cancellationToken = default)
         => backgroundJobRepository.GetAsync(id, cancellationToken);
+
+    public async Task RecoverPendingJobsAsync(CancellationToken cancellationToken = default)
+    {
+        await backgroundJobRepository.RecoverRunningAsync(cancellationToken);
+
+        var pendingJobs = await backgroundJobRepository.GetPendingAsync(cancellationToken);
+
+        foreach (var job in pendingJobs)
+        {
+            await backgroundJobQueue.EnqueueAsync(
+                job.Id,
+                job.Priority,
+                job.CreatedAt,
+                cancellationToken);
+        }
+    }
 }

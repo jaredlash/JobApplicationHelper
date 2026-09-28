@@ -66,4 +66,25 @@ public sealed class BackgroundJobRepository(JobApplicationHelperDbContext dbCont
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task RecoverRunningAsync(CancellationToken cancellationToken = default)
+    {
+        await dbContext.BackgroundJobs
+            .Where(job => job.Status == BackgroundJobStatus.Running)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(
+                        job => job.Status,
+                        BackgroundJobStatus.Pending)
+                    .SetProperty(
+                        job => job.StartedAt,
+                        (DateTime?)null)
+                    .SetProperty(
+                        job => job.CompletedAt,
+                        (DateTime?)null)
+                    .SetProperty(
+                        job => job.Error,
+                        (string?)null),
+                cancellationToken);
+    }
 }
