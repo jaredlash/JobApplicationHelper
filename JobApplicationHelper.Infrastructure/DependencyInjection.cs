@@ -2,7 +2,6 @@
 using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
-using JobApplicationHelper.Infrastructure.Data;
 using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using JobApplicationHelper.Infrastructure.Services;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Chat;
 

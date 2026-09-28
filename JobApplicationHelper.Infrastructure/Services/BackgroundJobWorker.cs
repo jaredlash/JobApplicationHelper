@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Application.Services;
+﻿using JobApplicationHelper.Application.Configuration;
+using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,6 @@ namespace JobApplicationHelper.Infrastructure.Services;
 public sealed class BackgroundJobWorker(
     IBackgroundJobService backgroundJobService,
     IBackgroundJobQueue backgroundJobQueue,
-    IBackgroundJobExecutor backgroundJobExecutor,
     IOptions<BackgroundJobOptions> options,
     ILogger<BackgroundJobWorker> logger)
     : BackgroundService
@@ -17,7 +17,8 @@ public sealed class BackgroundJobWorker(
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        await backgroundJobService.RecoverPendingJobsAsync(stoppingToken);
+        await backgroundJobService.RecoverPendingJobsAsync(
+            stoppingToken);
 
         var workers = Enumerable
             .Range(0, options.Value.MaxConcurrency)
@@ -31,26 +32,26 @@ public sealed class BackgroundJobWorker(
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var jobId = await backgroundJobQueue.DequeueAsync(
-                cancellationToken);
-
-            var job = await backgroundJobService.GetAsync(
-                jobId,
-                cancellationToken);
-
-            if (job is null)
+            try
             {
-                logger.LogWarning(
-                    "Background job {JobId} was not found.",
-                    jobId);
+                var jobId = await backgroundJobQueue.DequeueAsync(
+                    cancellationToken);
 
-                continue;
+                await backgroundJobService.ExecuteAsync(
+                    jobId,
+                    cancellationToken);
             }
-
-            // Execution/lifecycle handling comes next.
-            await backgroundJobExecutor.ExecuteAsync(
-                job,
-                cancellationToken);
+            catch (OperationCanceledException)
+                when (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "An error occurred while executing a background job.");
+            }
         }
     }
 }
