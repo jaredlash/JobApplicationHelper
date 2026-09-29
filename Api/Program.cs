@@ -2,6 +2,7 @@ using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Contracts.CoverLetters;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobApplications;
@@ -10,6 +11,7 @@ using JobApplicationHelper.Contracts.Locations;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
 using JobApplicationHelper.Infrastructure.Persistence;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // adds the /scalar/v1 endpoint for the Scalar API reference
 }
 
 app.UseHttpsRedirection();
@@ -140,6 +143,21 @@ app.MapPost(
     {
         var applicationId = await applicationMaterialsService.CreateApplicationMaterialsAsync(request.ToDomain(), cancellationToken);
         return Results.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
+    });
+
+app.MapPost(
+    "/api/background-jobs",
+    async (
+        CreateBackgroundJobRequest request,
+        IBackgroundJobService backgroundJobService,
+        CancellationToken cancellationToken) =>
+    {
+        var id = await backgroundJobService.CreateAsync(
+            Enum.Parse<BackgroundJobType>(request.Type, ignoreCase: true),
+            Enum.Parse<BackgroundJobPriority>(request.Priority, ignoreCase: true),
+            cancellationToken);
+
+        return Results.Ok(new CreateBackgroundJobResponse(id.Value));
     });
 
 app.MapGet("/health", () => Results.Ok());

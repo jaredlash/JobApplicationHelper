@@ -1,6 +1,6 @@
 ﻿using JobApplicationHelper.Services;
 
-namespace Tests;
+namespace JobApplicationHelper.Tests;
 
 public class JobPostingConverterTests
 {

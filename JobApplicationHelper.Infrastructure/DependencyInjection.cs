@@ -2,7 +2,6 @@
 using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
-using JobApplicationHelper.Infrastructure.Data;
 using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using JobApplicationHelper.Infrastructure.Services;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Chat;
 
@@ -32,6 +30,11 @@ public static class DependencyInjection
 
         services.AddOptions<CandidateContentOptions>()
             .Bind(configuration.GetSection("CandidateContent"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<BackgroundJobOptions>()
+            .Bind(configuration.GetSection("BackgroundJobs"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -95,10 +98,16 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+        services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
 
+
+        services.AddHostedService<BackgroundJobWorker>();
+
+        // Deliberately registered as a Singleton since it is an in-memory queue to share among all users
+        services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
 
         //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();
         services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();

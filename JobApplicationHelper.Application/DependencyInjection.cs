@@ -20,9 +20,12 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddTransient<LocationService>();
-        services.AddTransient<CoverLetterService>();
-        services.AddTransient<JobRequirementService>();
+        services.AddScoped<LocationService>();
+        services.AddScoped<CoverLetterService>();
+        services.AddScoped<JobRequirementService>();
+        services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+
+        services.AddScoped<IBackgroundJobExecutor, NoOpBackgroundJobExecutor>();
 
         return services;
     }
