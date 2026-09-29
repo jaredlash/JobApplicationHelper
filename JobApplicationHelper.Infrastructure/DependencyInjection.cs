@@ -99,6 +99,7 @@ public static class DependencyInjection
 
         services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
         services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
+        services.AddScoped<IExtractedJobRequirementsRepository, ExtractedJobRequirementsRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();

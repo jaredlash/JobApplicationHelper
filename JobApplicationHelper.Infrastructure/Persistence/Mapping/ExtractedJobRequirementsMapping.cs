@@ -27,4 +27,10 @@ public static class ExtractedJobRequirementsMapping
             requirements,
             entity.CreatedAt);
     }
+
+    public static void UpdateEntity(this ExtractedJobRequirementsEntity entity, ExtractedJobRequirements requirements)
+    {
+        entity.RequirementsJson = JsonSerializer.Serialize(requirements.Requirements);
+        entity.CreatedAt = requirements.CreatedAt;
+    }
 }

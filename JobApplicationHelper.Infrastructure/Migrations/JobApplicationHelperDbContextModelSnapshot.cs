@@ -59,6 +59,23 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.ToTable("BackgroundJobs", (string)null);
                 });
 
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", b =>
+                {
+                    b.Property<Guid>("JobApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequirementsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("JobApplicationId");
+
+                    b.ToTable("ExtractedJobRequirements", (string)null);
+                });
+
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.JobApplicationEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -102,6 +119,15 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobApplications", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.JobApplicationEntity", null)
+                        .WithOne()
+                        .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", "JobApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
