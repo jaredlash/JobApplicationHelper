@@ -1,10 +1,12 @@
 ﻿using JobApplicationHelper.Application.Configuration;
 using JobApplicationHelper.Application.Services;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Configuration;
 using JobApplicationHelper.Infrastructure.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JobApplicationHelper.Tests.BackgroundJobs;
 
@@ -19,8 +21,14 @@ public sealed class BackgroundJobWorkerTests
 
         var service = new BackgroundJobService(repository, queue, executor);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
@@ -56,8 +64,14 @@ public sealed class BackgroundJobWorkerTests
 
         var service = new BackgroundJobService(repository, queue, executor);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
@@ -86,8 +100,14 @@ public sealed class BackgroundJobWorkerTests
 
         var service = new BackgroundJobService(repository, queue, executor);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
@@ -124,8 +144,14 @@ public sealed class BackgroundJobWorkerTests
 
         await repository.AddAsync(job, TestContext.Current.CancellationToken);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
@@ -162,8 +188,14 @@ public sealed class BackgroundJobWorkerTests
             queue,
             executor);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
@@ -204,8 +236,14 @@ public sealed class BackgroundJobWorkerTests
 
         var service = new BackgroundJobService(repository, queue, executor);
 
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IBackgroundJobService>(service)
+            .BuildServiceProvider();
+
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
         var worker = new BackgroundJobWorker(
-            service,
+            scopeFactory,
             queue,
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobApplicationHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(JobApplicationHelperDbContext))]
-    [Migration("20260927183201_AddBackgroundJobs")]
-    partial class AddBackgroundJobs
+    [Migration("20260929045647_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,9 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.Property<string>("Error")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");

@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Application.Configuration;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace JobApplicationHelper.Infrastructure.Services;
 
 public sealed class BackgroundJobWorker(
-    IBackgroundJobService backgroundJobService,
+    IServiceScopeFactory serviceScopeFactory,
     IBackgroundJobQueue backgroundJobQueue,
     IOptions<BackgroundJobOptions> options,
     ILogger<BackgroundJobWorker> logger)
@@ -17,8 +18,13 @@ public sealed class BackgroundJobWorker(
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        await backgroundJobService.RecoverPendingJobsAsync(
-            stoppingToken);
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            var backgroundJobService =
+                scope.ServiceProvider.GetRequiredService<IBackgroundJobService>();
+
+            await backgroundJobService.RecoverPendingJobsAsync(stoppingToken);
+        }
 
         var workers = Enumerable
             .Range(0, options.Value.MaxConcurrency)
@@ -36,6 +42,10 @@ public sealed class BackgroundJobWorker(
             {
                 var jobId = await backgroundJobQueue.DequeueAsync(
                     cancellationToken);
+
+                using var scope = serviceScopeFactory.CreateScope();
+
+                var backgroundJobService = scope.ServiceProvider.GetRequiredService<IBackgroundJobService>();
 
                 await backgroundJobService.ExecuteAsync(
                     jobId,

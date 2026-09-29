@@ -103,6 +103,9 @@ public static class DependencyInjection
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
 
+
+        services.AddHostedService<BackgroundJobWorker>();
+
         // Deliberately registered as a Singleton since it is an in-memory queue to share among all users
         services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
 
