@@ -3,7 +3,7 @@ using JobApplicationHelper.Infrastructure.Persistence.Entities;
 
 namespace JobApplicationHelper.Infrastructure.Persistence.Mapping;
 
-internal static class JobApplicationMapping
+public static class JobApplicationMapping
 {
     public static JobApplicationEntity ToEntity(this JobApplication application)
     {

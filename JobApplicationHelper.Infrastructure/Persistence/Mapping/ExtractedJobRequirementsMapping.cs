@@ -2,7 +2,7 @@
 using JobApplicationHelper.Infrastructure.Persistence.Entities;
 using System.Text.Json;
 
-namespace JobApplicationHelper.Infrastructure.Persistence;
+namespace JobApplicationHelper.Infrastructure.Persistence.Mapping;
 
 public static class ExtractedJobRequirementsMapping
 {
