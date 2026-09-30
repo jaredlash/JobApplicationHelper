@@ -53,6 +53,10 @@ public sealed class BackgroundJobService(
 
             await backgroundJobRepository.UpdateAsync(job, cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             job.Fail(ex.Message);

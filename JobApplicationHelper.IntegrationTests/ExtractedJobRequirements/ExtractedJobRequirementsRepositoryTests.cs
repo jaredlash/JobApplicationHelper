@@ -63,37 +63,21 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         Assert.NotNull(retrievedRequirements);
 
-        Assert.Equal(
-            extractedRequirements.JobApplicationId,
-            retrievedRequirements.JobApplicationId);
+        Assert.Equal(extractedRequirements.JobApplicationId, retrievedRequirements.JobApplicationId);
 
-        AssertEqualToPostgresPrecision(
-            extractedRequirements.CreatedAt,
-            retrievedRequirements.CreatedAt);
+        AssertEqualToPostgresPrecision(extractedRequirements.CreatedAt, retrievedRequirements.CreatedAt);
 
-        Assert.Equal(
-            extractedRequirements.Requirements.Requirements.Count,
-            retrievedRequirements.Requirements.Requirements.Count);
+        Assert.Equal(extractedRequirements.Requirements.Requirements.Count, retrievedRequirements.Requirements.Requirements.Count);
 
-        Assert.Equal(
-            "C# experience",
-            retrievedRequirements.Requirements.Requirements[0].Requirement);
+        Assert.Equal("C# experience", retrievedRequirements.Requirements.Requirements[0].Requirement);
 
-        Assert.Equal(
-            RequirementCategory.TechnicalSkill,
-            retrievedRequirements.Requirements.Requirements[0].Category);
+        Assert.Equal(RequirementCategory.TechnicalSkill, retrievedRequirements.Requirements.Requirements[0].Category);
 
-        Assert.Equal(
-            RequirementPriority.Required,
-            retrievedRequirements.Requirements.Requirements[0].Priority);
+        Assert.Equal(RequirementPriority.Required, retrievedRequirements.Requirements.Requirements[0].Priority);
 
-        Assert.Equal(
-            "Experience working with PostgreSQL",
-            retrievedRequirements.Requirements.Requirements[1].Requirement);
+        Assert.Equal("Experience working with PostgreSQL", retrievedRequirements.Requirements.Requirements[1].Requirement);
 
-        Assert.Equal(
-            RequirementPriority.Preferred,
-            retrievedRequirements.Requirements.Requirements[1].Priority);
+        Assert.Equal(RequirementPriority.Preferred, retrievedRequirements.Requirements.Requirements[1].Priority);
     }
 
     [Fact]
@@ -179,25 +163,15 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         Assert.Equal(1, rowCount);
 
-        Assert.Equal(
-            jobApplicationId,
-            retrieved.JobApplicationId);
+        Assert.Equal(jobApplicationId, retrieved.JobApplicationId);
 
-        Assert.Equal(
-            "PostgreSQL experience",
-            retrieved.Requirements.Requirements[0].Requirement);
+        Assert.Equal("PostgreSQL experience", retrieved.Requirements.Requirements[0].Requirement);
 
-        Assert.Equal(
-            RequirementPriority.Preferred,
-            retrieved.Requirements.Requirements[0].Priority);
+        Assert.Equal(RequirementPriority.Preferred, retrieved.Requirements.Requirements[0].Priority);
 
-        AssertEqualToPostgresPrecision(
-            secondExtraction.CreatedAt,
-            retrieved.CreatedAt);
+        AssertEqualToPostgresPrecision(secondExtraction.CreatedAt, retrieved.CreatedAt);
 
-        Assert.NotEqual(
-            firstExtraction.CreatedAt,
-            retrieved.CreatedAt);
+        Assert.NotEqual(firstExtraction.CreatedAt, retrieved.CreatedAt);
     }
 
     [Fact]

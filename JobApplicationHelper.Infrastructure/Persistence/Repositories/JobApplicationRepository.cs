@@ -1,6 +1,5 @@
 ﻿using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Mapping;
 using Microsoft.EntityFrameworkCore;
 

@@ -22,10 +22,11 @@ public static class DependencyInjection
 
         services.AddScoped<LocationService>();
         services.AddScoped<CoverLetterService>();
-        services.AddScoped<JobRequirementService>();
+        services.AddScoped<IJobRequirementService, JobRequirementService>();
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
 
-        services.AddScoped<IBackgroundJobExecutor, NoOpBackgroundJobExecutor>();
+        //services.AddScoped<IBackgroundJobExecutor, NoOpBackgroundJobExecutor>();
+        services.AddScoped<IBackgroundJobExecutor, BackgroundJobExecutor>();
 
         return services;
     }
