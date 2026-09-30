@@ -3,7 +3,7 @@ using JobApplicationHelper.Infrastructure.Persistence.Entities;
 
 namespace JobApplicationHelper.Infrastructure.Persistence.Mapping;
 
-internal static class BackgroundJobMapping
+public static class BackgroundJobMapping
 {
     public static BackgroundJobEntity ToEntity(this BackgroundJob job) => new()
     {
