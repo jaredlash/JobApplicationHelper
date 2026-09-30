@@ -7,6 +7,8 @@ public interface IBackgroundJobService
     Task<BackgroundJobId> CreateAsync(
         BackgroundJobType type,
         BackgroundJobPriority priority,
+        JobApplicationId jobApplicationId,
+        string? payload = null,
         CancellationToken cancellationToken = default);
 
     Task<BackgroundJob?> GetAsync(

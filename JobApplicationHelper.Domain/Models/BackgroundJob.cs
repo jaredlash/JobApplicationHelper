@@ -18,6 +18,10 @@ public sealed class BackgroundJob
 
     public string? Error { get; private set; }
 
+    public required JobApplicationId JobApplicationId { get; init; }
+
+    public string? Payload { get; init; }
+
     public void Start()
     {
         if (Status != BackgroundJobStatus.Pending)
@@ -67,14 +71,16 @@ public sealed class BackgroundJob
         CompletedAt = DateTime.UtcNow;
     }
 
-    public static BackgroundJob Create(BackgroundJobType type, BackgroundJobPriority priority)
+    public static BackgroundJob Create(BackgroundJobType type, BackgroundJobPriority priority, JobApplicationId jobApplicationId, string? payload = null)
     {
         return new BackgroundJob
         {
             Id = new BackgroundJobId(Guid.NewGuid()),
             Type = type,
             Priority = priority,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            JobApplicationId = jobApplicationId,
+            Payload = payload
         };
     }
 
@@ -86,7 +92,9 @@ public sealed class BackgroundJob
         DateTime createdAt,
         DateTime? startedAt,
         DateTime? completedAt,
-        string? error)
+        string? error,
+        JobApplicationId jobApplicationId,
+        string? payload)
     {
         return new BackgroundJob
         {
@@ -97,7 +105,9 @@ public sealed class BackgroundJob
             CreatedAt = createdAt,
             StartedAt = startedAt,
             CompletedAt = completedAt,
-            Error = error
+            Error = error,
+            JobApplicationId = jobApplicationId,
+            Payload = payload
         };
     }
 }

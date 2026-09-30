@@ -155,6 +155,8 @@ app.MapPost(
         var id = await backgroundJobService.CreateAsync(
             Enum.Parse<BackgroundJobType>(request.Type, ignoreCase: true),
             Enum.Parse<BackgroundJobPriority>(request.Priority, ignoreCase: true),
+            new JobApplicationId(Guid.NewGuid()), //new JobApplicationId(Guid.Parse(request.JobApplicationId)),
+            null, //request.Payload,
             cancellationToken);
 
         return Results.Ok(new CreateBackgroundJobResponse(id.Value));

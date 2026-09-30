@@ -19,4 +19,8 @@ public sealed class BackgroundJobEntity
     public DateTime? CompletedAt { get; set; }
 
     public string? Error { get; set; }
+
+    public Guid JobApplicationId { get; set; }
+
+    public string? Payload { get; set; }
 }

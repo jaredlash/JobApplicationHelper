@@ -53,7 +53,9 @@ internal sealed class FakeBackgroundJobRepository
                 job.CreatedAt,
                 null,
                 null,
-                null);
+                null,
+                job.JobApplicationId,
+                job.Payload);
         }
 
         return Task.CompletedTask;
