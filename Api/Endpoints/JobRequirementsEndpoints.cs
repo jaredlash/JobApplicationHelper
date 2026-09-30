@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Application.Services;
+﻿using JobApplicationHelper.Application.Repositories;
+using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
 
@@ -11,6 +12,7 @@ public static class JobRequirementsEndpoints
         var group = endpoints.MapGroup("/api/job-requirements");
 
         group.MapPost("/extract", ExtractJobRequirementsAsync);
+        group.MapGet("/{jobApplicationId:guid}", GetExtractedJobRequirementsAsync);
 
         return endpoints;
     }
@@ -32,5 +34,29 @@ public static class JobRequirementsEndpoints
             cancellationToken: cancellationToken);
 
         return Results.Ok(new ExtractJobRequirementsResponse(backgroundJobId.Value));
+    }
+
+    private static async Task<IResult> GetExtractedJobRequirementsAsync(
+        Guid jobApplicationId,
+        IExtractedJobRequirementsRepository repository,
+        CancellationToken cancellationToken)
+    {
+        var requirements = await repository.GetAsync(new JobApplicationId(jobApplicationId), cancellationToken);
+
+        if (requirements is null)
+        {
+            return Results.NotFound();
+        }
+
+        var response = new GetExtractedJobRequirementsResponse(
+            requirements.JobApplicationId.Value,
+            requirements.Requirements.Requirements
+                .Select(x => new JobRequirementDto(
+                    x.Requirement,
+                    x.Category.ToString(),
+                    x.Priority.ToString()))
+                .ToList());
+
+        return Results.Ok(response);
     }
 }

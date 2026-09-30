@@ -41,6 +41,17 @@ public sealed class ApiIntegrationTestFixture : IAsyncLifetime
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task AddExtractedJobRequirementsAsync(ExtractedJobRequirements requirements)
+    {
+        await using var scope = Factory.Services.CreateAsyncScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
+
+        await dbContext.ExtractedJobRequirements.AddAsync(requirements.ToEntity());
+
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task DisposeAsync()
     {
         await Factory.DisposeAsync();

@@ -100,6 +100,73 @@ public sealed class JobRequirementsEndpointTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Get_existing_extracted_job_requirements_returns_requirements()
+    {
+        // Arrange
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+
+        await fixture.AddJobApplicationAsync(CreateJobApplication(jobApplicationId));
+
+        var extractedRequirements =
+            ExtractedJobRequirements.Create(
+                jobApplicationId,
+                new JobRequirements
+                {
+                    Requirements =
+                    [
+                        new JobRequirement
+                    {
+                        Requirement = "5+ years of C# experience",
+                        Category = RequirementCategory.TechnicalSkill,
+                        Priority = RequirementPriority.Required
+                    },
+                    new JobRequirement
+                    {
+                        Requirement = "Experience with PostgreSQL",
+                        Category = RequirementCategory.TechnicalSkill,
+                        Priority = RequirementPriority.Preferred
+                    }
+                    ]
+                });
+
+        await fixture.AddExtractedJobRequirementsAsync(extractedRequirements);
+
+        // Act
+        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId.Value}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<GetExtractedJobRequirementsResponse>();
+
+        Assert.NotNull(result);
+
+        Assert.Equal(jobApplicationId.Value, result.JobApplicationId);
+
+        Assert.Equal(2, result.Requirements.Count);
+
+        Assert.Equal("5+ years of C# experience", result.Requirements[0].Requirement);
+
+        Assert.Equal("TechnicalSkill",
+            result.Requirements[0].Category);
+
+        Assert.Equal("Required", result.Requirements[0].Priority);
+    }
+
+    [Fact]
+    public async Task Get_nonexistent_extracted_job_requirements_returns_not_found()
+    {
+        // Arrange
+        var jobApplicationId = Guid.NewGuid();
+
+        // Act
+        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private static JobApplication CreateJobApplication(JobApplicationId id)
     {
         return new JobApplication
