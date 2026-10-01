@@ -1,6 +1,5 @@
 ﻿using JobApplicationHelper.Domain.Models;
 
-// TODO: Not a record because of the CreatedAt property, but consider changing it to a record
 public sealed class CoverLetterDraft
 {
     private CoverLetterDraft()
@@ -23,5 +22,10 @@ public sealed class CoverLetterDraft
     public static CoverLetterDraft Create(JobApplicationId jobApplicationId, string draft)
     {
         return new CoverLetterDraft(jobApplicationId, draft, DateTime.UtcNow);
+    }
+
+    public static CoverLetterDraft Rehydrate(JobApplicationId jobApplicationId, string draft, DateTime createdAt)
+    {
+        return new CoverLetterDraft(jobApplicationId, draft, createdAt);
     }
 }
