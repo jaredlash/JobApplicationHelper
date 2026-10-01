@@ -23,14 +23,14 @@ public static class CoverLetterMappingExtensions
         };
     }
 
-    public static VerificationResult ToDomain(this GetVerifyCoverLetterResponse verificationResult)
+    public static VerificationResult ToDomain(this GetVerifyCoverLetterResponse verifyCoverLetterResponse)
     {
         return new VerificationResult
         { 
-            Errors = verificationResult.Errors.ToList(),
-            UnsupportedClaims = verificationResult.UnsupportedClaims.ToList(),
-            StyleViolations = verificationResult.StyleViolations.ToList(),
-            RequiredCorrections = verificationResult.RequiredCorrections.ToList()
+            Errors = verifyCoverLetterResponse.Errors.ToList(),
+            UnsupportedClaims = verifyCoverLetterResponse.UnsupportedClaims.ToList(),
+            StyleViolations = verifyCoverLetterResponse.StyleViolations.ToList(),
+            RequiredCorrections = verifyCoverLetterResponse.RequiredCorrections.ToList()
         };
     }
 }
