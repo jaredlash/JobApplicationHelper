@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
+using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class JobRequirementsViewModel : ViewModelBase
 {
     private readonly JobRequirementsApiClient jobRequirementsApiClient;
+    private readonly IBackgroundJobPollingService backgroundJobPollingService;
     private readonly ExperienceBankApiClient experienceBankApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
@@ -20,6 +22,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     public JobRequirementsViewModel(
         JobRequirementsApiClient jobRequirementsApiClient,
+        IBackgroundJobPollingService backgroundJobPollingService,
         ExperienceBankApiClient experienceBankApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
@@ -27,6 +30,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         ILogger<JobRequirementsViewModel> logger)
     {
         this.jobRequirementsApiClient = jobRequirementsApiClient;
+        this.backgroundJobPollingService = backgroundJobPollingService;
         this.experienceBankApiClient = experienceBankApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
@@ -51,6 +55,8 @@ public partial class JobRequirementsViewModel : ViewModelBase
             PreviousRequirementCommand.NotifyCanExecuteChanged();
         }
     }
+
+    public JobApplicationId? ApplicationId { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRequirementDisplay))]
@@ -204,9 +210,19 @@ public partial class JobRequirementsViewModel : ViewModelBase
     {
         try
         {
+            ArgumentNullException.ThrowIfNull(ApplicationId);
+            var jobApplicationId = ApplicationId.Value;
+
             IsFinishedLoadingJobRequirements = false;
 
-            Requirements = await jobRequirementsApiClient.ExtractAsync(JobPosting, cancellationToken);
+            var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
+            var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
+            if (backgroundJobResponse.Status == BackgroundJobStatus.Failed.ToString())
+                throw new Exception(backgroundJobResponse.Error);
+            if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
+                throw new OperationCanceledException("The background job was cancelled.");
+
+            Requirements = await jobRequirementsApiClient.GetAsync(jobApplicationId, cancellationToken);
 
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;

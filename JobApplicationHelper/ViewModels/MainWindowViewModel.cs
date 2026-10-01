@@ -151,6 +151,7 @@ namespace JobApplicationHelper.ViewModels
             draftWindowViewModel.CoverLetter.ApplicationId = applicationId;
             draftWindowViewModel.CoverLetter.CountryCode = SelectedLocation.CountryCode; // TODO: Remove this when persisting the applications in a database
             draftWindowViewModel.JobRequirements.JobPosting = jobPosting;
+            draftWindowViewModel.JobRequirements.ApplicationId = applicationId;
 
             windowService.ShowWindow(draftWindowViewModel);
         }

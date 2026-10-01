@@ -80,25 +80,35 @@ public partial class CoverLetterViewModel : ViewModelBase
             }
             if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
             {
-                throw new OperationCanceledException("The background job was cancelled.");
+                throw new OperationCanceledException("The cover letter draft generation job was cancelled.");
             }
 
             Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
 
             VerificationStatus = "Verifying cover letter draft...";
+            var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
+            var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
+            if (verificationJobResponse.Status == BackgroundJobStatus.Failed.ToString())
+            {
+                throw new Exception($"Verification job failed: {verificationJobResponse.Error}");
+            }
+            if (verificationJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
+            {
+                throw new OperationCanceledException("The cover letter verification job was cancelled.");
+            }
 
-            //var verificationResult = await coverLettersApiClient.VerifyDraftAsync(draftParameters, Draft, cancellationToken);
+            var verificationResult = await coverLettersApiClient.GetVerifyCoverLetterResultAsync(jobApplicationId, cancellationToken);
 
-            //if (!verificationResult.IsValid)
-            //{
-            //    VerificationStatus = "Verification failed. Please review the issues.";
-            //    DisplayVerificationResult(verificationResult);
-            //}
-            //else
-            //{
-            //    VerificationStatus = "Verification passed.";
-            //}
+            if (!verificationResult.IsValid)
+            {
+                VerificationStatus = "Verification failed. Please review the issues.";
+                DisplayVerificationResult(verificationResult);
+            }
+            else
+            {
+                VerificationStatus = "Verification passed.";
+            }
         }
         catch (Exception ex)
         {
