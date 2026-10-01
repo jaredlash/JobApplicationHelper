@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Services.Api;
@@ -75,14 +76,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             draftParameters.CountryCode = CountryCode;
             var backgroundJobId = await coverLettersApiClient.GenerateCoverLetterAsync(jobApplicationId, draftParameters, cancellationToken);
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
-            if (backgroundJobResponse.Status == BackgroundJobStatus.Failed.ToString())
-            {
-                throw new BackgroundJobFailedException(backgroundJobResponse.Error);
-            }
-            if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
-            {
-                throw new OperationCanceledException("The cover letter draft generation job was cancelled.");
-            }
+            EnsureBackgroundJobSucceeded(backgroundJobResponse);
 
             Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
@@ -90,14 +84,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             VerificationStatus = "Verifying cover letter draft...";
             var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
             var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
-            if (verificationJobResponse.Status == BackgroundJobStatus.Failed.ToString())
-            {
-                throw new BackgroundJobFailedException($"Verification job failed: {verificationJobResponse.Error}");
-            }
-            if (verificationJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
-            {
-                throw new OperationCanceledException("The cover letter verification job was cancelled.");
-            }
+            EnsureBackgroundJobSucceeded(verificationJobResponse);
 
             var verificationResult = await coverLettersApiClient.GetVerifyCoverLetterResultAsync(jobApplicationId, cancellationToken);
 
@@ -150,5 +137,18 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
         windowService.ShowDialog(verificationResultDialogViewModel);
+    }
+
+    private static void EnsureBackgroundJobSucceeded(GetBackgroundJobResponse response)
+    {
+        if (response.Status == BackgroundJobStatus.Failed.ToString())
+        {
+            throw new BackgroundJobFailedException(response.Error);
+        }
+
+        if (response.Status == BackgroundJobStatus.Cancelled.ToString())
+        {
+            throw new OperationCanceledException("The background job was cancelled.");
+        }
     }
 }

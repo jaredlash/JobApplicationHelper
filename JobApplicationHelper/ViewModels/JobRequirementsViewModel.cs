@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Extensions;
@@ -218,10 +219,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
             var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
-            if (backgroundJobResponse.Status == BackgroundJobStatus.Failed.ToString())
-                throw new BackgroundJobFailedException(backgroundJobResponse.Error);
-            if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
-                throw new OperationCanceledException("The background job was cancelled.");
+            EnsureBackgroundJobSucceeded(backgroundJobResponse);
 
             Requirements = await jobRequirementsApiClient.GetAsync(jobApplicationId, cancellationToken);
 
@@ -313,4 +311,17 @@ public partial class JobRequirementsViewModel : ViewModelBase
     }
 
     public bool CanGenerateCoverLetter => IsFinishedLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
+
+    private static void EnsureBackgroundJobSucceeded(GetBackgroundJobResponse response)
+    {
+        if (response.Status == BackgroundJobStatus.Failed.ToString())
+        {
+            throw new BackgroundJobFailedException(response.Error);
+        }
+
+        if (response.Status == BackgroundJobStatus.Cancelled.ToString())
+        {
+            throw new OperationCanceledException("The background job was cancelled.");
+        }
+    }
 }
