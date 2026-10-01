@@ -4,7 +4,7 @@ using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using JobApplicationHelper.Infrastructure.Persistence.Mapping;
 using Microsoft.EntityFrameworkCore;
 
-namespace JobApplicationHelper.IntegrationTests.CoverLetterDrafts;
+namespace JobApplicationHelper.IntegrationTests.CoverLetters;
 
 public sealed class CoverLetterDraftRepositoryTests
     : IClassFixture<PostgreSqlFixture>
