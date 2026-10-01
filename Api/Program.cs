@@ -74,20 +74,20 @@ app.MapPost(
 //        return Results.Ok(response);
 //    });
 
-app.MapPost(
-    "/api/cover-letters/verify",
-    async (
-        VerifyCoverLetterRequest request,
-        ICoverLetterService coverLetterService,
-        CancellationToken cancellationToken) =>
-    {
-        var verificationResult = await coverLetterService.VerifyDraftAsync(
-            request.DraftParameters.ToDomain(),
-            request.Draft,
-            cancellationToken);
+//app.MapPost(
+//    "/api/cover-letters/verify",
+//    async (
+//        VerifyCoverLetterRequest request,
+//        ICoverLetterService coverLetterService,
+//        CancellationToken cancellationToken) =>
+//    {
+//        var verificationResult = await coverLetterService.VerifyDraftAsync(
+//            request.DraftParameters.ToDomain(),
+//            request.Draft,
+//            cancellationToken);
 
-        return Results.Ok(verificationResult.ToDto());
-    });
+//        return Results.Ok(verificationResult.ToDto());
+//    });
 
 app.MapGet(
     "/api/experiences",

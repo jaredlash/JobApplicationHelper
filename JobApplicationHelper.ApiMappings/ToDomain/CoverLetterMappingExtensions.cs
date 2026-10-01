@@ -23,7 +23,7 @@ public static class CoverLetterMappingExtensions
         };
     }
 
-    public static VerificationResult ToDomain(this VerifyCoverLetterResponse verificationResult)
+    public static VerificationResult ToDomain(this GetVerifyCoverLetterResponse verificationResult)
     {
         return new VerificationResult
         { 
