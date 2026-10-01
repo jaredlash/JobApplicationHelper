@@ -71,12 +71,14 @@ public sealed class BackgroundJobExecutionTests
             var jobApplicationRepository = new JobApplicationRepository(dbContext);
             var extractedJobRequirementsRepository = new ExtractedJobRequirementsRepository(dbContext);
             var coverLetterDraftRepository = new CoverLetterDraftRepository(dbContext);
+            var verifyCoverLetterResultRepository = new VerifyCoverLetterResultRepository(dbContext);
 
             var executor = new BackgroundJobExecutor(
                 jobApplicationRepository,
                 extractedJobRequirementsRepository,
                 fakeJobRequirementService,
                 coverLetterDraftRepository,
+                verifyCoverLetterResultRepository,
                 fakeCoverLetterService);
 
             var backgroundJobService = new BackgroundJobService(

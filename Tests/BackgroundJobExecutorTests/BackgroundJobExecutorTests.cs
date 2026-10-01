@@ -43,6 +43,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService(expectedRequirements);
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -50,6 +51,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var job = BackgroundJob.Create(BackgroundJobType.ExtractJobRequirements, BackgroundJobPriority.Normal, jobApplicationId);
@@ -85,6 +87,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService();
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -92,6 +95,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var job = BackgroundJob.Create(BackgroundJobType.ExtractJobRequirements, BackgroundJobPriority.Normal, jobApplicationId);
@@ -111,6 +115,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService();
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -118,6 +123,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, new JobApplicationId(Guid.NewGuid()));
@@ -138,6 +144,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService();
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -145,6 +152,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var testDraftParameters = CreateCoverLetterDraftParameters();
@@ -178,6 +186,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService();
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -185,6 +194,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var job = BackgroundJob.Create(BackgroundJobType.GenerateCoverLetter, BackgroundJobPriority.Normal, jobApplicationId, null);
@@ -203,6 +213,7 @@ public sealed class BackgroundJobExecutorTests
         var jobRequirementService = new FakeJobRequirementService();
         var extractedJobRequirementsRepository = new FakeExtractedJobRequirementsRepository();
         var coverLetterDraftRepository = new FakeCoverLetterDraftRepository();
+        var verifyCoverLetterResultRepository = new FakeVerifyCoverLetterResultRepository();
         var coverLetterService = new FakeCoverLetterService();
 
         var executor = new BackgroundJobExecutor(
@@ -210,6 +221,7 @@ public sealed class BackgroundJobExecutorTests
             extractedJobRequirementsRepository,
             jobRequirementService,
             coverLetterDraftRepository,
+            verifyCoverLetterResultRepository,
             coverLetterService);
 
         var payloadJson = "{ \"Invalid\": \"Payload\" }"; // Invalid payload for GenerateCoverLetterJobPayload

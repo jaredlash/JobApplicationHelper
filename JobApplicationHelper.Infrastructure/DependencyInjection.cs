@@ -101,6 +101,7 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
         services.AddScoped<IExtractedJobRequirementsRepository, ExtractedJobRequirementsRepository>();
         services.AddScoped<ICoverLetterDraftRepository, CoverLetterDraftRepository>();
+        services.AddScoped<IVerifyCoverLetterResultRepository, VerifyCoverLetterResultRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
