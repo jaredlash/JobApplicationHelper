@@ -1,9 +1,10 @@
 ﻿using JobApplicationHelper.ApiMappings.ToDomain;
+using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.CoverLetters;
-using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
+using System.Text.Json;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -15,6 +16,9 @@ public static class CoverLetterEndpoints
 
         group.MapPost("", GenerateCoverLetterAsync);
         group.MapGet("/{jobApplicationId:guid}", GetCoverLetterAsync);
+
+        group.MapPost("/verify", VerifyCoverLetterAsync);
+        group.MapGet("/verify/{jobApplicationId:guid}", GetVerifyCoverLetterResultAsync);
 
         return endpoints;
     }
@@ -31,7 +35,7 @@ public static class CoverLetterEndpoints
 
         var payload = new GenerateCoverLetterJobPayload(request.DraftParameters.ToDomain());
 
-        var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload, BackgroundJobPayloadJson.Options);
+        var payloadJson = JsonSerializer.Serialize(payload, BackgroundJobPayloadJson.Options);
 
         var backgroundJobId = await backgroundJobService.CreateAsync(
             BackgroundJobType.GenerateCoverLetter,
@@ -56,6 +60,47 @@ public static class CoverLetterEndpoints
         }
 
         var response = new GetCoverLetterDraftResponse(coverLetterDraft.Draft);
+
+        return Results.Ok(response);
+    }
+
+    private static async Task<IResult> VerifyCoverLetterAsync(
+        VerifyCoverLetterRequest request,
+        IBackgroundJobService backgroundJobService,
+        CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<BackgroundJobPriority>(request.Priority, ignoreCase: true, out var priority))
+        {
+            return Results.BadRequest($"Invalid background job priority '{request.Priority}'.");
+        }
+
+        var payload = new VerifyCoverLetterJobPayload(request.DraftParameters.ToDomain(), request.Draft);
+
+        var payloadJson = JsonSerializer.Serialize(payload, BackgroundJobPayloadJson.Options);
+
+        var backgroundJobId = await backgroundJobService.CreateAsync(
+            BackgroundJobType.VerifyCoverLetter,
+            priority,
+            new JobApplicationId(request.JobApplicationId),
+            payloadJson,
+            cancellationToken);
+
+        return Results.Ok(new VerifyCoverLetterResponse(backgroundJobId.Value));
+    }
+
+    private static async Task<IResult> GetVerifyCoverLetterResultAsync(
+        Guid jobApplicationId,
+        IVerifyCoverLetterResultRepository repository,
+        CancellationToken cancellationToken)
+    {
+        var verifyCoverLetterResult = await repository.GetAsync(new JobApplicationId(jobApplicationId), cancellationToken);
+
+        if (verifyCoverLetterResult is null)
+        {
+            return Results.NotFound();
+        }
+
+        var response = verifyCoverLetterResult.VerificationResult.ToDto();
 
         return Results.Ok(response);
     }

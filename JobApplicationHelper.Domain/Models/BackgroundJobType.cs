@@ -4,5 +4,6 @@ public enum BackgroundJobType
 {
     Llm,
     ExtractJobRequirements,
-    GenerateCoverLetter
+    GenerateCoverLetter,
+    VerifyCoverLetter
 }

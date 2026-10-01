@@ -18,9 +18,9 @@ public static class CoverLetterMappingExtensions
             coverLetterDraftParameters.DesiredWordCount);
     }
 
-    public static VerifyCoverLetterResponse ToDto(this VerificationResult verificationResult)
+    public static GetVerifyCoverLetterResponse ToDto(this VerificationResult verificationResult)
     {
-        return new VerifyCoverLetterResponse(
+        return new GetVerifyCoverLetterResponse(
             verificationResult.Errors,
             verificationResult.UnsupportedClaims,
             verificationResult.StyleViolations,

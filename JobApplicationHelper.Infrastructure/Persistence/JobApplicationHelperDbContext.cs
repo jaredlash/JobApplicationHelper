@@ -8,10 +8,9 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
 {
     public DbSet<JobApplicationEntity> JobApplications => Set<JobApplicationEntity>();
     public DbSet<BackgroundJobEntity> BackgroundJobs => Set<BackgroundJobEntity>();
-
     public DbSet<ExtractedJobRequirementsEntity> ExtractedJobRequirements => Set<ExtractedJobRequirementsEntity>();
-
     public DbSet<CoverLetterDraftEntity> CoverLetterDrafts => Set<CoverLetterDraftEntity>();
+    public DbSet<VerifyCoverLetterResultEntity> VerifyCoverLetterResults => Set<VerifyCoverLetterResultEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

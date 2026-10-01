@@ -9,6 +9,7 @@ public sealed class BackgroundJobExecutor(
     IExtractedJobRequirementsRepository extractedJobRequirementsRepository,
     IJobRequirementService jobRequirementService,
     ICoverLetterDraftRepository coverLetterDraftRepository,
+    IVerifyCoverLetterResultRepository verifyCoverLetterResultRepository,
     ICoverLetterService coverLetterService)
     : IBackgroundJobExecutor
 {
@@ -26,6 +27,12 @@ public sealed class BackgroundJobExecutor(
 
             case BackgroundJobType.GenerateCoverLetter:
                 await ExecuteGenerateCoverLetterAsync(
+                    job,
+                    cancellationToken);
+                break;
+
+            case BackgroundJobType.VerifyCoverLetter:
+                await ExecuteVerifyCoverLeterAsync(
                     job,
                     cancellationToken);
                 break;
@@ -75,5 +82,31 @@ public sealed class BackgroundJobExecutor(
         var coverLetterDraft = CoverLetterDraft.Create(job.JobApplicationId, draft);
 
         await coverLetterDraftRepository.AddOrReplaceAsync(coverLetterDraft, cancellationToken);
+    }
+
+    private async Task ExecuteVerifyCoverLeterAsync(
+        BackgroundJob job,
+        CancellationToken cancellationToken)
+    {
+        if (job.Payload is null)
+        {
+            throw new InvalidOperationException($"Background job '{job.Id.Value}' does not contain a payload.");
+        }
+        VerifyCoverLetterJobPayload? payload = null;
+        try
+        {
+            payload = JsonSerializer.Deserialize<VerifyCoverLetterJobPayload>(job.Payload, BackgroundJobPayloadJson.Options);
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException($"Background job '{job.Id.Value}' contains an invalid payload.");
+        }
+        if (payload is null) throw new InvalidOperationException($"Background job '{job.Id.Value}' contains an invalid payload.");
+
+        var verificationResult = await coverLetterService.VerifyDraftAsync(payload.DraftParameters, payload.Draft, cancellationToken);
+
+        var verifyCoverLetterResult = VerifyCoverLetterResult.Create(job.JobApplicationId, verificationResult);
+
+        await verifyCoverLetterResultRepository.AddOrReplaceAsync(verifyCoverLetterResult, cancellationToken);
     }
 }
