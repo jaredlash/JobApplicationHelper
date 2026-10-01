@@ -11,6 +11,8 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
 
     public DbSet<ExtractedJobRequirementsEntity> ExtractedJobRequirements => Set<ExtractedJobRequirementsEntity>();
 
+    public DbSet<CoverLetterDraftEntity> CoverLetterDrafts => Set<CoverLetterDraftEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobApplicationHelperDbContext).Assembly);

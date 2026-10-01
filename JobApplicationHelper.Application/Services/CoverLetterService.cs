@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace JobApplicationHelper.Application.Services;
 
-public sealed class CoverLetterService
+public sealed class CoverLetterService : ICoverLetterService
 {
     private readonly IChatClient _chatClient;
     private readonly ICandidateContentProvider candidateContentProvider;
@@ -496,7 +496,7 @@ public sealed class CoverLetterService
         .Replace('\u2014', '-')  // em dash
         .Replace('\u2012', '-')  // figure dash
         .Replace('\u2015', '-')  // horizontal bar
-        // Ellipsis
+                                 // Ellipsis
         .Replace("\u2026", "...")
         // Non-breaking space
         .Replace('\u00A0', ' ');
@@ -677,7 +677,7 @@ public sealed class CoverLetterService
             return response.Result;
         }
         catch (Exception ex)
-        { 
+        {
             _logger.LogError(ex, "Error verifying cover letter draft.");
             throw;
         }

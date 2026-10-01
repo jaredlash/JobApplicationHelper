@@ -1,3 +1,3 @@
 ﻿namespace JobApplicationHelper.Contracts.CoverLetters;
 
-public sealed record GenerateCoverLetterRequest(CoverLetterDraftParametersDto DraftParameters);
+public sealed record GenerateCoverLetterRequest(Guid JobApplicationId, string Priority, CoverLetterDraftParametersDto DraftParameters);

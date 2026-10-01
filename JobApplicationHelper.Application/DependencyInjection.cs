@@ -21,7 +21,7 @@ public static class DependencyInjection
             .ValidateOnStart();
 
         services.AddScoped<LocationService>();
-        services.AddScoped<CoverLetterService>();
+        services.AddScoped<ICoverLetterService, CoverLetterService>();
         services.AddScoped<IJobRequirementService, JobRequirementService>();
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
 
