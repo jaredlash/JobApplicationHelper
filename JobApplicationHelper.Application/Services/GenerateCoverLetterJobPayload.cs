@@ -1,0 +1,5 @@
+﻿using JobApplicationHelper.Domain.Models;
+
+namespace JobApplicationHelper.Application.Services;
+
+public sealed record GenerateCoverLetterJobPayload(CoverLetterDraftParameters DraftParameters);

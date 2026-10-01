@@ -20,7 +20,7 @@ public sealed class CoverLettersApiClient
         CoverLetterDraftParameters draftParameters,
         CancellationToken cancellationToken = default)
     {
-        var request = new GenerateCoverLetterRequest(draftParameters.ToDto());
+        var request = new GenerateCoverLetterRequest(Guid.NewGuid(), "High", draftParameters.ToDto());
 
         using var httpResponse = await _httpClient.PostAsJsonAsync(
             "api/cover-letters",
@@ -32,7 +32,7 @@ public sealed class CoverLettersApiClient
         var apiResponse = await httpResponse.Content.ReadFromJsonAsync<GenerateCoverLetterResponse>(cancellationToken)
             ?? throw new InvalidOperationException("The cover letter API returned an empty response.");
 
-        return apiResponse.Draft;
+        return apiResponse.BackgroundJobId.ToString();
     }
 
     public async Task<VerificationResult> VerifyDraftAsync(

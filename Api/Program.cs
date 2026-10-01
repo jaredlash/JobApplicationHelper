@@ -60,14 +60,15 @@ app.MapPost(
     "/api/cover-letters",
     async (
         GenerateCoverLetterRequest request,
-        CoverLetterService coverLetterService,
+        ICoverLetterService coverLetterService,
         CancellationToken cancellationToken) =>
     {
-        var draft = await coverLetterService.GenerateCoverLetterAsync(
-            request.DraftParameters.ToDomain(),
-            cancellationToken);
+        //var draft = await coverLetterService.GenerateCoverLetterAsync(
+        //    request.DraftParameters.ToDomain(),
+        //    cancellationToken);
 
-        var response = new GenerateCoverLetterResponse(draft);
+        var backgroundJobId = Guid.NewGuid();
+        var response = new GenerateCoverLetterResponse(backgroundJobId);
 
         return Results.Ok(response);
     });
@@ -76,7 +77,7 @@ app.MapPost(
     "/api/cover-letters/verify",
     async (
         VerifyCoverLetterRequest request,
-        CoverLetterService coverLetterService,
+        ICoverLetterService coverLetterService,
         CancellationToken cancellationToken) =>
     {
         var verificationResult = await coverLetterService.VerifyDraftAsync(
