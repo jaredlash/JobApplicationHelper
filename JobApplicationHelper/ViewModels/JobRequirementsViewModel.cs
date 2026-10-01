@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.Services.BackgroundJobs;
@@ -218,7 +219,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
             var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
             if (backgroundJobResponse.Status == BackgroundJobStatus.Failed.ToString())
-                throw new Exception(backgroundJobResponse.Error);
+                throw new BackgroundJobFailedException(backgroundJobResponse.Error);
             if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
                 throw new OperationCanceledException("The background job was cancelled.");
 

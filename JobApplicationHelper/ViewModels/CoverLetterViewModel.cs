@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.WindowService;
@@ -76,7 +77,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
             if (backgroundJobResponse.Status == BackgroundJobStatus.Failed.ToString())
             {
-                throw new Exception(backgroundJobResponse.Error);
+                throw new BackgroundJobFailedException(backgroundJobResponse.Error);
             }
             if (backgroundJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
             {
@@ -91,7 +92,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
             if (verificationJobResponse.Status == BackgroundJobStatus.Failed.ToString())
             {
-                throw new Exception($"Verification job failed: {verificationJobResponse.Error}");
+                throw new BackgroundJobFailedException($"Verification job failed: {verificationJobResponse.Error}");
             }
             if (verificationJobResponse.Status == BackgroundJobStatus.Cancelled.ToString())
             {
