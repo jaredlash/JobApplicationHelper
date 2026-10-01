@@ -3,7 +3,6 @@ using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.CoverLetters;
-using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
 using System.Text.Json;
 
