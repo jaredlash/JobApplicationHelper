@@ -18,6 +18,7 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var executor = new TestBackgroundJobExecutor();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var service = new BackgroundJobService(repository, queue, executor);
 
@@ -33,7 +34,7 @@ public sealed class BackgroundJobWorkerTests
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
 
-        var jobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var jobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
         using var cancellationSource = new CancellationTokenSource();
 
@@ -57,6 +58,7 @@ public sealed class BackgroundJobWorkerTests
     {
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var expectedException = new InvalidOperationException("Test execution failure.");
 
@@ -76,7 +78,7 @@ public sealed class BackgroundJobWorkerTests
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
 
-        var jobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var jobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
         using var cancellationSource = new CancellationTokenSource();
 
@@ -97,6 +99,7 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var executor = new RecordingBackgroundJobExecutor();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var service = new BackgroundJobService(repository, queue, executor);
 
@@ -112,9 +115,9 @@ public sealed class BackgroundJobWorkerTests
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
 
-        var normalJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var normalJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
-        var highJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.High, TestContext.Current.CancellationToken);
+        var highJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, null, TestContext.Current.CancellationToken);
 
         using var cancellationSource = new CancellationTokenSource();
 
@@ -135,10 +138,11 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var executor = new TestBackgroundJobExecutor();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var service = new BackgroundJobService(repository, queue, executor);
 
-        var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId);
 
         job.Start();
 
@@ -182,6 +186,7 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var executor = new BlockingBackgroundJobExecutor();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var service = new BackgroundJobService(
             repository,
@@ -200,9 +205,9 @@ public sealed class BackgroundJobWorkerTests
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
 
-        var firstJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var firstJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
-        var secondJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var secondJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
         using var cancellationSource = new CancellationTokenSource();
 
@@ -233,6 +238,7 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var executor = new FailOnceBackgroundJobExecutor();
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
         var service = new BackgroundJobService(repository, queue, executor);
 
@@ -248,9 +254,9 @@ public sealed class BackgroundJobWorkerTests
             Options.Create(new BackgroundJobOptions { MaxConcurrency = 1 }),
             NullLogger<BackgroundJobWorker>.Instance);
 
-        var failedJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var failedJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
-        var successfulJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, TestContext.Current.CancellationToken);
+        var successfulJobId = await service.CreateAsync(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, null, TestContext.Current.CancellationToken);
 
         using var cancellationSource = new CancellationTokenSource();
 

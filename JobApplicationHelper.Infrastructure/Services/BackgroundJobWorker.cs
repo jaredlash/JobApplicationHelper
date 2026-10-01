@@ -1,5 +1,4 @@
-﻿using JobApplicationHelper.Application.Configuration;
-using JobApplicationHelper.Application.Services;
+﻿using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Infrastructure.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,8 +14,7 @@ public sealed class BackgroundJobWorker(
     ILogger<BackgroundJobWorker> logger)
     : BackgroundService
 {
-    protected override async Task ExecuteAsync(
-        CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using (var scope = serviceScopeFactory.CreateScope())
         {
@@ -33,34 +31,27 @@ public sealed class BackgroundJobWorker(
         await Task.WhenAll(workers);
     }
 
-    private async Task ProcessJobsAsync(
-        CancellationToken cancellationToken)
+    private async Task ProcessJobsAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                var jobId = await backgroundJobQueue.DequeueAsync(
-                    cancellationToken);
+                var jobId = await backgroundJobQueue.DequeueAsync(cancellationToken);
 
                 using var scope = serviceScopeFactory.CreateScope();
 
                 var backgroundJobService = scope.ServiceProvider.GetRequiredService<IBackgroundJobService>();
 
-                await backgroundJobService.ExecuteAsync(
-                    jobId,
-                    cancellationToken);
+                await backgroundJobService.ExecuteAsync(jobId, cancellationToken);
             }
-            catch (OperationCanceledException)
-                when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 break;
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    ex,
-                    "An error occurred while executing a background job.");
+                logger.LogError(ex, "An error occurred while executing a background job.");
             }
         }
     }

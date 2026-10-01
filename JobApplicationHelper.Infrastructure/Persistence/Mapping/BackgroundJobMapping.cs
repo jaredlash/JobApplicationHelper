@@ -3,7 +3,7 @@ using JobApplicationHelper.Infrastructure.Persistence.Entities;
 
 namespace JobApplicationHelper.Infrastructure.Persistence.Mapping;
 
-internal static class BackgroundJobMapping
+public static class BackgroundJobMapping
 {
     public static BackgroundJobEntity ToEntity(this BackgroundJob job) => new()
     {
@@ -14,7 +14,9 @@ internal static class BackgroundJobMapping
         CreatedAt = job.CreatedAt,
         StartedAt = job.StartedAt,
         CompletedAt = job.CompletedAt,
-        Error = job.Error
+        Error = job.Error,
+        JobApplicationId = job.JobApplicationId.Value,
+        Payload = job.Payload
     };
 
     public static BackgroundJob ToDomain(this BackgroundJobEntity entity) =>
@@ -26,5 +28,8 @@ internal static class BackgroundJobMapping
             entity.CreatedAt,
             entity.StartedAt,
             entity.CompletedAt,
-            entity.Error);
+            entity.Error,
+            new JobApplicationId(entity.JobApplicationId),
+            entity.Payload
+        );
 }

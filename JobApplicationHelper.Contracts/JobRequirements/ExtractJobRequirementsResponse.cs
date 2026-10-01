@@ -1,3 +1,3 @@
 ﻿namespace JobApplicationHelper.Contracts.JobRequirements;
 
-public sealed record ExtractJobRequirementsResponse(IReadOnlyList<JobRequirementDto> Requirements);
+public record ExtractJobRequirementsResponse(Guid BackgroundJobId);

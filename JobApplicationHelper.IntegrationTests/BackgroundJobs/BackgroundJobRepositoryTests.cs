@@ -1,5 +1,6 @@
 ﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence;
+using JobApplicationHelper.Infrastructure.Persistence.Mapping;
 using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,8 +27,11 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         await using var dbContext = CreateDbContext();
 
         var repository = new BackgroundJobRepository(dbContext);
+        var jobApplication = await CreateJobApplicationAsync(dbContext);
 
-        var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High);
+        var jobApplicationId = jobApplication.Id;
+
+        var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, "testing");
 
         await repository.AddAsync(job);
 
@@ -42,20 +46,29 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         Assert.Equal(job.StartedAt, retrievedJob.StartedAt);
         Assert.Equal(job.CompletedAt, retrievedJob.CompletedAt);
         Assert.Equal(job.Error, retrievedJob.Error);
+        Assert.Equal(job.JobApplicationId, retrievedJob.JobApplicationId);
+        Assert.Equal(job.Payload, retrievedJob.Payload);
     }
 
     [Fact]
     public async Task Gets_pending_jobs_in_priority_and_creation_order()
     {
-        var normalJob1 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+
+        await using (var dbContext = CreateDbContext())
+        {
+            var jobApplication = await CreateJobApplicationAsync(dbContext, jobApplicationId);
+        }
+
+        var normalJob1 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
 
         await Task.Delay(10);
 
-        var normalJob2 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var normalJob2 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
 
         await Task.Delay(10);
 
-        var highJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High);
+        var highJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, "testing");
 
         await using (var dbContext = CreateDbContext())
         {
@@ -80,9 +93,16 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
     [Fact]
     public async Task Recovers_running_background_jobs()
     {
-        var runningJob1 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
-        var runningJob2 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High);
+        await using (var dbContext = CreateDbContext())
+        {
+            var jobApplication = await CreateJobApplicationAsync(dbContext, jobApplicationId);
+        }
+
+        var runningJob1 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
+
+        var runningJob2 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, "testing");
 
         await using (var dbContext = CreateDbContext())
         {
@@ -130,11 +150,18 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
     [Fact]
     public async Task Does_not_recover_jobs_that_are_not_running()
     {
-        var pendingJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
-        var completedJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        await using (var dbContext = CreateDbContext())
+        {
+            var jobApplication = await CreateJobApplicationAsync(dbContext, jobApplicationId);
+        }
 
-        var failedJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal);
+        var pendingJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
+
+        var completedJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
+
+        var failedJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
 
         await using (var dbContext = CreateDbContext())
         {
@@ -187,5 +214,28 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         Assert.Equal(
             expected.Ticks / 10,
             actual.Ticks / 10);
+    }
+
+    private async Task<JobApplication> CreateJobApplicationAsync(JobApplicationHelperDbContext dbContext,
+        JobApplicationId? id = null)
+    {
+        var jobApplication = new JobApplication
+        {
+            Id = id ?? new JobApplicationId(Guid.NewGuid()),
+            CountryCode = "US",
+            IncludeCoverLetter = true,
+            CompanyName = "Test Company",
+            PositionTitle = "Software Engineer",
+            URL = "https://example.com/job",
+            City = "Chicago",
+            JobPosting = "Test job posting.",
+            CreatedAt = DateTime.UtcNow,
+            ApplicationFolder = "test-folder"
+        };
+
+        dbContext.JobApplications.Add(jobApplication.ToEntity());
+        await dbContext.SaveChangesAsync();
+
+        return jobApplication;
     }
 }

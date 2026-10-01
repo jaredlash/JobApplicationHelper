@@ -4,13 +4,12 @@ using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Contracts.CoverLetters;
-using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobApplications;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Contracts.Locations;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
-using JobApplicationHelper.Infrastructure.Persistence;
+using JobApplicationHelper.Api.Endpoints;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,18 +32,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapJobRequirementsEndpoints();
+app.MapBackgroundJobEndpoints();
+
+
 app.MapPost(
     "/api/job-requirements",
     async (
-        ExtractJobRequirementsRequest request,
-        JobRequirementService service,
+        SynchronousExtractJobRequirementsRequest request,
+        IJobRequirementService service,
         CancellationToken cancellationToken) =>
     {
         var result = await service.ExtractRequirementsAsync(
             request.JobPosting,
             cancellationToken);
 
-        var response = new ExtractJobRequirementsResponse(
+        var response = new SynchronousExtractJobRequirementsResponse(
             result.Requirements
                 .Select(r => new JobRequirementDto(r.Requirement, r.Category.ToString(), r.Priority.ToString()))
                 .ToList()
@@ -145,22 +148,28 @@ app.MapPost(
         return Results.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
     });
 
-app.MapPost(
-    "/api/background-jobs",
-    async (
-        CreateBackgroundJobRequest request,
-        IBackgroundJobService backgroundJobService,
-        CancellationToken cancellationToken) =>
-    {
-        var id = await backgroundJobService.CreateAsync(
-            Enum.Parse<BackgroundJobType>(request.Type, ignoreCase: true),
-            Enum.Parse<BackgroundJobPriority>(request.Priority, ignoreCase: true),
-            cancellationToken);
+//app.MapPost(
+//    "/api/background-jobs",
+//    async (
+//        CreateBackgroundJobRequest request,
+//        IBackgroundJobService backgroundJobService,
+//        CancellationToken cancellationToken) =>
+//    {
+//        var id = await backgroundJobService.CreateAsync(
+//            Enum.Parse<BackgroundJobType>(request.Type, ignoreCase: true),
+//            Enum.Parse<BackgroundJobPriority>(request.Priority, ignoreCase: true),
+//            new JobApplicationId(Guid.NewGuid()), //new JobApplicationId(Guid.Parse(request.JobApplicationId)),
+//            null, //request.Payload,
+//            cancellationToken);
 
-        return Results.Ok(new CreateBackgroundJobResponse(id.Value));
-    });
+//        return Results.Ok(new CreateBackgroundJobResponse(id.Value));
+//    });
 
 app.MapGet("/health", () => Results.Ok());
 
 app.Run();
 
+// Make the Program class public so that integration tests can access it
+public partial class Program
+{
+}

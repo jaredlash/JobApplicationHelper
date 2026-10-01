@@ -14,9 +14,11 @@ public sealed class BackgroundJobService(
     public async Task<BackgroundJobId> CreateAsync(
         BackgroundJobType type,
         BackgroundJobPriority priority,
+        JobApplicationId jobApplicationId,
+        string? payload = null,
         CancellationToken cancellationToken = default)
     {
-        var job = BackgroundJob.Create(type, priority);
+        var job = BackgroundJob.Create(type, priority, jobApplicationId, payload);
 
         await backgroundJobRepository.AddAsync(job, cancellationToken);
 
@@ -50,6 +52,10 @@ public sealed class BackgroundJobService(
             job.Complete();
 
             await backgroundJobRepository.UpdateAsync(job, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

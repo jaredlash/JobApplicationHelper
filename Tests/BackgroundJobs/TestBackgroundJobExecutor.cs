@@ -22,7 +22,9 @@ internal sealed class TestBackgroundJobExecutor : IBackgroundJobExecutor
             job.CreatedAt,
             job.StartedAt,
             job.CompletedAt,
-            job.Error);
+            job.Error,
+            job.JobApplicationId,
+            job.Payload);
 
         completion.TrySetResult(snapshot);
 

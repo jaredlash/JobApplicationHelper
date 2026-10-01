@@ -19,7 +19,7 @@ public sealed class JobRequirementsApiClient
         string jobPosting,
         CancellationToken cancellationToken = default)
     {
-        var request = new ExtractJobRequirementsRequest(jobPosting);
+        var request = new SynchronousExtractJobRequirementsRequest(jobPosting);
 
         using var httpResponse = await _httpClient.PostAsJsonAsync(
             "api/job-requirements",
@@ -28,7 +28,7 @@ public sealed class JobRequirementsApiClient
 
         httpResponse.EnsureSuccessStatusCode();
 
-        var apiResponse = await httpResponse.Content.ReadFromJsonAsync<ExtractJobRequirementsResponse>(cancellationToken)
+        var apiResponse = await httpResponse.Content.ReadFromJsonAsync<SynchronousExtractJobRequirementsResponse>(cancellationToken)
             ?? throw new InvalidOperationException("The job requirements API returned an empty response.");
 
         return new JobRequirements

@@ -2,5 +2,6 @@
 
 public enum BackgroundJobType
 {
-    Llm
+    Llm,
+    ExtractJobRequirements
 }

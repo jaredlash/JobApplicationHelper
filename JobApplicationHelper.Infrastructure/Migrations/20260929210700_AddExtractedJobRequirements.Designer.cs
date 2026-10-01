@@ -3,6 +3,7 @@ using System;
 using JobApplicationHelper.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobApplicationHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(JobApplicationHelperDbContext))]
-    partial class JobApplicationHelperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260929210700_AddExtractedJobRequirements")]
+    partial class AddExtractedJobRequirements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,6 +28,7 @@ namespace JobApplicationHelper.Infrastructure.Migrations
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.BackgroundJobEntity", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("CompletedAt")
@@ -36,12 +40,6 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.Property<string>("Error")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
-
-                    b.Property<Guid>("JobApplicationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Payload")
-                        .HasColumnType("text");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
@@ -58,8 +56,6 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("JobApplicationId");
 
                     b.HasIndex("Status");
 
@@ -126,15 +122,6 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobApplications", (string)null);
-                });
-
-            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.BackgroundJobEntity", b =>
-                {
-                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.JobApplicationEntity", null)
-                        .WithMany()
-                        .HasForeignKey("JobApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", b =>

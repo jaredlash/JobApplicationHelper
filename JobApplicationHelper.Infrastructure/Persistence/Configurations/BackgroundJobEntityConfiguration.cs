@@ -12,6 +12,8 @@ public sealed class BackgroundJobEntityConfiguration : IEntityTypeConfiguration<
         builder.ToTable("BackgroundJobs");
 
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
 
         builder.Property(x => x.Type)
             .HasConversion<string>()
@@ -31,5 +33,12 @@ public sealed class BackgroundJobEntityConfiguration : IEntityTypeConfiguration<
             .HasMaxLength(4000);
 
         builder.HasIndex(x => x.Status);
+
+        builder.HasOne<JobApplicationEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.JobApplicationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.JobApplicationId);
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace JobApplicationHelper.Application.Services;
 
-public sealed class JobRequirementService
+public sealed class JobRequirementService : IJobRequirementService
 {
     private const int MaxAttempts = 3;
     private const int RetryDelayMilliseconds = 250;

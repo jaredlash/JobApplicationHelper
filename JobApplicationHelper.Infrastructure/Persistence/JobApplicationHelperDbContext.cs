@@ -9,6 +9,7 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
     public DbSet<JobApplicationEntity> JobApplications => Set<JobApplicationEntity>();
     public DbSet<BackgroundJobEntity> BackgroundJobs => Set<BackgroundJobEntity>();
 
+    public DbSet<ExtractedJobRequirementsEntity> ExtractedJobRequirements => Set<ExtractedJobRequirementsEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

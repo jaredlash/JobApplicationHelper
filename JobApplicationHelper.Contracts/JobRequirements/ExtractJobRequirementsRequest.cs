@@ -1,3 +1,3 @@
 ﻿namespace JobApplicationHelper.Contracts.JobRequirements;
 
-public record ExtractJobRequirementsRequest(string JobPosting);
+public record ExtractJobRequirementsRequest(Guid JobApplicationId, string Priority);
