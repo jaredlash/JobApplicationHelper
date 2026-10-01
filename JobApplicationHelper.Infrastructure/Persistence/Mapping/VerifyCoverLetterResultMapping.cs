@@ -16,13 +16,15 @@ public static class VerifyCoverLetterResultMapping
         };
     }
 
-    public static VerificationResult ToDomain(this VerifyCoverLetterResultEntity entity)
+    public static VerifyCoverLetterResult ToDomain(this VerifyCoverLetterResultEntity entity)
     {
-        var result =
-            JsonSerializer.Deserialize<VerificationResult>(entity.VerificationResultJson)
+        var verificationResult = JsonSerializer.Deserialize<VerificationResult>(entity.VerificationResultJson)
             ?? throw new InvalidOperationException($"Could not deserialize verification result for job application '{entity.JobApplicationId}'.");
 
-        return result;
+        return VerifyCoverLetterResult.Rehydrate(
+            new JobApplicationId(entity.JobApplicationId),
+            verificationResult,
+            entity.CreatedAt);
     }
 
     public static void UpdateEntity(this VerifyCoverLetterResultEntity entity, VerifyCoverLetterResult result)
