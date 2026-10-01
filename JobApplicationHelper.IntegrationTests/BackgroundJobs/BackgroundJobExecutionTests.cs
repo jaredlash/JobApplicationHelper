@@ -58,8 +58,8 @@ public sealed class BackgroundJobExecutionTests
                 jobApplicationId);
         }
 
-        var fakeJobRequirementService =
-            new FakeJobRequirementService(expectedRequirements);
+        var fakeJobRequirementService = new FakeJobRequirementService(expectedRequirements);
+        var fakeCoverLetterService = new FakeCoverLetterService();
 
         var queue = new FakeBackgroundJobQueue();
 
@@ -67,19 +67,17 @@ public sealed class BackgroundJobExecutionTests
 
         await using (var dbContext = CreateDbContext())
         {
-            var backgroundJobRepository =
-                new BackgroundJobRepository(dbContext);
-
-            var jobApplicationRepository =
-                new JobApplicationRepository(dbContext);
-
-            var extractedJobRequirementsRepository =
-                new ExtractedJobRequirementsRepository(dbContext);
+            var backgroundJobRepository = new BackgroundJobRepository(dbContext);
+            var jobApplicationRepository = new JobApplicationRepository(dbContext);
+            var extractedJobRequirementsRepository = new ExtractedJobRequirementsRepository(dbContext);
+            var coverLetterDraftRepository = new CoverLetterDraftRepository(dbContext);
 
             var executor = new BackgroundJobExecutor(
                 jobApplicationRepository,
                 extractedJobRequirementsRepository,
-                fakeJobRequirementService);
+                fakeJobRequirementService,
+                coverLetterDraftRepository,
+                fakeCoverLetterService);
 
             var backgroundJobService = new BackgroundJobService(
                 backgroundJobRepository,
