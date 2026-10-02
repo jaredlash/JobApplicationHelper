@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
+using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.WindowService;
@@ -76,7 +77,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             draftParameters.CountryCode = CountryCode;
             var backgroundJobId = await coverLettersApiClient.GenerateCoverLetterAsync(jobApplicationId, draftParameters, cancellationToken);
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
-            EnsureBackgroundJobSucceeded(backgroundJobResponse);
+            backgroundJobResponse.EnsureSucceeded();
 
             Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
@@ -84,7 +85,7 @@ public partial class CoverLetterViewModel : ViewModelBase
             VerificationStatus = "Verifying cover letter draft...";
             var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
             var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
-            EnsureBackgroundJobSucceeded(verificationJobResponse);
+            verificationJobResponse.EnsureSucceeded();
 
             var verificationResult = await coverLettersApiClient.GetVerifyCoverLetterResultAsync(jobApplicationId, cancellationToken);
 
@@ -97,6 +98,14 @@ public partial class CoverLetterViewModel : ViewModelBase
             {
                 VerificationStatus = "Verification passed.";
             }
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Cover letter generation was cancelled.");
+        }
+        catch (BackgroundJobCancelledException)
+        {
+            logger.LogInformation("The background job was cancelled.");
         }
         catch (Exception ex)
         {
@@ -137,18 +146,5 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
         windowService.ShowDialog(verificationResultDialogViewModel);
-    }
-
-    private static void EnsureBackgroundJobSucceeded(GetBackgroundJobResponse response)
-    {
-        if (response.Status == BackgroundJobStatus.Failed.ToString())
-        {
-            throw new BackgroundJobFailedException(response.Error);
-        }
-
-        if (response.Status == BackgroundJobStatus.Cancelled.ToString())
-        {
-            throw new OperationCanceledException("The background job was cancelled.");
-        }
     }
 }

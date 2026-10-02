@@ -207,7 +207,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         OnExperienceFilterChanged(ExperienceFilter);
     }
 
-    [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements))]
+    [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements), IncludeCancelCommand = true)]
     private async Task LoadJobRequirements(CancellationToken cancellationToken = default)
     {
         try
@@ -219,12 +219,20 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
             var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
             var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
-            EnsureBackgroundJobSucceeded(backgroundJobResponse);
+            backgroundJobResponse.EnsureSucceeded();
 
             Requirements = await jobRequirementsApiClient.GetAsync(jobApplicationId, cancellationToken);
 
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Loading job requirements was cancelled.");
+        }
+        catch (BackgroundJobCancelledException)
+        {
+            logger.LogInformation("The background job was cancelled.");
         }
         catch (Exception ex)
         {
@@ -311,17 +319,4 @@ public partial class JobRequirementsViewModel : ViewModelBase
     }
 
     public bool CanGenerateCoverLetter => IsFinishedLoadingJobRequirements && FulfilledRequirementCount == RequirementCount;
-
-    private static void EnsureBackgroundJobSucceeded(GetBackgroundJobResponse response)
-    {
-        if (response.Status == BackgroundJobStatus.Failed.ToString())
-        {
-            throw new BackgroundJobFailedException(response.Error);
-        }
-
-        if (response.Status == BackgroundJobStatus.Cancelled.ToString())
-        {
-            throw new OperationCanceledException("The background job was cancelled.");
-        }
-    }
 }
