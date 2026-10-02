@@ -1,5 +1,6 @@
 ﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
+using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
 using JobApplicationHelper.WindowService;
@@ -85,6 +86,18 @@ public partial class App : WpfApplication
             client.BaseAddress = new Uri(options.BaseUrl);
         });
 
+        builder.Services.AddHttpClient<BackgroundJobsApiClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseUrl);
+        });
+
+        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseUrl);
+        });
+
         builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
             (serviceProvider, client) =>
             {
@@ -94,6 +107,9 @@ public partial class App : WpfApplication
 
                 client.BaseAddress = new Uri(options.BaseUrl);
             });
+
+        builder.Services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
+
 
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddTransient<MainWindowViewModel>();

@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
+using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +14,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class JobRequirementsViewModel : ViewModelBase
 {
     private readonly JobRequirementsApiClient jobRequirementsApiClient;
+    private readonly IBackgroundJobPollingService backgroundJobPollingService;
     private readonly ExperienceBankApiClient experienceBankApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
@@ -20,6 +24,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     public JobRequirementsViewModel(
         JobRequirementsApiClient jobRequirementsApiClient,
+        IBackgroundJobPollingService backgroundJobPollingService,
         ExperienceBankApiClient experienceBankApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
@@ -27,6 +32,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         ILogger<JobRequirementsViewModel> logger)
     {
         this.jobRequirementsApiClient = jobRequirementsApiClient;
+        this.backgroundJobPollingService = backgroundJobPollingService;
         this.experienceBankApiClient = experienceBankApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
@@ -51,6 +57,8 @@ public partial class JobRequirementsViewModel : ViewModelBase
             PreviousRequirementCommand.NotifyCanExecuteChanged();
         }
     }
+
+    public JobApplicationId? ApplicationId { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRequirementDisplay))]
@@ -199,17 +207,32 @@ public partial class JobRequirementsViewModel : ViewModelBase
         OnExperienceFilterChanged(ExperienceFilter);
     }
 
-    [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements))]
+    [RelayCommand(CanExecute = nameof(CanExecuteLoadJobRequirements), IncludeCancelCommand = true)]
     private async Task LoadJobRequirements(CancellationToken cancellationToken = default)
     {
         try
         {
+            ArgumentNullException.ThrowIfNull(ApplicationId);
+            var jobApplicationId = ApplicationId.Value;
+
             IsFinishedLoadingJobRequirements = false;
 
-            Requirements = await jobRequirementsApiClient.ExtractAsync(JobPosting, cancellationToken);
+            var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
+            var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
+            backgroundJobResponse.EnsureSucceeded();
+
+            Requirements = await jobRequirementsApiClient.GetAsync(jobApplicationId, cancellationToken);
 
             // Valid job requirements have at least one requirement
             SelectedRequirementIndex = 0;
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Loading job requirements was cancelled.");
+        }
+        catch (BackgroundJobCancelledException)
+        {
+            logger.LogInformation("The background job was cancelled.");
         }
         catch (Exception ex)
         {

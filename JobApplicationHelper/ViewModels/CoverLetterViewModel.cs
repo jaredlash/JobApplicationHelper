@@ -1,7 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Exceptions;
+using JobApplicationHelper.Extensions;
 using JobApplicationHelper.Services.Api;
+using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +14,7 @@ namespace JobApplicationHelper.ViewModels;
 public partial class CoverLetterViewModel : ViewModelBase
 {
     private readonly CoverLettersApiClient coverLettersApiClient;
+    private readonly IBackgroundJobPollingService backgroundJobPollingService;
     private readonly JobApplicationsApiClient jobApplicationsApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
@@ -19,6 +24,7 @@ public partial class CoverLetterViewModel : ViewModelBase
 
     public CoverLetterViewModel(
         CoverLettersApiClient coverLettersApiClient,
+        IBackgroundJobPollingService backgroundJobPollingService,
         JobApplicationsApiClient jobApplicationsApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
@@ -26,6 +32,7 @@ public partial class CoverLetterViewModel : ViewModelBase
         ILogger<CoverLetterViewModel> logger)
     {
         this.coverLettersApiClient = coverLettersApiClient;
+        this.backgroundJobPollingService = backgroundJobPollingService;
         this.jobApplicationsApiClient = jobApplicationsApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
@@ -63,16 +70,24 @@ public partial class CoverLetterViewModel : ViewModelBase
         try
         {
             ArgumentNullException.ThrowIfNull(ApplicationId);
+            var jobApplicationId = ApplicationId.Value;
 
             CoverLetterStatus = "Generating cover letter draft...";
             VerificationStatus = string.Empty;
             draftParameters.CountryCode = CountryCode;
-            Draft = await coverLettersApiClient.GenerateCoverLetterAsync(draftParameters, cancellationToken);
+            var backgroundJobId = await coverLettersApiClient.GenerateCoverLetterAsync(jobApplicationId, draftParameters, cancellationToken);
+            var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
+            backgroundJobResponse.EnsureSucceeded();
+
+            Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
 
             VerificationStatus = "Verifying cover letter draft...";
+            var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
+            var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
+            verificationJobResponse.EnsureSucceeded();
 
-            var verificationResult = await coverLettersApiClient.VerifyDraftAsync(draftParameters, Draft, cancellationToken);
+            var verificationResult = await coverLettersApiClient.GetVerifyCoverLetterResultAsync(jobApplicationId, cancellationToken);
 
             if (!verificationResult.IsValid)
             {
@@ -83,6 +98,14 @@ public partial class CoverLetterViewModel : ViewModelBase
             {
                 VerificationStatus = "Verification passed.";
             }
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Cover letter generation was cancelled.");
+        }
+        catch (BackgroundJobCancelledException)
+        {
+            logger.LogInformation("The background job was cancelled.");
         }
         catch (Exception ex)
         {
