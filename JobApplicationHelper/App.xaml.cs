@@ -108,6 +108,14 @@ public partial class App : WpfApplication
                 client.BaseAddress = new Uri(options.BaseUrl);
             });
 
+        builder.Services.AddSingleton<IBackgroundJobNotificationService>(serviceProvider =>
+        {
+            var backgroundJobsApiClient = serviceProvider.GetRequiredService<BackgroundJobsApiClient>();
+            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+
+            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, $"{options.BaseUrl}/hubs/background-jobs");
+        });
+
         builder.Services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
 
 
@@ -157,6 +165,10 @@ public partial class App : WpfApplication
     protected override async void OnStartup(StartupEventArgs e)
     {
         await AppHost!.StartAsync();
+
+        var notificationService = AppHost.Services.GetRequiredService<IBackgroundJobNotificationService>();
+
+        await notificationService.ConnectAsync();
 
         var mainWindow = AppHost.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();

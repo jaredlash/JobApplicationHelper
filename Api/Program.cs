@@ -1,15 +1,14 @@
+using JobApplicationHelper.Api.Endpoints;
+using JobApplicationHelper.Api.Hubs;
 using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application;
 using JobApplicationHelper.Application.Services;
-using JobApplicationHelper.Contracts.BackgroundJobs;
-using JobApplicationHelper.Contracts.CoverLetters;
 using JobApplicationHelper.Contracts.JobApplications;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Contracts.Locations;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure;
-using JobApplicationHelper.Api.Endpoints;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +19,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -35,7 +35,7 @@ app.UseHttpsRedirection();
 app.MapJobRequirementsEndpoints();
 app.MapBackgroundJobEndpoints();
 app.MapCoverLetterEndpoints();
-
+app.MapHub<BackgroundJobHub>("/hubs/background-jobs");
 
 app.MapPost(
     "/api/job-requirements",

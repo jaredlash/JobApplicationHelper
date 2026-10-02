@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JobApplicationHelper.Contracts\JobApplicationHelper.Contracts.csproj" />
     <ProjectReference Include="..\JobApplicationHelper.Domain\JobApplicationHelper.Domain.csproj" />
   </ItemGroup>
 

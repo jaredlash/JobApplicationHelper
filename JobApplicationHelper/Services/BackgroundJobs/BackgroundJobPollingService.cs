@@ -2,41 +2,48 @@
 using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
-using Microsoft.Extensions.Options;
 
 namespace JobApplicationHelper.Services.BackgroundJobs;
 
 public sealed class BackgroundJobPollingService(
-    BackgroundJobsApiClient backgroundJobsApiClient)
+    BackgroundJobsApiClient backgroundJobsApiClient,
+    IBackgroundJobNotificationService backgroundJobNotificationService)
     : IBackgroundJobPollingService
 {
-    private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(1);
 
-    public async Task<GetBackgroundJobResponse> WaitForCompletionAsync(BackgroundJobId backgroundJobId, CancellationToken cancellationToken = default)
+    public async Task<GetBackgroundJobResponse> WaitForCompletionAsync(
+        BackgroundJobId backgroundJobId,
+        CancellationToken cancellationToken = default)
     {
+        var response = await backgroundJobsApiClient.GetAsync(
+            backgroundJobId,
+            cancellationToken);
+
+        if (IsTerminal(ParseStatus(response.Status)))
+            return response;
+
         while (true)
         {
-            var response = await backgroundJobsApiClient.GetAsync(backgroundJobId, cancellationToken);
+            var notification =
+                await backgroundJobNotificationService.WaitForStatusChangeAsync(
+                    backgroundJobId,
+                    cancellationToken);
 
-            var status = ParseStatus(response);
-
-            if (IsTerminal(status))
+            if (IsTerminal(ParseStatus(notification.Status)))
             {
-                return response;
+                return await backgroundJobsApiClient.GetAsync(backgroundJobId, cancellationToken);
             }
-
-            await Task.Delay(PollingInterval, cancellationToken);
         }
     }
 
-    private static BackgroundJobStatus ParseStatus(GetBackgroundJobResponse response)
+    private static BackgroundJobStatus ParseStatus(string status)
     {
-        if (!Enum.TryParse<BackgroundJobStatus>(response.Status, ignoreCase: true, out var status))
+        if (!Enum.TryParse<BackgroundJobStatus>(status, ignoreCase: true, out var statusResult))
         {
-            throw new InvalidOperationException($"The background jobs API returned an unknown status '{response.Status}'.");
+            throw new InvalidOperationException($"The background jobs API returned an unknown status '{status}'.");
         }
 
-        return status;
+        return statusResult;
     }
 
     private static bool IsTerminal(BackgroundJobStatus status) =>
