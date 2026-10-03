@@ -73,6 +73,8 @@ public sealed class BackgroundJobExecutionTests
             var coverLetterDraftRepository = new CoverLetterDraftRepository(dbContext);
             var verifyCoverLetterResultRepository = new VerifyCoverLetterResultRepository(dbContext);
 
+            var notifier = new FakeBackgroundJobNotifier();
+
             var executor = new BackgroundJobExecutor(
                 jobApplicationRepository,
                 extractedJobRequirementsRepository,
@@ -84,7 +86,8 @@ public sealed class BackgroundJobExecutionTests
             var backgroundJobService = new BackgroundJobService(
                 backgroundJobRepository,
                 queue,
-                executor);
+                executor,
+                notifier);
 
             jobId = await backgroundJobService.CreateAsync(
                 BackgroundJobType.ExtractJobRequirements,

@@ -20,7 +20,10 @@ public sealed class BackgroundJobWorkerTests
         var executor = new TestBackgroundJobExecutor();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
 
-        var service = new BackgroundJobService(repository, queue, executor);
+
+        var notifier = new FakeBackgroundJobNotifier();
+
+        var service = new BackgroundJobService(repository, queue, executor, notifier);
 
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IBackgroundJobService>(service)
@@ -59,12 +62,13 @@ public sealed class BackgroundJobWorkerTests
         var repository = new FakeBackgroundJobRepository();
         var queue = new BackgroundJobQueue();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+        var notifier = new FakeBackgroundJobNotifier();
 
         var expectedException = new InvalidOperationException("Test execution failure.");
 
         var executor = new FailingBackgroundJobExecutor(expectedException);
 
-        var service = new BackgroundJobService(repository, queue, executor);
+        var service = new BackgroundJobService(repository, queue, executor, notifier);
 
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IBackgroundJobService>(service)
@@ -100,8 +104,9 @@ public sealed class BackgroundJobWorkerTests
         var queue = new BackgroundJobQueue();
         var executor = new RecordingBackgroundJobExecutor();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+        var notifier = new FakeBackgroundJobNotifier();
 
-        var service = new BackgroundJobService(repository, queue, executor);
+        var service = new BackgroundJobService(repository, queue, executor, notifier);
 
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IBackgroundJobService>(service)
@@ -139,8 +144,9 @@ public sealed class BackgroundJobWorkerTests
         var queue = new BackgroundJobQueue();
         var executor = new TestBackgroundJobExecutor();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+        var notifier = new FakeBackgroundJobNotifier();
 
-        var service = new BackgroundJobService(repository, queue, executor);
+        var service = new BackgroundJobService(repository, queue, executor, notifier);
 
         var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId);
 
@@ -187,11 +193,13 @@ public sealed class BackgroundJobWorkerTests
         var queue = new BackgroundJobQueue();
         var executor = new BlockingBackgroundJobExecutor();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+        var notifier = new FakeBackgroundJobNotifier();
 
         var service = new BackgroundJobService(
             repository,
             queue,
-            executor);
+            executor,
+            notifier);
 
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IBackgroundJobService>(service)
@@ -239,8 +247,9 @@ public sealed class BackgroundJobWorkerTests
         var queue = new BackgroundJobQueue();
         var executor = new FailOnceBackgroundJobExecutor();
         var jobApplicationId = new JobApplicationId(Guid.NewGuid());
+        var notifier = new FakeBackgroundJobNotifier();
 
-        var service = new BackgroundJobService(repository, queue, executor);
+        var service = new BackgroundJobService(repository, queue, executor, notifier);
 
         var serviceProvider = new ServiceCollection()
             .AddSingleton<IBackgroundJobService>(service)

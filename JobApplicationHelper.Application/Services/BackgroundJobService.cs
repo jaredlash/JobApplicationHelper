@@ -6,10 +6,12 @@ namespace JobApplicationHelper.Application.Services;
 public sealed class BackgroundJobService(
     IBackgroundJobRepository backgroundJobRepository,
     IBackgroundJobQueue backgroundJobQueue,
-    IBackgroundJobExecutor backgroundJobExecutor)
+    IBackgroundJobExecutor backgroundJobExecutor,
+    IBackgroundJobNotifier backgroundJobNotifier)
     : IBackgroundJobService
 {
     private readonly IBackgroundJobExecutor backgroundJobExecutor = backgroundJobExecutor;
+    private readonly IBackgroundJobNotifier backgroundJobNotifier = backgroundJobNotifier;
 
     public async Task<BackgroundJobId> CreateAsync(
         BackgroundJobType type,
@@ -44,6 +46,7 @@ public sealed class BackgroundJobService(
         job.Start();
 
         await backgroundJobRepository.UpdateAsync(job, cancellationToken);
+        await NotifyStatusChangedAsync(job, cancellationToken);
 
         try
         {
@@ -52,6 +55,7 @@ public sealed class BackgroundJobService(
             job.Complete();
 
             await backgroundJobRepository.UpdateAsync(job, cancellationToken);
+            await NotifyStatusChangedAsync(job, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -62,6 +66,7 @@ public sealed class BackgroundJobService(
             job.Fail(ex.Message);
 
             await backgroundJobRepository.UpdateAsync(job, cancellationToken);
+            await NotifyStatusChangedAsync(job, cancellationToken);
 
             throw;
         }
@@ -83,5 +88,10 @@ public sealed class BackgroundJobService(
                 job.CreatedAt,
                 cancellationToken);
         }
+    }
+
+    private async Task NotifyStatusChangedAsync(BackgroundJob job, CancellationToken cancellationToken)
+    {
+        await backgroundJobNotifier.NotifyStatusChangedAsync(job, cancellationToken);
     }
 }
