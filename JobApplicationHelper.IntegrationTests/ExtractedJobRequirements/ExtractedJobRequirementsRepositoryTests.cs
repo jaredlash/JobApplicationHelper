@@ -171,7 +171,7 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         AssertEqualToPostgresPrecision(secondExtraction.CreatedAt, retrieved.CreatedAt);
 
-        Assert.NotEqual(firstExtraction.CreatedAt, retrieved.CreatedAt);
+        AssertNotEqualToPostgresPrecision(firstExtraction.CreatedAt, retrieved.CreatedAt);
     }
 
     [Fact]
@@ -215,23 +215,15 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         await using var verificationContext = CreateDbContext();
 
-        var verificationRepository =
-            new ExtractedJobRequirementsRepository(verificationContext);
+        var verificationRepository = new ExtractedJobRequirementsRepository(verificationContext);
 
-        var retrieved =
-            await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
 
         Assert.Null(retrieved);
     }
 
-    private static void AssertEqualToPostgresPrecision(
-        DateTime expected,
-        DateTime actual)
-    {
-        Assert.Equal(
-            expected.Ticks / 10,
-            actual.Ticks / 10);
-    }
+    private static void AssertEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.Equal(expected.Ticks / 10, actual.Ticks / 10);
+    private static void AssertNotEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.NotEqual(expected.Ticks / 10, actual.Ticks / 10);
 
     private async Task<JobApplication> CreateJobApplicationAsync(JobApplicationHelperDbContext dbContext,
         JobApplicationId? id = null)

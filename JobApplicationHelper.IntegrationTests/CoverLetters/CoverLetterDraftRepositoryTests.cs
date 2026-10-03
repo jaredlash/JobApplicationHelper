@@ -114,7 +114,7 @@ public sealed class CoverLetterDraftRepositoryTests
 
         AssertEqualToPostgresPrecision(secondDraft.CreatedAt, retrieved.CreatedAt);
 
-        Assert.NotEqual(firstDraft.CreatedAt, retrieved.CreatedAt);
+        AssertNotEqualToPostgresPrecision(firstDraft.CreatedAt, retrieved.CreatedAt);
     }
 
     [Fact]
@@ -154,6 +154,7 @@ public sealed class CoverLetterDraftRepositoryTests
     }
 
     private static void AssertEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.Equal(expected.Ticks / 10, actual.Ticks / 10);
+    private static void AssertNotEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.NotEqual(expected.Ticks / 10, actual.Ticks / 10);
 
     private async Task<JobApplication> CreateJobApplicationAsync(JobApplicationHelperDbContext dbContext, JobApplicationId? id = null)
     {
