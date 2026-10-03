@@ -15,6 +15,8 @@
     <UserControl.Resources>
         <conv:EnumDisplayConverter x:Key="EnumDisplayConverter" />
         <conv:DateRangeConverter x:Key="DateRangeConverter" />
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
 
     <Grid Margin="10">
@@ -514,20 +516,36 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
-            Margin="5"
-            Command="{Binding LoadJobRequirementsCommand}">
+                Margin="5"
+                Command="{Binding LoadJobRequirementsCommand}"
+                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource InverseBooleanToVisibilityConverter}}" >
                 <TextBlock Text="&#xE117;"
                    FontFamily="Segoe Fluent Icons"
                    FontSize="10"
                    Margin="5"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Center"/>
+                   HorizontalAlignment="Center"
+                   ToolTip="Reload Job Requirements"
+                           />
+            </Button>
+            <Button Grid.Column="0"
+                Margin="5"
+                Command="{Binding LoadJobRequirementsCancelCommand}"
+                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                <TextBlock Text="&#xE106;"
+                   FontFamily="Segoe Fluent Icons"
+                   FontSize="10"
+                   Margin="5"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   ToolTip="Cancel loading job requirements"
+                />
             </Button>
 
             <Label Grid.Column="1"
-           Margin="5"
-           Content="{Binding StatusMessage}"
-           HorizontalAlignment="Left"/>
+                Margin="5"
+                Content="{Binding StatusMessage}"
+                HorizontalAlignment="Left"/>
         </Grid>
 
     </Grid>

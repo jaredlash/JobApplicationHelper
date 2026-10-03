@@ -246,6 +246,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     }
     public bool CanExecuteLoadJobRequirements => IsFinishedLoadingJobRequirements;
 
+
     [RelayCommand(CanExecute = nameof(CanGoToNextRequirement))]
     private void NextRequirement()
     {
