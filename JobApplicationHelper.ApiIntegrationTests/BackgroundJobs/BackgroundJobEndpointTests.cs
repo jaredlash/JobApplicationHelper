@@ -5,7 +5,6 @@ using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Mapping;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobApplicationHelper.ApiIntegrationTests.Endpoints;
@@ -36,18 +35,18 @@ public sealed class BackgroundJobEndpointTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
-            await dbContext.BackgroundJobs.AddAsync(backgroundJob.ToEntity());
+            await dbContext.BackgroundJobs.AddAsync(backgroundJob.ToEntity(), TestContext.Current.CancellationToken);
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act
-        var response = await client.GetAsync($"/api/background-jobs/{backgroundJob.Id.Value}");
+        var response = await client.GetAsync($"/api/background-jobs/{backgroundJob.Id.Value}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<GetBackgroundJobResponse>();
+        var result = await response.Content.ReadFromJsonAsync<GetBackgroundJobResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(backgroundJob.Id.Value, result.Id);
@@ -67,7 +66,7 @@ public sealed class BackgroundJobEndpointTests
         var id = Guid.NewGuid();
 
         // Act
-        var response = await client.GetAsync($"/api/background-jobs/{id}");
+        var response = await client.GetAsync($"/api/background-jobs/{id}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

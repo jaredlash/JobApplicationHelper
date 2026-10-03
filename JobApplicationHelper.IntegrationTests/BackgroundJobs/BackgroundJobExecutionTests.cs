@@ -92,9 +92,11 @@ public sealed class BackgroundJobExecutionTests
             jobId = await backgroundJobService.CreateAsync(
                 BackgroundJobType.ExtractJobRequirements,
                 BackgroundJobPriority.Normal,
-                jobApplicationId);
+                jobApplicationId,
+                null,
+                TestContext.Current.CancellationToken);
 
-            await backgroundJobService.ExecuteAsync(jobId);
+            await backgroundJobService.ExecuteAsync(jobId, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
@@ -105,11 +107,12 @@ public sealed class BackgroundJobExecutionTests
             var extractedJobRequirementsRepository =
                 new ExtractedJobRequirementsRepository(dbContext);
 
-            var job = await backgroundJobRepository.GetAsync(jobId);
+            var job = await backgroundJobRepository.GetAsync(jobId, TestContext.Current.CancellationToken);
 
             var extractedRequirements =
                 await extractedJobRequirementsRepository.GetAsync(
-                    jobApplicationId);
+                    jobApplicationId,
+                    TestContext.Current.CancellationToken);
 
             Assert.NotNull(job);
             Assert.Equal(

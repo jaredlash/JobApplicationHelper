@@ -38,9 +38,9 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
 
         var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-        await repository.AddOrReplaceAsync(verifyCoverLetterResult);
+        await repository.AddOrReplaceAsync(verifyCoverLetterResult, TestContext.Current.CancellationToken);
 
-        var retrievedResult = await repository.GetAsync(jobApplicationId);
+        var retrievedResult = await repository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedResult);
 
@@ -67,9 +67,9 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
 
         var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-        await repository.AddOrReplaceAsync(verifyCoverLetterResult);
+        await repository.AddOrReplaceAsync(verifyCoverLetterResult, TestContext.Current.CancellationToken);
 
-        var retrievedResult = await repository.GetAsync(jobApplicationId);
+        var retrievedResult = await repository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedResult);
 
@@ -96,7 +96,7 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
 
         var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-        var draft = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()));
+        var draft = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         Assert.Null(draft);
     }
@@ -118,11 +118,11 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
         {
             var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(firstVerificationResult);
+            await repository.AddOrReplaceAsync(firstVerificationResult, TestContext.Current.CancellationToken);
         }
 
         // Ensure the second verification result has a different CreatedAt.
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         var secondVerificationResult = VerifyCoverLetterResult.Create(jobApplicationId, CreateValidVerificationResult());
 
@@ -130,19 +130,19 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
         {
             var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(secondVerificationResult);
+            await repository.AddOrReplaceAsync(secondVerificationResult, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
         var verificationRepository = new VerifyCoverLetterResultRepository(verificationContext);
 
-        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrieved);
 
         var rowCount = await verificationContext.VerifyCoverLetterResults
-            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value);
+            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, rowCount);
 
@@ -174,21 +174,21 @@ public sealed class VerifyCoverLetterResultRepositoryTests : IClassFixture<Postg
         {
             var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(verifyCoverLetterResult);
+            await repository.AddOrReplaceAsync(verifyCoverLetterResult, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new VerifyCoverLetterResultRepository(dbContext);
 
-            await repository.DeleteAsync(jobApplicationId);
+            await repository.DeleteAsync(jobApplicationId, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
         var verificationRepository = new VerifyCoverLetterResultRepository(verificationContext);
 
-        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.Null(retrieved);
     }
