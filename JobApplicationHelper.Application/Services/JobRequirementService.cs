@@ -8,6 +8,7 @@ public sealed class JobRequirementService : IJobRequirementService
 {
     private const int MaxAttempts = 3;
     private const int RetryDelayMilliseconds = 250;
+    private static readonly TimeSpan ExtractRequirementsTimeout = TimeSpan.FromMinutes(10);
 
     private readonly IChatClient _chatClient;
     private readonly ILogger<JobRequirementService> _logger;
@@ -327,6 +328,11 @@ public sealed class JobRequirementService : IJobRequirementService
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(jobPosting);
+        // Set a timeout for the entire operation, including retries.
+        using var timeoutCts = new CancellationTokenSource(ExtractRequirementsTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+        var waitCancellationToken = linkedCts.Token;
 
         var userPrompt = $"""
             Extract the candidate requirements from the following job posting.
@@ -366,9 +372,9 @@ public sealed class JobRequirementService : IJobRequirementService
 
                 var response = await _chatClient.GetResponseAsync<JobRequirements>(
                     messages,
-                    options,
+                    options: options,
                     useJsonSchemaResponseFormat: true,
-                    cancellationToken);
+                    cancellationToken: waitCancellationToken);
 
                 _logger.LogDebug("Raw JobRequirementService response on attempt {Attempt} {Length} {Finish Reason}: {Response}",
                     attempt,
@@ -420,7 +426,7 @@ public sealed class JobRequirementService : IJobRequirementService
 
                 return result;
             }
-            catch (OperationCanceledException)
+            catch (Exception ex) when (ex is OperationCanceledException || ex is TimeoutException)
             {
                 throw;
             }

@@ -11,6 +11,7 @@ public sealed class CoverLetterService : ICoverLetterService
     private readonly IChatClient _chatClient;
     private readonly ICandidateContentProvider candidateContentProvider;
     private readonly ILogger<CoverLetterService> _logger;
+    private static readonly TimeSpan LlmTimeout = TimeSpan.FromMinutes(10);
 
     public CoverLetterService(IChatClient chatClient, ICandidateContentProvider candidateContentProvider, ILogger<CoverLetterService> logger)
     {
@@ -471,11 +472,15 @@ public sealed class CoverLetterService : ICoverLetterService
             Temperature = 0.7f
             //MaxOutputTokens = 2000
         };
+        using var timeoutCts = new CancellationTokenSource(LlmTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+        var waitCancellationToken = linkedCts.Token;
 
         var response = await _chatClient.GetResponseAsync(
             messages,
             options,
-            cancellationToken);
+            cancellationToken: waitCancellationToken);
 
         return NormalizeTypography(response.Text);
     }
@@ -664,13 +669,18 @@ public sealed class CoverLetterService : ICoverLetterService
             Temperature = 0.1f
             //MaxOutputTokens = 1000
         };
+        using var timeoutCts = new CancellationTokenSource(LlmTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+        var waitCancellationToken = linkedCts.Token;
+
         try
         {
             var response = await _chatClient.GetResponseAsync<VerificationResult>(
                 messages,
                 options,
                 useJsonSchemaResponseFormat: true,
-                cancellationToken);
+                cancellationToken: waitCancellationToken);
 
             _logger.LogInformation("Cover letter verification response: {response}", JsonSerializer.Serialize(response));
 
