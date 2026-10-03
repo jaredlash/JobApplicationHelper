@@ -57,9 +57,9 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-        await repository.AddOrReplaceAsync(extractedRequirements);
+        await repository.AddOrReplaceAsync(extractedRequirements, TestContext.Current.CancellationToken);
 
-        var retrievedRequirements = await repository.GetAsync(jobApplicationId);
+        var retrievedRequirements = await repository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedRequirements);
 
@@ -87,7 +87,7 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-        var requirements = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()));
+        var requirements = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         Assert.Null(requirements);
     }
@@ -122,11 +122,11 @@ public sealed class ExtractedJobRequirementsRepositoryTests
         {
             var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(firstExtraction);
+            await repository.AddOrReplaceAsync(firstExtraction, TestContext.Current.CancellationToken);
         }
 
         // Ensure the second extraction has a different CreatedAt.
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         var secondRequirements = new JobRequirements
         {
@@ -147,19 +147,19 @@ public sealed class ExtractedJobRequirementsRepositoryTests
         {
             var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(secondExtraction);
+            await repository.AddOrReplaceAsync(secondExtraction, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
         var verificationRepository =  new ExtractedJobRequirementsRepository(verificationContext);
 
-        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrieved);
 
         var rowCount = await verificationContext.ExtractedJobRequirements
-            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value);
+            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, rowCount);
 
@@ -171,7 +171,7 @@ public sealed class ExtractedJobRequirementsRepositoryTests
 
         AssertEqualToPostgresPrecision(secondExtraction.CreatedAt, retrieved.CreatedAt);
 
-        Assert.NotEqual(firstExtraction.CreatedAt, retrieved.CreatedAt);
+        AssertNotEqualToPostgresPrecision(firstExtraction.CreatedAt, retrieved.CreatedAt);
     }
 
     [Fact]
@@ -203,35 +203,27 @@ public sealed class ExtractedJobRequirementsRepositoryTests
         {
             var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(extraction);
+            await repository.AddOrReplaceAsync(extraction, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new ExtractedJobRequirementsRepository(dbContext);
 
-            await repository.DeleteAsync(jobApplicationId);
+            await repository.DeleteAsync(jobApplicationId, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
-        var verificationRepository =
-            new ExtractedJobRequirementsRepository(verificationContext);
+        var verificationRepository = new ExtractedJobRequirementsRepository(verificationContext);
 
-        var retrieved =
-            await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.Null(retrieved);
     }
 
-    private static void AssertEqualToPostgresPrecision(
-        DateTime expected,
-        DateTime actual)
-    {
-        Assert.Equal(
-            expected.Ticks / 10,
-            actual.Ticks / 10);
-    }
+    private static void AssertEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.Equal(expected.Ticks / 10, actual.Ticks / 10);
+    private static void AssertNotEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.NotEqual(expected.Ticks / 10, actual.Ticks / 10);
 
     private async Task<JobApplication> CreateJobApplicationAsync(JobApplicationHelperDbContext dbContext,
         JobApplicationId? id = null)
@@ -251,7 +243,7 @@ public sealed class ExtractedJobRequirementsRepositoryTests
         };
 
         dbContext.JobApplications.Add(jobApplication.ToEntity());
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return jobApplication;
     }

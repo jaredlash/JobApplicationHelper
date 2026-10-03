@@ -2,6 +2,7 @@
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -17,14 +18,14 @@ public static class JobRequirementsEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> ExtractJobRequirementsAsync(
+    private static async Task<Results<Ok<ExtractJobRequirementsResponse>, BadRequest<string>>> ExtractJobRequirementsAsync(
         ExtractJobRequirementsRequest request,
         IBackgroundJobService backgroundJobService,
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<BackgroundJobPriority>(request.Priority, ignoreCase: true, out var priority))
         {
-            return Results.BadRequest($"Invalid background job priority '{request.Priority}'.");
+            return TypedResults.BadRequest($"Invalid background job priority '{request.Priority}'.");
         }
 
         var backgroundJobId = await backgroundJobService.CreateAsync(
@@ -33,10 +34,10 @@ public static class JobRequirementsEndpoints
             new JobApplicationId(request.JobApplicationId),
             cancellationToken: cancellationToken);
 
-        return Results.Ok(new ExtractJobRequirementsResponse(backgroundJobId.Value));
+        return TypedResults.Ok(new ExtractJobRequirementsResponse(backgroundJobId.Value));
     }
 
-    private static async Task<IResult> GetExtractedJobRequirementsAsync(
+    private static async Task<Results<Ok<GetExtractedJobRequirementsResponse>, NotFound>> GetExtractedJobRequirementsAsync(
         Guid jobApplicationId,
         IExtractedJobRequirementsRepository repository,
         CancellationToken cancellationToken)
@@ -45,7 +46,7 @@ public static class JobRequirementsEndpoints
 
         if (requirements is null)
         {
-            return Results.NotFound();
+            return TypedResults.NotFound();
         }
 
         var response = new GetExtractedJobRequirementsResponse(
@@ -57,6 +58,6 @@ public static class JobRequirementsEndpoints
                     x.Priority.ToString()))
                 .ToList());
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 }

@@ -33,9 +33,9 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
 
         var job = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, "testing");
 
-        await repository.AddAsync(job);
+        await repository.AddAsync(job, TestContext.Current.CancellationToken);
 
-        var retrievedJob = await repository.GetAsync(job.Id);
+        var retrievedJob = await repository.GetAsync(job.Id, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedJob);
         Assert.Equal(job.Id, retrievedJob.Id);
@@ -62,11 +62,11 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
 
         var normalJob1 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
 
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         var normalJob2 = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.Normal, jobApplicationId, "testing");
 
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         var highJob = BackgroundJob.Create(BackgroundJobType.Llm, BackgroundJobPriority.High, jobApplicationId, "testing");
 
@@ -74,15 +74,15 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         {
             var repository = new BackgroundJobRepository(dbContext);
 
-            await repository.AddAsync(normalJob1);
-            await repository.AddAsync(normalJob2);
-            await repository.AddAsync(highJob);
+            await repository.AddAsync(normalJob1, TestContext.Current.CancellationToken);
+            await repository.AddAsync(normalJob2, TestContext.Current.CancellationToken);
+            await repository.AddAsync(highJob, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
         var verificationRepository = new BackgroundJobRepository(verificationContext);
 
-        var pendingJobs = await verificationRepository.GetPendingAsync();
+        var pendingJobs = await verificationRepository.GetPendingAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(
             [highJob.Id, normalJob1.Id, normalJob2.Id],
@@ -108,29 +108,29 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         {
             var repository = new BackgroundJobRepository(dbContext);
 
-            await repository.AddAsync(runningJob1);
-            await repository.AddAsync(runningJob2);
+            await repository.AddAsync(runningJob1, TestContext.Current.CancellationToken);
+            await repository.AddAsync(runningJob2, TestContext.Current.CancellationToken);
 
             runningJob1.Start();
             runningJob2.Start();
 
-            await repository.UpdateAsync(runningJob1);
-            await repository.UpdateAsync(runningJob2);
+            await repository.UpdateAsync(runningJob1, TestContext.Current.CancellationToken);
+            await repository.UpdateAsync(runningJob2, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new BackgroundJobRepository(dbContext);
 
-            await repository.RecoverRunningAsync();
+            await repository.RecoverRunningAsync(TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
         var verificationRepository = new BackgroundJobRepository(verificationContext);
 
-        var recoveredJob1 = await verificationRepository.GetAsync(runningJob1.Id);
+        var recoveredJob1 = await verificationRepository.GetAsync(runningJob1.Id, TestContext.Current.CancellationToken);
 
-        var recoveredJob2 = await verificationRepository.GetAsync(runningJob2.Id);
+        var recoveredJob2 = await verificationRepository.GetAsync(runningJob2.Id, TestContext.Current.CancellationToken);
 
         Assert.NotNull(recoveredJob1);
         Assert.NotNull(recoveredJob2);
@@ -167,34 +167,34 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         {
             var repository = new BackgroundJobRepository(dbContext);
 
-            await repository.AddAsync(pendingJob);
-            await repository.AddAsync(completedJob);
-            await repository.AddAsync(failedJob);
+            await repository.AddAsync(pendingJob, TestContext.Current.CancellationToken);
+            await repository.AddAsync(completedJob, TestContext.Current.CancellationToken);
+            await repository.AddAsync(failedJob, TestContext.Current.CancellationToken);
 
             completedJob.Start();
             completedJob.Complete();
-            await repository.UpdateAsync(completedJob);
+            await repository.UpdateAsync(completedJob, TestContext.Current.CancellationToken);
 
             failedJob.Start();
             failedJob.Fail("Test failure.");
-            await repository.UpdateAsync(failedJob);
+            await repository.UpdateAsync(failedJob, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new BackgroundJobRepository(dbContext);
 
-            await repository.RecoverRunningAsync();
+            await repository.RecoverRunningAsync(TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
         var verificationRepository = new BackgroundJobRepository(verificationContext);
 
-        var retrievedPendingJob = await verificationRepository.GetAsync(pendingJob.Id);
+        var retrievedPendingJob = await verificationRepository.GetAsync(pendingJob.Id, TestContext.Current.CancellationToken);
 
-        var retrievedCompletedJob = await verificationRepository.GetAsync(completedJob.Id);
+        var retrievedCompletedJob = await verificationRepository.GetAsync(completedJob.Id, TestContext.Current.CancellationToken);
 
-        var retrievedFailedJob = await verificationRepository.GetAsync(failedJob.Id);
+        var retrievedFailedJob = await verificationRepository.GetAsync(failedJob.Id, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedPendingJob);
         Assert.NotNull(retrievedCompletedJob);
@@ -234,7 +234,7 @@ public sealed class BackgroundJobRepositoryTests : IClassFixture<PostgreSqlFixtu
         };
 
         dbContext.JobApplications.Add(jobApplication.ToEntity());
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return jobApplication;
     }

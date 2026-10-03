@@ -32,12 +32,12 @@ public sealed class JobRequirementsEndpointTests
         var request = new ExtractJobRequirementsRequest(jobApplicationId.Value, "High");
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request);
+        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<ExtractJobRequirementsResponse>();
+        var result = await response.Content.ReadFromJsonAsync<ExtractJobRequirementsResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
 
@@ -45,7 +45,7 @@ public sealed class JobRequirementsEndpointTests
 
         var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
-        var backgroundJob = await dbContext.BackgroundJobs.SingleAsync(x => x.Id == result.BackgroundJobId);
+        var backgroundJob = await dbContext.BackgroundJobs.SingleAsync(x => x.Id == result.BackgroundJobId, TestContext.Current.CancellationToken);
 
         Assert.Equal(BackgroundJobType.ExtractJobRequirements, backgroundJob.Type);
 
@@ -65,12 +65,12 @@ public sealed class JobRequirementsEndpointTests
         var request = new ExtractJobRequirementsRequest(jobApplicationId.Value, "Normal");
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request);
+        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<ExtractJobRequirementsResponse>();
+        var result = await response.Content.ReadFromJsonAsync<ExtractJobRequirementsResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
 
@@ -78,7 +78,7 @@ public sealed class JobRequirementsEndpointTests
 
         var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
-        var backgroundJob = await dbContext.BackgroundJobs.SingleAsync(x => x.Id == result.BackgroundJobId);
+        var backgroundJob = await dbContext.BackgroundJobs.SingleAsync(x => x.Id == result.BackgroundJobId, TestContext.Current.CancellationToken);
 
         Assert.Equal(BackgroundJobType.ExtractJobRequirements, backgroundJob.Type);
 
@@ -94,7 +94,7 @@ public sealed class JobRequirementsEndpointTests
         var request = new ExtractJobRequirementsRequest(Guid.NewGuid(), "Urgent");
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request);
+        var response = await client.PostAsJsonAsync("/api/job-requirements/extract", request, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -133,12 +133,12 @@ public sealed class JobRequirementsEndpointTests
         await fixture.AddExtractedJobRequirementsAsync(extractedRequirements);
 
         // Act
-        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId.Value}");
+        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId.Value}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<GetExtractedJobRequirementsResponse>();
+        var result = await response.Content.ReadFromJsonAsync<GetExtractedJobRequirementsResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
 
@@ -161,7 +161,7 @@ public sealed class JobRequirementsEndpointTests
         var jobApplicationId = Guid.NewGuid();
 
         // Act
-        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId}");
+        var response = await client.GetAsync($"/api/job-requirements/{jobApplicationId}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

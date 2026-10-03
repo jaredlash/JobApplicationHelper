@@ -18,7 +18,7 @@ public sealed class ApiIntegrationTestFixture : IAsyncLifetime
         return Factory.CreateClient();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await postgres.StartAsync();
 
@@ -52,7 +52,7 @@ public sealed class ApiIntegrationTestFixture : IAsyncLifetime
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await Factory.DisposeAsync();
         await postgres.DisposeAsync();

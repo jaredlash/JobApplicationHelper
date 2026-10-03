@@ -14,6 +14,7 @@
 
     <UserControl.Resources>
         <conv:EnumDisplayConverter x:Key="EnumDisplayConverter" />
+        <conv:DateRangeConverter x:Key="DateRangeConverter" />
     </UserControl.Resources>
 
     <Grid Margin="10">
@@ -321,9 +322,7 @@
 
                                 <TextBlock Text="{Binding Type, Converter={StaticResource EnumDisplayConverter}}" />
 
-                                <TextBlock Margin="8 0 0 0">
-                                    (date range goes here)
-                                </TextBlock>
+                                <TextBlock Margin="8 0 0 0" Text="{Binding DateRange, Converter={StaticResource DateRangeConverter}}" />
 
                             </StackPanel>
 

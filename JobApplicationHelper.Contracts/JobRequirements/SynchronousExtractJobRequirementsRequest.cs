@@ -1,3 +1,0 @@
-﻿namespace JobApplicationHelper.Contracts.JobRequirements;
-
-public record SynchronousExtractJobRequirementsRequest(string JobPosting);

@@ -38,9 +38,9 @@ public sealed class CoverLetterDraftRepositoryTests
 
         var repository = new CoverLetterDraftRepository(dbContext);
 
-        await repository.AddOrReplaceAsync(draft);
+        await repository.AddOrReplaceAsync(draft, TestContext.Current.CancellationToken);
 
-        var retrievedDraft = await repository.GetAsync(jobApplicationId);
+        var retrievedDraft = await repository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrievedDraft);
 
@@ -58,7 +58,7 @@ public sealed class CoverLetterDraftRepositoryTests
 
         var repository = new CoverLetterDraftRepository(dbContext);
 
-        var draft = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()));
+        var draft = await repository.GetAsync(new JobApplicationId(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         Assert.Null(draft);
     }
@@ -80,11 +80,11 @@ public sealed class CoverLetterDraftRepositoryTests
         {
             var repository = new CoverLetterDraftRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(firstDraft);
+            await repository.AddOrReplaceAsync(firstDraft, TestContext.Current.CancellationToken);
         }
 
         // Ensure the second draft has a different CreatedAt.
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         var secondDraft = CoverLetterDraft.Create(jobApplicationId, "This is the second cover letter draft.");
 
@@ -92,19 +92,19 @@ public sealed class CoverLetterDraftRepositoryTests
         {
             var repository = new CoverLetterDraftRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(secondDraft);
+            await repository.AddOrReplaceAsync(secondDraft, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
         var verificationRepository = new CoverLetterDraftRepository(verificationContext);
 
-        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrieved);
 
         var rowCount = await verificationContext.CoverLetterDrafts
-            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value);
+            .CountAsync(x => x.JobApplicationId == jobApplicationId.Value, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, rowCount);
 
@@ -114,7 +114,7 @@ public sealed class CoverLetterDraftRepositoryTests
 
         AssertEqualToPostgresPrecision(secondDraft.CreatedAt, retrieved.CreatedAt);
 
-        Assert.NotEqual(firstDraft.CreatedAt, retrieved.CreatedAt);
+        AssertNotEqualToPostgresPrecision(firstDraft.CreatedAt, retrieved.CreatedAt);
     }
 
     [Fact]
@@ -134,26 +134,27 @@ public sealed class CoverLetterDraftRepositoryTests
         {
             var repository = new CoverLetterDraftRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(draft);
+            await repository.AddOrReplaceAsync(draft, TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new CoverLetterDraftRepository(dbContext);
 
-            await repository.DeleteAsync(jobApplicationId);
+            await repository.DeleteAsync(jobApplicationId, TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
 
         var verificationRepository = new CoverLetterDraftRepository(verificationContext);
 
-        var retrieved = await verificationRepository.GetAsync(jobApplicationId);
+        var retrieved = await verificationRepository.GetAsync(jobApplicationId, TestContext.Current.CancellationToken);
 
         Assert.Null(retrieved);
     }
 
     private static void AssertEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.Equal(expected.Ticks / 10, actual.Ticks / 10);
+    private static void AssertNotEqualToPostgresPrecision(DateTime expected, DateTime actual) => Assert.NotEqual(expected.Ticks / 10, actual.Ticks / 10);
 
     private async Task<JobApplication> CreateJobApplicationAsync(JobApplicationHelperDbContext dbContext, JobApplicationId? id = null)
     {
