@@ -70,17 +70,6 @@ public static class DependencyInjection
         //    options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
         //});
 
-        //services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
-        //{
-        //    var configuration = serviceProvider
-        //        .GetRequiredService<IConfiguration>();
-
-        //    var connectionString = configuration.GetConnectionString("jobapplicationhelper")
-        //        ?? throw new InvalidOperationException("The jobapplicationhelper database connection string is not configured.");
-
-        //    options.UseNpgsql(connectionString);
-        //});
-
         services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
         {
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();

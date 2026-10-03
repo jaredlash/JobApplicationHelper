@@ -1,5 +1,6 @@
 ﻿using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Services.Api;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Collections.Concurrent;
@@ -23,6 +24,8 @@ public sealed class SignalRBackgroundJobNotificationService :
             .Build();
 
         hubConnection.On<BackgroundJobStatusChanged>("BackgroundJobStatusChanged", OnBackgroundJobStatusChanged);
+        hubConnection.Closed += OnConnectionClosed;
+
         this.backgroundJobsApiClient = backgroundJobsApiClient;
     }
 
@@ -31,7 +34,18 @@ public sealed class SignalRBackgroundJobNotificationService :
         if (hubConnection.State == HubConnectionState.Connected)
             return;
 
-        await hubConnection.StartAsync(cancellationToken);
+        try
+        {
+            await hubConnection.StartAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new BackgroundJobNotificationException("Unable to connect to the background job notification service.", ex);
+        }
     }
 
     public async Task DisconnectAsync(CancellationToken cancellationToken = default)
@@ -39,7 +53,7 @@ public sealed class SignalRBackgroundJobNotificationService :
         await hubConnection.StopAsync(cancellationToken);
     }
 
-    public async Task<BackgroundJobStatusChanged> WaitForStatusChangeAsync(BackgroundJobId backgroundJobId, CancellationToken cancellationToken = default)
+    public async Task<BackgroundJobStatusChanged> WaitForStatusChangeAsync(BackgroundJobId backgroundJobId, TimeSpan timeout, CancellationToken cancellationToken = default)
     {
         var waiter = new TaskCompletionSource<BackgroundJobStatusChanged>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -52,9 +66,7 @@ public sealed class SignalRBackgroundJobNotificationService :
         {
             // Check again after registering the waiter. This closes the race
             // between the initial status check and registering the waiter.
-            var response = await backgroundJobsApiClient.GetAsync(
-                backgroundJobId,
-                cancellationToken);
+            var response = await backgroundJobsApiClient.GetAsync(backgroundJobId, cancellationToken);
 
             var status = ParseStatus(response.Status);
 
@@ -63,7 +75,7 @@ public sealed class SignalRBackgroundJobNotificationService :
                 waiter.TrySetResult(new BackgroundJobStatusChanged(response.Id, response.Status, response.Error));
             }
 
-            return await waiter.Task.WaitAsync(cancellationToken);
+            return await waiter.Task.WaitAsync(timeout, cancellationToken);
         }
         finally
         {
@@ -73,10 +85,20 @@ public sealed class SignalRBackgroundJobNotificationService :
 
     private void OnBackgroundJobStatusChanged(BackgroundJobStatusChanged notification)
     {
-        if (waiters.TryRemove(notification.BackgroundJobId, out var waiter))
+        if (waiters.TryGetValue(notification.BackgroundJobId, out var waiter))
         {
             waiter.TrySetResult(notification);
         }
+    }
+
+    private Task OnConnectionClosed(Exception? exception)
+    {
+        foreach (var waiter in waiters.Values)
+        {
+            waiter.TrySetException(new BackgroundJobNotificationException("The SignalR connection was closed.", exception));
+        }
+
+        return Task.CompletedTask;
     }
 
     private static BackgroundJobStatus ParseStatus(string status)

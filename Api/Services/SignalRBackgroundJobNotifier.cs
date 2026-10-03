@@ -12,7 +12,8 @@ public sealed class SignalRBackgroundJobNotifier(IHubContext<BackgroundJobHub, I
     public Task NotifyStatusChangedAsync(BackgroundJob job, CancellationToken cancellationToken = default)
     {
         return hubContext.Clients
-            .Group(GetGroupName(job.JobApplicationId))
+            //.Group(GetGroupName(job.JobApplicationId)) // Implement in the future based on client ids
+            .All
             .BackgroundJobStatusChanged(
                 new BackgroundJobStatusChanged(
                     job.Id.Value,

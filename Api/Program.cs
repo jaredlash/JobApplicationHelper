@@ -1,5 +1,6 @@
 using JobApplicationHelper.Api.Endpoints;
 using JobApplicationHelper.Api.Hubs;
+using JobApplicationHelper.Api.Services;
 using JobApplicationHelper.ApiMappings.ToDomain;
 using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application;
@@ -21,6 +22,8 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSignalR();
 
+builder.Services.AddScoped<IBackgroundJobNotifier, SignalRBackgroundJobNotifier>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
 
 app.MapJobRequirementsEndpoints();
 app.MapBackgroundJobEndpoints();
@@ -117,23 +122,6 @@ app.MapPost(
         var applicationId = await applicationMaterialsService.CreateApplicationMaterialsAsync(request.ToDomain(), cancellationToken);
         return Results.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
     });
-
-//app.MapPost(
-//    "/api/background-jobs",
-//    async (
-//        CreateBackgroundJobRequest request,
-//        IBackgroundJobService backgroundJobService,
-//        CancellationToken cancellationToken) =>
-//    {
-//        var id = await backgroundJobService.CreateAsync(
-//            Enum.Parse<BackgroundJobType>(request.Type, ignoreCase: true),
-//            Enum.Parse<BackgroundJobPriority>(request.Priority, ignoreCase: true),
-//            new JobApplicationId(Guid.NewGuid()), //new JobApplicationId(Guid.Parse(request.JobApplicationId)),
-//            null, //request.Payload,
-//            cancellationToken);
-
-//        return Results.Ok(new CreateBackgroundJobResponse(id.Value));
-//    });
 
 app.MapGet("/health", () => Results.Ok());
 

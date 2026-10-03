@@ -9,5 +9,5 @@ public interface IBackgroundJobNotificationService
 
     Task DisconnectAsync(CancellationToken cancellationToken = default);
 
-    Task<BackgroundJobStatusChanged> WaitForStatusChangeAsync(BackgroundJobId jobId, CancellationToken cancellationToken = default);
+    Task<BackgroundJobStatusChanged> WaitForStatusChangeAsync(BackgroundJobId jobId, TimeSpan timeout, CancellationToken cancellationToken = default);
 }
