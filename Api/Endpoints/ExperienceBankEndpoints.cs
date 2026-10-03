@@ -1,5 +1,7 @@
 ﻿using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.ApiMappings.ToDto;
+using Microsoft.AspNetCore.Http.HttpResults;
+using JobApplicationHelper.Contracts.Experiences;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -14,7 +16,7 @@ public static class ExperienceBankEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> GetAllExperiencesAsync(
+    private static async Task<Ok<List<ExperienceDto>>> GetAllExperiencesAsync(
         IExperienceBankService experienceBankService,
         CancellationToken cancellationToken)
     {
@@ -24,6 +26,6 @@ public static class ExperienceBankEndpoints
             .Select(e => e.ToDto())
             .ToList();
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 }

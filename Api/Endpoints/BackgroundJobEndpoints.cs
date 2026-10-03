@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -15,7 +16,7 @@ public static class BackgroundJobEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> GetBackgroundJobAsync(
+    private static async Task<Results<Ok<GetBackgroundJobResponse>, NotFound>> GetBackgroundJobAsync(
         Guid id,
         IBackgroundJobService backgroundJobService,
         CancellationToken cancellationToken)
@@ -24,10 +25,10 @@ public static class BackgroundJobEndpoints
 
         if (job is null)
         {
-            return Results.NotFound();
+            return TypedResults.NotFound();
         }
 
-        return Results.Ok(
+        return TypedResults.Ok(
             new GetBackgroundJobResponse(
                 job.Id.Value,
                 job.Type.ToString(),

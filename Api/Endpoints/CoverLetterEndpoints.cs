@@ -4,6 +4,7 @@ using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.CoverLetters;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text.Json;
 
 namespace JobApplicationHelper.Api.Endpoints;
@@ -23,14 +24,14 @@ public static class CoverLetterEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> GenerateCoverLetterAsync(
+    private static async Task<Results<Ok<GenerateCoverLetterResponse>, BadRequest<string>>> GenerateCoverLetterAsync(
         GenerateCoverLetterRequest request,
         IBackgroundJobService backgroundJobService,
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<BackgroundJobPriority>(request.Priority, ignoreCase: true, out var priority))
         {
-            return Results.BadRequest($"Invalid background job priority '{request.Priority}'.");
+            return TypedResults.BadRequest($"Invalid background job priority '{request.Priority}'.");
         }
 
         var payload = new GenerateCoverLetterJobPayload(request.DraftParameters.ToDomain());
@@ -44,10 +45,10 @@ public static class CoverLetterEndpoints
             payloadJson,
             cancellationToken);
 
-        return Results.Ok(new GenerateCoverLetterResponse(backgroundJobId.Value));
+        return TypedResults.Ok(new GenerateCoverLetterResponse(backgroundJobId.Value));
     }
 
-    private static async Task<IResult> GetCoverLetterAsync(
+    private static async Task<Results<Ok<GetCoverLetterDraftResponse>, NotFound>> GetCoverLetterAsync(
         Guid jobApplicationId,
         ICoverLetterDraftRepository repository,
         CancellationToken cancellationToken)
@@ -56,22 +57,22 @@ public static class CoverLetterEndpoints
 
         if (coverLetterDraft is null)
         {
-            return Results.NotFound();
+            return TypedResults.NotFound();
         }
 
         var response = new GetCoverLetterDraftResponse(coverLetterDraft.Draft);
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 
-    private static async Task<IResult> VerifyCoverLetterAsync(
+    private static async Task<Results<Ok<VerifyCoverLetterResponse>, BadRequest<string>>> VerifyCoverLetterAsync(
         VerifyCoverLetterRequest request,
         IBackgroundJobService backgroundJobService,
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<BackgroundJobPriority>(request.Priority, ignoreCase: true, out var priority))
         {
-            return Results.BadRequest($"Invalid background job priority '{request.Priority}'.");
+            return TypedResults.BadRequest($"Invalid background job priority '{request.Priority}'.");
         }
 
         var payload = new VerifyCoverLetterJobPayload(request.DraftParameters.ToDomain(), request.Draft);
@@ -85,10 +86,10 @@ public static class CoverLetterEndpoints
             payloadJson,
             cancellationToken);
 
-        return Results.Ok(new VerifyCoverLetterResponse(backgroundJobId.Value));
+        return TypedResults.Ok(new VerifyCoverLetterResponse(backgroundJobId.Value));
     }
 
-    private static async Task<IResult> GetVerifyCoverLetterResultAsync(
+    private static async Task<Results<Ok<GetVerifyCoverLetterResponse>, NotFound>> GetVerifyCoverLetterResultAsync(
         Guid jobApplicationId,
         IVerifyCoverLetterResultRepository repository,
         CancellationToken cancellationToken)
@@ -97,11 +98,11 @@ public static class CoverLetterEndpoints
 
         if (verifyCoverLetterResult is null)
         {
-            return Results.NotFound();
+            return TypedResults.NotFound();
         }
 
         var response = verifyCoverLetterResult.VerificationResult.ToDto();
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 }

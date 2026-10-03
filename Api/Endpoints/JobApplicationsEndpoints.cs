@@ -2,6 +2,7 @@
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.JobApplications;
 using JobApplicationHelper.Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -33,25 +34,25 @@ public static class JobApplicationsEndpoints
     //    return Results.Ok(response);
     //}
 
-    private static async Task<IResult> CreateJobApplication(
+    private static async Task<Results<Ok<CreateJobApplicationResponse>, BadRequest<string>>> CreateJobApplication(
         CreateJobApplicationRequest request,
         IApplicationMaterialsService applicationMaterialsService,
         CancellationToken cancellationToken)
     {
         var applicationId = await applicationMaterialsService.CreateApplicationMaterialsAsync(request.ToDomain(), cancellationToken);
-        return Results.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
+        return TypedResults.Ok(new CreateJobApplicationResponse(applicationId.Value.ToString()));
     }
 
-    private static async Task<IResult> GetJobApplicationFolderAsync(
+    private static async Task<Results<Ok<ApplicationFolderResponse>, NotFound>> GetJobApplicationFolderAsync(
         Guid id,
         IApplicationMaterialsService applicationMaterialsService,
         CancellationToken cancellationToken)
     {
         var folderPath = await applicationMaterialsService.GetApplicationFolderAsync(new JobApplicationId(id), cancellationToken);
-        return Results.Ok(new ApplicationFolderResponse(folderPath));
+        return TypedResults.Ok(new ApplicationFolderResponse(folderPath));
     }
 
-    private static async Task<IResult> SaveCoverLetterAsync(
+    private static async Task<NoContent> SaveCoverLetterAsync(
         Guid id,
         SaveCoverLetterRequest request,
         IApplicationMaterialsService applicationMaterialsService,
@@ -59,6 +60,6 @@ public static class JobApplicationsEndpoints
     {
         await applicationMaterialsService.SaveCoverLetterDraftAsync(new JobApplicationId(id), request.CoverLetter, cancellationToken);
 
-        return Results.NoContent();
+        return TypedResults.NoContent();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.Locations;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -14,7 +15,7 @@ public static class LocationsEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> GetAllLocationsAsync(
+    private static async Task<Ok<List<LocationDto>>> GetAllLocationsAsync(
         LocationService locationService,
         CancellationToken cancellationToken)
     {
@@ -24,6 +25,6 @@ public static class LocationsEndpoints
             .Select(location => new LocationDto(location.CountryCode, location.CountryName))
             .ToList();
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 }
