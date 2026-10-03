@@ -41,8 +41,3 @@ app.MapHub<BackgroundJobHub>("/hubs/background-jobs");
 app.MapGet("/health", () => Results.Ok());
 
 app.Run();
-
-// Make the Program class public so that integration tests can access it
-public partial class Program
-{
-}
