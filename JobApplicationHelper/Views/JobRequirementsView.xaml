@@ -518,7 +518,7 @@
             <Button Grid.Column="0"
                 Margin="5"
                 Command="{Binding LoadJobRequirementsCommand}"
-                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource InverseBooleanToVisibilityConverter}}" >
+                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource BooleanToVisibilityConverter}}" >
                 <TextBlock Text="&#xE117;"
                    FontFamily="Segoe Fluent Icons"
                    FontSize="10"
@@ -531,7 +531,7 @@
             <Button Grid.Column="0"
                 Margin="5"
                 Command="{Binding LoadJobRequirementsCancelCommand}"
-                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                Visibility="{Binding IsFinishedLoadingJobRequirements, Converter={StaticResource InverseBooleanToVisibilityConverter}}" >
                 <TextBlock Text="&#xE106;"
                    FontFamily="Segoe Fluent Icons"
                    FontSize="10"
