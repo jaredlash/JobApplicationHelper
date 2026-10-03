@@ -10,7 +10,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
 
     public string ConnectionString => container.GetConnectionString();
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await container.StartAsync();
 
@@ -21,7 +21,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         await dbContext.Database.MigrateAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await container.StopAsync();
         await container.DisposeAsync();
