@@ -1,6 +1,6 @@
 ﻿using JobApplicationHelper.Domain.Models;
 
-namespace JobApplicationHelper.Infrastructure.Data.Entities;
+namespace JobApplicationHelper.Infrastructure.Persistence.Entities;
 
 public sealed class ExperienceEntity
 {

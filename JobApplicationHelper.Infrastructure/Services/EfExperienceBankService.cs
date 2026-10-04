@@ -2,6 +2,7 @@
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Data;
 using JobApplicationHelper.Infrastructure.Data.Entities;
+using JobApplicationHelper.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobApplicationHelper.Services;

@@ -1,4 +1,4 @@
-﻿using JobApplicationHelper.Infrastructure.Data.Entities;
+﻿using JobApplicationHelper.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobApplicationHelper.Infrastructure.Data;
