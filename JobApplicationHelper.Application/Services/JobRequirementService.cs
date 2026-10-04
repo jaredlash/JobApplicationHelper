@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Domain.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using OpenAIChat = OpenAI.Chat;
 
 namespace JobApplicationHelper.Application.Services;
 
@@ -353,11 +354,23 @@ public sealed class JobRequirementService : IJobRequirementService
             new ChatMessage(ChatRole.User, userPrompt)
         };
 
+#pragma warning disable SCME0001
         var options = new ChatOptions
         {
-            Temperature = 0.1f
+            Temperature = 0.1f,
             //MaxOutputTokens = 3000 // Previously used for Ollama, but broke llama.cpp responses. Might make configurable later.
+            RawRepresentationFactory = _ =>
+            {
+                var openAiOptions = new OpenAIChat.ChatCompletionOptions();
+
+                openAiOptions.Patch.Set(
+                    "$.thinking_budget_tokens"u8,
+                    3000);
+
+                return openAiOptions;
+            }
         };
+#pragma warning restore SCME0001
 
         Exception? lastException = null;
 
