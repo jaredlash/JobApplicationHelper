@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Extensions;
@@ -46,6 +45,8 @@ public partial class CoverLetterViewModel : ViewModelBase
     public JobApplicationId? ApplicationId { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanVerifyCoverLetter))]
+    [NotifyCanExecuteChangedFor(nameof(VerifyCoverLetterCommand))]
     private string draft = string.Empty;
 
     [ObservableProperty]
@@ -60,19 +61,30 @@ public partial class CoverLetterViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
     private string verificationStatus = string.Empty;
 
-    public string StatusMessage => (CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError) + "  " + VerificationStatus;
+    public string StatusMessage => (CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError) + "  " + (IsGeneratingCoverLetter ? string.Empty : VerificationStatus);
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusMessage))]
+    [NotifyPropertyChangedFor(nameof(CanVerifyCoverLetter))]
+    [NotifyCanExecuteChangedFor(nameof(VerifyCoverLetterCommand))]
+    private bool isGeneratingCoverLetter = false;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGenerateCoverLetter))]
+    [NotifyCanExecuteChangedFor(nameof(GenerateCoverLetterCommand))]
+    private bool isVerifyingCoverLetter = false;
 
-    [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter))]
+    [RelayCommand(CanExecute = nameof(CanGenerateCoverLetter), IncludeCancelCommand = true)]
     private async Task GenerateCoverLetter(CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(ApplicationId);
             var jobApplicationId = ApplicationId.Value;
+            IsGeneratingCoverLetter = true;
 
             CoverLetterStatus = "Generating cover letter draft...";
+            CoverLetterError = "";
             VerificationStatus = string.Empty;
             draftParameters.CountryCode = CountryCode;
             var backgroundJobId = await coverLettersApiClient.GenerateCoverLetterAsync(jobApplicationId, draftParameters, cancellationToken);
@@ -81,6 +93,40 @@ public partial class CoverLetterViewModel : ViewModelBase
 
             Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Cover letter generation was cancelled.");
+            CoverLetterStatus = "Cover letter generation was cancelled.";
+        }
+        catch (BackgroundJobCancelledException)
+        {
+            logger.LogInformation("The background job was cancelled.");
+            CoverLetterStatus = "Cover letter generation was cancelled.";
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error generating cover letter");
+            CoverLetterError = $"Error generating cover letter: {ex.Message}";
+            CoverLetterStatus = "";
+        }
+        finally
+        {
+            IsGeneratingCoverLetter = false;
+        }
+    }
+    private bool CanGenerateCoverLetter => !IsVerifyingCoverLetter;
+
+    [RelayCommand(CanExecute = nameof(CanVerifyCoverLetter), IncludeCancelCommand = true)]
+    private async Task VerifyCoverLetter(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(ApplicationId);
+            var jobApplicationId = ApplicationId.Value;
+            IsVerifyingCoverLetter = true;
+
+            draftParameters.CountryCode = CountryCode;
 
             VerificationStatus = "Verifying cover letter draft...";
             var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
@@ -101,19 +147,25 @@ public partial class CoverLetterViewModel : ViewModelBase
         }
         catch (OperationCanceledException)
         {
-            logger.LogInformation("Cover letter generation was cancelled.");
+            logger.LogInformation("Verifying cover letter was cancelled.");
+            VerificationStatus = "Verifying cover letter was cancelled.";
         }
         catch (BackgroundJobCancelledException)
         {
             logger.LogInformation("The background job was cancelled.");
+            VerificationStatus = "Verifying cover letter was cancelled.";
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error generating cover letter");
-            CoverLetterError = $"Error generating cover letter: {ex.Message}";
+            logger.LogError(ex, "Error verifying cover letter");
+            VerificationStatus = $"Error verifying cover letter: {ex.Message}";
+        }
+        finally
+        {
+            IsVerifyingCoverLetter = false;
         }
     }
-    public bool CanGenerateCoverLetter => true;
+    private bool CanVerifyCoverLetter => !IsGeneratingCoverLetter && !string.IsNullOrWhiteSpace(Draft);
 
     [RelayCommand]
     private void BackToRequirements()

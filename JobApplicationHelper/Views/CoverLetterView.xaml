@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:JobApplicationHelper.ViewModels"
+             xmlns:conv="clr-namespace:JobApplicationHelper.Converters"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:Background="White"
@@ -10,7 +11,10 @@
              d:Width="800"
              d:DataContext="{d:DesignInstance viewModels:CoverLetterViewModel}"
              >
-
+    <UserControl.Resources>
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid Margin="10">
 
         <Grid.RowDefinitions>
@@ -22,13 +26,14 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="2"  Content="Generated Cover Letter:"/>
+        <Label Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3"  Content="Generated Cover Letter:"/>
 
-        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                 Text="{Binding Draft, Mode=TwoWay}"
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                 Text="{Binding Draft, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                  AcceptsReturn="True"
                  TextWrapping="Wrap"
                  VerticalScrollBarVisibility="Auto"
@@ -38,9 +43,26 @@
         <Button Grid.Row="2" Grid.Column="0" Margin="5" Padding="5"
                 Content="Geneate Cover Letter"
                 Command="{Binding GenerateCoverLetterCommand}"
+                Visibility="{Binding IsGeneratingCoverLetter, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                />
+        <Button Grid.Row="2" Grid.Column="0" Margin="5" Padding="5"
+                Content="Cancel Generation"
+                Command="{Binding GenerateCoverLetterCancelCommand}"
+                Visibility="{Binding IsGeneratingCoverLetter, Converter={StaticResource BooleanToVisibilityConverter}}"
+                />
+        <Button Grid.Row="2" Grid.Column="1" Margin="5" Padding="5"
+                Content="Verify Cover Letter"
+                Command="{Binding VerifyCoverLetterCommand}"
+                Visibility="{Binding IsVerifyingCoverLetter, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                />
+        
+        <Button Grid.Row="2" Grid.Column="1" Margin="5" Padding="5"
+                Content="Cancel Verification"
+                Command="{Binding VerifyCoverLetterCancelCommand}"
+                Visibility="{Binding IsVerifyingCoverLetter, Converter={StaticResource BooleanToVisibilityConverter}}"
                 />
 
-        <StackPanel Grid.Row="2" Grid.Column="1"
+        <StackPanel Grid.Row="2" Grid.Column="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
 
@@ -58,15 +80,8 @@
         </StackPanel>
 
         <!-- Bottom status/load area -->
-        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-
-            <Label Grid.Column="1" Margin="5" Content="{Binding StatusMessage}" HorizontalAlignment="Left"/>
+        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
+            <Label Margin="5" Content="{Binding StatusMessage}" HorizontalAlignment="Left"/>
         </Grid>
 
     </Grid>
