@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Contracts.BackgroundJobs;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Extensions;
@@ -215,6 +214,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
             ArgumentNullException.ThrowIfNull(ApplicationId);
             var jobApplicationId = ApplicationId.Value;
 
+            jobRequirementsError = string.Empty;
             IsFinishedLoadingJobRequirements = false;
 
             var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
@@ -245,6 +245,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
         }
     }
     public bool CanExecuteLoadJobRequirements => IsFinishedLoadingJobRequirements;
+
 
     [RelayCommand(CanExecute = nameof(CanGoToNextRequirement))]
     private void NextRequirement()
