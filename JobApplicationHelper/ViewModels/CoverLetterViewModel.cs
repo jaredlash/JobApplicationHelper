@@ -61,7 +61,22 @@ public partial class CoverLetterViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
     private string verificationStatus = string.Empty;
 
-    public string StatusMessage => (CoverLetterError == string.Empty ? CoverLetterStatus : CoverLetterError) + "  " + (IsGeneratingCoverLetter ? string.Empty : VerificationStatus);
+    public string StatusMessage
+    {
+        get
+        {
+            var primaryStatus = string.IsNullOrEmpty(CoverLetterError)
+                ? CoverLetterStatus
+                : CoverLetterError;
+
+            if (IsGeneratingCoverLetter)
+                return primaryStatus;
+
+            return string.IsNullOrEmpty(VerificationStatus)
+                ? primaryStatus
+                : $"{primaryStatus}  {VerificationStatus}";
+        }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusMessage))]
@@ -87,9 +102,9 @@ public partial class CoverLetterViewModel : ViewModelBase
             CoverLetterError = "";
             VerificationStatus = string.Empty;
             draftParameters.CountryCode = CountryCode;
+
             var backgroundJobId = await coverLettersApiClient.GenerateCoverLetterAsync(jobApplicationId, draftParameters, cancellationToken);
-            var backgroundJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
-            backgroundJobResponse.EnsureSucceeded();
+            await WaitForBackgroundJobAsync(backgroundJobId, cancellationToken);
 
             Draft = await coverLettersApiClient.GetCoverLetterDraftAsync(jobApplicationId, cancellationToken);
             CoverLetterStatus = "Done.";
@@ -130,8 +145,7 @@ public partial class CoverLetterViewModel : ViewModelBase
 
             VerificationStatus = "Verifying cover letter draft...";
             var verificationBackgroundJobId = await coverLettersApiClient.VerifyDraftAsync(jobApplicationId, draftParameters, Draft, cancellationToken);
-            var verificationJobResponse = await backgroundJobPollingService.WaitForCompletionAsync(verificationBackgroundJobId, cancellationToken);
-            verificationJobResponse.EnsureSucceeded();
+            await WaitForBackgroundJobAsync(verificationBackgroundJobId, cancellationToken);
 
             var verificationResult = await coverLettersApiClient.GetVerifyCoverLetterResultAsync(jobApplicationId, cancellationToken);
 
@@ -198,5 +212,12 @@ public partial class CoverLetterViewModel : ViewModelBase
     {
         var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
         windowService.ShowDialog(verificationResultDialogViewModel);
+    }
+
+    private async Task WaitForBackgroundJobAsync(BackgroundJobId backgroundJobId, CancellationToken cancellationToken)
+    {
+        var response = await backgroundJobPollingService.WaitForCompletionAsync(backgroundJobId, cancellationToken);
+
+        response.EnsureSucceeded();
     }
 }
