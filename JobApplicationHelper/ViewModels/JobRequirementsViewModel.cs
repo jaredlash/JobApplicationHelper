@@ -215,6 +215,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
             ArgumentNullException.ThrowIfNull(ApplicationId);
             var jobApplicationId = ApplicationId.Value;
 
+            jobRequirementsError = string.Empty;
             IsFinishedLoadingJobRequirements = false;
 
             var backgroundJobId = await jobRequirementsApiClient.ExtractAsync(jobApplicationId, cancellationToken);
