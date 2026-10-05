@@ -12,6 +12,9 @@ public sealed class ContextEntityConfiguration : IEntityTypeConfiguration<Contex
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Id)
+            .ValueGeneratedNever();
+
         builder.Property(e => e.Name)
             .HasColumnType("citext")
             .HasMaxLength(300)

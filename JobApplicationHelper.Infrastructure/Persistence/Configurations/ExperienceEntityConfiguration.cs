@@ -13,8 +13,7 @@ public sealed class ExperienceEntityConfiguration : IEntityTypeConfiguration<Exp
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
-            .HasMaxLength(200)
-            .IsRequired();
+            .ValueGeneratedNever();
 
         builder.Property(e => e.Title)
             .HasMaxLength(500)

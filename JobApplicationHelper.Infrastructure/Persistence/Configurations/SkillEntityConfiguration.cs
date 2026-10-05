@@ -13,6 +13,9 @@ public sealed class SkillEntityConfiguration : IEntityTypeConfiguration<SkillEnt
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Id)
+            .ValueGeneratedNever();
+
         builder.Property(e => e.Name)
             .HasColumnType("citext")
             .HasMaxLength(200)
