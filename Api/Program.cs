@@ -33,7 +33,7 @@ app.UseHttpsRedirection();
 app.MapJobRequirementsEndpoints();
 app.MapBackgroundJobEndpoints();
 app.MapCoverLetterEndpoints();
-app.MapExperienceBankEndpoints();
+app.MapExperienceEndpoints();
 app.MapLocationsEndpoints();
 app.MapJobApplicationsEndpoints();
 app.MapHub<BackgroundJobHub>("/hubs/background-jobs");

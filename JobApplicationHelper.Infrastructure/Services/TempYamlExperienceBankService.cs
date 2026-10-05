@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace JobApplicationHelper.Infrastructure.Services;
 
-public class TempYamlExperienceBankService : IExperienceBankService
+public class TempYamlExperienceBankService : IExperienceService
 {
     private readonly IExperienceBankImportService experienceBankImportService;
     private readonly ApplicationDocumentOptions documentOptions;
@@ -19,7 +19,7 @@ public class TempYamlExperienceBankService : IExperienceBankService
         this.documentOptions = documentOptions.Value;
     }
 
-    public Task AddAsync(Experience experience, CancellationToken cancellationToken = default)
+    public Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -40,16 +40,11 @@ public class TempYamlExperienceBankService : IExperienceBankService
         return experiences.AsReadOnly();
     }
 
-    public async Task<Experience?> GetByIdAsync(ExperienceId id, CancellationToken cancellationToken = default)
+    public async Task<Experience?> GetAsync(ExperienceId id, CancellationToken cancellationToken = default)
     {
         var experiences = await GetAllAsync(cancellationToken);
 
         return experiences.FirstOrDefault(e => e.Id == id);
-    }
-
-    public Task UpdateAsync(Experience experience, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 
     private async Task<ExperienceBankImportModel> LoadExperienceBank()

@@ -60,15 +60,6 @@ public static class DependencyInjection
 
             return chatClient.AsIChatClient();
         });
-        //services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
-        //{
-        //    var configuration =
-        //        serviceProvider.GetRequiredService<IConfiguration>();
-
-        //    var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
-
-        //    options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
-        //});
 
         services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
         {
@@ -91,6 +82,7 @@ public static class DependencyInjection
         services.AddScoped<IExtractedJobRequirementsRepository, ExtractedJobRequirementsRepository>();
         services.AddScoped<ICoverLetterDraftRepository, CoverLetterDraftRepository>();
         services.AddScoped<IVerifyCoverLetterResultRepository, VerifyCoverLetterResultRepository>();
+        services.AddScoped<IExperienceRepository, ExperienceRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
@@ -102,7 +94,7 @@ public static class DependencyInjection
         services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
 
         //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();
-        services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();
+        services.AddScoped<IExperienceService, TempYamlExperienceBankService>();
 
         return services;
     }
