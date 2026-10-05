@@ -41,6 +41,12 @@ public sealed class ExperienceEntityConfiguration : IEntityTypeConfiguration<Exp
 
         builder.Property(e => e.Notes);
 
+        builder.Property(e => e.LegacyId)
+            .HasMaxLength(200);
+
+        builder.HasIndex(e => e.LegacyId)            
+            .IsUnique();
+
         builder.HasMany(e => e.Evidence)
             .WithOne(e => e.Experience)
             .HasForeignKey(e => e.ExperienceId)

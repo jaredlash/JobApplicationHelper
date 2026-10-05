@@ -23,6 +23,10 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasPostgresExtension("citext");
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobApplicationHelperDbContext).Assembly);
     }
 }

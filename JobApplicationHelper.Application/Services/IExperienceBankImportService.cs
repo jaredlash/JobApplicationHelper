@@ -4,5 +4,5 @@ namespace JobApplicationHelper.Application.Services;
 
 public interface IExperienceBankImportService
 {
-    Task<ExperienceBank> ImportAsync(string filePath, CancellationToken cancellationToken = default);
+    Task<ExperienceBankImportModel> ImportAsync(string filePath, CancellationToken cancellationToken = default);
 }

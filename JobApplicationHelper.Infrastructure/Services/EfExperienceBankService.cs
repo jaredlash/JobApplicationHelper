@@ -1,7 +1,6 @@
 ﻿using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Infrastructure.Data;
-using JobApplicationHelper.Infrastructure.Data.Entities;
+using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +8,9 @@ namespace JobApplicationHelper.Services;
 
 public sealed class EfExperienceBankService : IExperienceBankService
 {
-    private readonly ExperienceBankDbContext _dbContext;
+    private readonly JobApplicationHelperDbContext _dbContext;
 
-    public EfExperienceBankService(ExperienceBankDbContext dbContext)
+    public EfExperienceBankService(JobApplicationHelperDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -34,10 +33,8 @@ public sealed class EfExperienceBankService : IExperienceBankService
             .ToList();
     }
 
-    public async Task<Experience?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Experience?> GetByIdAsync(ExperienceId id, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
         var entity = await _dbContext.Experiences
             .AsNoTracking()
             .Include(e => e.Evidence)
@@ -47,7 +44,7 @@ public sealed class EfExperienceBankService : IExperienceBankService
             .Include(e => e.Contexts)
                 .ThenInclude(ec => ec.Context)
             .SingleOrDefaultAsync(
-                e => e.Id == id,
+                e => e.Id == id.Value,
                 cancellationToken);
 
         return entity is null
@@ -57,9 +54,7 @@ public sealed class EfExperienceBankService : IExperienceBankService
 
     public async Task AddAsync(Experience experience, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(experience.Id);
-
-        var exists = await _dbContext.Experiences.AnyAsync(e => e.Id == experience.Id, cancellationToken);
+        var exists = await _dbContext.Experiences.AnyAsync(e => e.Id == experience.Id.Value, cancellationToken);
 
         if (exists)
         {
@@ -75,14 +70,12 @@ public sealed class EfExperienceBankService : IExperienceBankService
 
     public async Task UpdateAsync(Experience experience, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(experience.Id);
-
         var entity = await _dbContext.Experiences
             .Include(e => e.Evidence)
             .Include(e => e.Links)
             .Include(e => e.Skills)
             .Include(e => e.Contexts)
-            .SingleOrDefaultAsync(e => e.Id == experience.Id, cancellationToken)
+            .SingleOrDefaultAsync(e => e.Id == experience.Id.Value, cancellationToken)
             ?? throw new KeyNotFoundException($"Experience with ID '{experience.Id}' was not found.");
         
         await UpdateEntityAsync(entity, experience, cancellationToken);
@@ -90,11 +83,9 @@ public sealed class EfExperienceBankService : IExperienceBankService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(ExperienceId id, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
-        var entity = await _dbContext.Experiences.SingleOrDefaultAsync(e => e.Id == id, cancellationToken)
+        var entity = await _dbContext.Experiences.SingleOrDefaultAsync(e => e.Id == id.Value, cancellationToken)
             ?? throw new KeyNotFoundException($"Experience with ID '{id}' was not found.");
 
         _dbContext.Experiences.Remove(entity);
@@ -106,10 +97,10 @@ public sealed class EfExperienceBankService : IExperienceBankService
     {
         return new Experience
         {
-            Id = entity.Id,
+            Id = new ExperienceId(entity.Id),
             Title = entity.Title,
             Type = entity.Type,
-            Organization = entity.Organization,
+            Organization = entity.Organization ?? string.Empty,
 
             DateRange = MapDateRange(entity),
 
@@ -135,31 +126,30 @@ public sealed class EfExperienceBankService : IExperienceBankService
                 .Select(e => e.Url)
                 .ToList(),
 
-            Notes = entity.Notes
+            Notes = entity.Notes ?? string.Empty
         };
     }
 
     private static DateRange? MapDateRange(ExperienceEntity entity)
     {
-        if (entity.StartYear is not int startYear)
-        {
-            return null;
-        }
-
         return new DateRange
         {
-            Start = new PartialDate
-            {
-                Year = startYear,
-                Month = entity.StartMonth
-            },
+            Start = entity.StartYear is not int startYear
+                ? null
+                : new PartialDate
+                {
+                    Year = startYear,
+                    Month = entity.StartMonth,
+                    Day = entity.StartDay
+                },
 
             End = entity.EndYear is not int endYear
                 ? null
                 : new PartialDate
                 {
                     Year = endYear,
-                    Month = entity.EndMonth
+                    Month = entity.EndMonth,
+                    Day = entity.EndDay
                 }
         };
     }
@@ -168,7 +158,7 @@ public sealed class EfExperienceBankService : IExperienceBankService
     {
         var entity = new ExperienceEntity
         {
-            Id = experience.Id,
+            Id = experience.Id.Value,
             Title = experience.Title,
             Type = experience.Type,
             Organization = experience.Organization,

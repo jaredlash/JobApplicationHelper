@@ -2,9 +2,9 @@
 
 public sealed class ExperienceSkillEntity
 {
-    public string ExperienceId { get; set; } = string.Empty;
+    public Guid ExperienceId { get; set; }
 
-    public int SkillId { get; set; }
+    public Guid SkillId { get; set; }
 
     public ExperienceEntity Experience { get; set; } = null!;
 

@@ -20,7 +20,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
             .Build();
     }
 
-    public async Task<ExperienceBank> ImportAsync(string filePath, CancellationToken cancellationToken = default)
+    public async Task<ExperienceBankImportModel> ImportAsync(string filePath, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
@@ -50,7 +50,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
 
         try
         {
-            var experienceBank = _deserializer.Deserialize<ExperienceBank>(yaml)
+            var experienceBank = _deserializer.Deserialize<ExperienceBankImportModel>(yaml)
                 ?? throw new InvalidDataException("The experience bank could not be deserialized.");
 
             Validate(experienceBank, filePath);
@@ -64,7 +64,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
         }
     }
 
-    private static void Validate(ExperienceBank bank, string filePath)
+    private static void Validate(ExperienceBankImportModel bank, string filePath)
     {
         if (bank.Version <= 0)
         {
@@ -115,7 +115,7 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
         }
     }
 
-    private static void Sanitize(ExperienceBank bank)
+    private static void Sanitize(ExperienceBankImportModel bank)
     {
         foreach (var experience in bank.Experiences)
         {

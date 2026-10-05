@@ -15,7 +15,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     public string DialogTitle => IsEditMode ? "Edit Experience" : "Add Experience";
 
     [ObservableProperty]
-    private string id = string.Empty;
+    private ExperienceId id;
 
     [ObservableProperty]
     private string title = string.Empty;
@@ -55,7 +55,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     {
         _originalExperience = null;
 
-        Id = Guid.NewGuid().ToString("N");
+        Id = new ExperienceId(Guid.NewGuid());
         Title = string.Empty;
         Type = default;
         Organization = null;

@@ -9,7 +9,7 @@ public static class ExperienceBankMappingExtensions
     {
         return new Experience
         {
-            Id = experienceDto.Id,
+            Id = new ExperienceId(experienceDto.Id),
             Title = experienceDto.Title,
             Type = Enum.Parse<ExperienceType>(
                 experienceDto.Type,

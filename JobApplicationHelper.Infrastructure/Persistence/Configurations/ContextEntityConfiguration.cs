@@ -13,9 +13,9 @@ public sealed class ContextEntityConfiguration : IEntityTypeConfiguration<Contex
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Name)
+            .HasColumnType("citext")
             .HasMaxLength(300)
-            .IsRequired()
-            .UseCollation("NOCASE");
+            .IsRequired();
 
         builder.HasIndex(e => e.Name)
             .IsUnique();

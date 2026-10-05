@@ -36,7 +36,7 @@ public static class JobRequirementMappingExtensions
     public static ExperienceDto ToDto(this Experience experience)
     {
         return new ExperienceDto(
-                experience.Id,
+                experience.Id.Value,
                 experience.Title,
                 experience.Type.ToString(),
                 experience.Organization,

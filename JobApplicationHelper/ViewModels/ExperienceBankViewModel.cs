@@ -42,7 +42,7 @@ public partial class ExperienceBankViewModel : ViewModelBase
         await ReloadAsync(cancellationToken: cancellationToken);
     }
 
-    private async Task ReloadAsync(string? selectedExperienceId = null, CancellationToken cancellationToken = default)
+    private async Task ReloadAsync(ExperienceId? selectedExperienceId = null, CancellationToken cancellationToken = default)
     {
         var experiences = await experienceBankApiClient.GetAllAsync(cancellationToken);
 
@@ -60,18 +60,12 @@ public partial class ExperienceBankViewModel : ViewModelBase
         }
 
         // This approach was clearer than using LINQ to find the index of the experience with the specified ID.
-        if (!string.IsNullOrWhiteSpace(selectedExperienceId))
+        if (selectedExperienceId is not null)
         {
-            var index = -1;
-
-            for (var i = 0; i < Experiences.Count; i++)
-            {
-                if (string.Equals(Experiences[i].Id, selectedExperienceId, StringComparison.OrdinalIgnoreCase))
-                {
-                    index = i;
-                    break;
-                }
-            }
+            
+            var index = Experiences
+                .Select((exp, i) => new { exp, i })
+                .FirstOrDefault(x => x.exp.Id == selectedExperienceId)?.i ?? -1;
 
             SelectedIndex = index;
             return;

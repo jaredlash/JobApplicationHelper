@@ -1,7 +1,7 @@
 ﻿namespace JobApplicationHelper.Contracts.Experiences;
 
 public sealed record ExperienceDto(
-    string Id,
+    Guid Id,
     string Title,
     string Type,
     string Organization,

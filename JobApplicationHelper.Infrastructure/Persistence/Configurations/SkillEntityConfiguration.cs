@@ -14,9 +14,9 @@ public sealed class SkillEntityConfiguration : IEntityTypeConfiguration<SkillEnt
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Name)
+            .HasColumnType("citext")
             .HasMaxLength(200)
-            .IsRequired()
-            .UseCollation("NOCASE");
+            .IsRequired();
 
         builder.HasIndex(e => e.Name)
             .IsUnique();

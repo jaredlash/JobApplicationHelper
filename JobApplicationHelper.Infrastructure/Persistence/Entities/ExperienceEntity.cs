@@ -4,13 +4,17 @@ namespace JobApplicationHelper.Infrastructure.Persistence.Entities;
 
 public sealed class ExperienceEntity
 {
-    public string Id { get; set; } = "";
+    public Guid Id { get; set; }
 
     public string Title { get; set; } = "";
 
     public ExperienceType Type { get; set; }
 
     public string? Organization { get; set; }
+
+    public int? StartDay { get; set; }
+
+    public int? EndDay { get; set; }
 
     public int? StartMonth { get; set; }
 
@@ -23,6 +27,8 @@ public sealed class ExperienceEntity
     public string Summary { get; set; } = "";
 
     public string? Notes { get; set; }
+
+    public string? LegacyId { get; set; }
 
     public ICollection<ExperienceEvidenceEntity> Evidence { get; set; } = [];
 
