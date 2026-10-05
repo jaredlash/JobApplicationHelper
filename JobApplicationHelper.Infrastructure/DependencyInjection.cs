@@ -93,7 +93,6 @@ public static class DependencyInjection
         // Deliberately registered as a Singleton since it is an in-memory queue to share among all users
         services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
 
-        //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();
         services.AddScoped<IExperienceService, TempYamlExperienceBankService>();
 
         return services;
