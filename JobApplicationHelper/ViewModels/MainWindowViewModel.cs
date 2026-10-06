@@ -167,5 +167,14 @@ namespace JobApplicationHelper.ViewModels
 
             return new ValidationResult("Job posting is required when generating a cover letter.", [nameof(JobPosting)]);
         }
+
+        [RelayCommand]
+        private async Task OpenExperiencesWindow(CancellationToken cancellationToken = default)
+        {
+            var experiencesViewModel = serviceProvider.GetRequiredService<ExperiencesViewModel>();
+            await experiencesViewModel.InitializeAsync(cancellationToken);
+
+            windowService.ShowWindow(experiencesViewModel);
+        }
     }
 }
