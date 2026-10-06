@@ -33,16 +33,13 @@ public partial class ExperiencesViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedExperience))]
     [NotifyPropertyChangedFor(nameof(Skills))]
-    [NotifyPropertyChangedFor(nameof(Evidence))]
-    [NotifyPropertyChangedFor(nameof(Contexts))]
     [NotifyPropertyChangedFor(nameof(DateRange))]
     [NotifyPropertyChangedFor(nameof(Links))]
-    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    [NotifyCanExecuteChangedFor(nameof(EditExperienceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RemoveExperienceCommand))]
     private int selectedIndex = -1;
 
     public string Skills => string.Join(", ", SelectedExperience?.Skills ?? []);
-    public string Evidence => string.Join(", ", SelectedExperience?.Evidence ?? []);
-    public string Contexts => string.Join(", ", SelectedExperience?.Contexts ?? []);
     public string DateRange => SelectedExperience?.DateRange?.ToString() ?? string.Empty;
     public string Links => string.Join(", ", SelectedExperience?.Links ?? []);
 
@@ -87,7 +84,7 @@ public partial class ExperiencesViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private async Task AddExperienceAsync()
     {
         var viewModel = _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
 
@@ -101,8 +98,8 @@ public partial class ExperiencesViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEdit))]
-    private async Task EditAsync()
+    [RelayCommand(CanExecute = nameof(CanEditExperience))]
+    private async Task EditExperienceAsync()
     {
         var experience = SelectedExperience;
 
@@ -124,27 +121,31 @@ public partial class ExperiencesViewModel : ViewModelBase
             await ReloadAsync(experienceId);
         }
     }
+    private bool CanEditExperience() => SelectedExperience is not null;
 
-    private bool CanEdit()
-    {
-        return SelectedExperience is not null;
-    }
-
-    [RelayCommand]
-    private void Remove()
+    [RelayCommand(CanExecute = nameof(CanRemoveExperience))]
+    private async Task RemoveExperienceAsync()
     {
         // TODO: Implement removal later.
+        await Task.CompletedTask;
     }
+    private bool CanRemoveExperience() => SelectedExperience is not null;
 
     [RelayCommand]
-    private void Import()
+    private void ImportExperience()
     {
         // TODO: Implement YAML import later.
     }
 
     [RelayCommand]
-    private void Export()
+    private void ExportExperience()
     {
         // TODO: Implement YAML export later.
+    }
+
+    [RelayCommand]
+    private void Close()
+    {
+        TryClose();
     }
 }

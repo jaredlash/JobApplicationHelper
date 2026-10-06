@@ -10,14 +10,15 @@
         xmlns:viewModels="clr-namespace:JobApplicationHelper.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:ExperiencesViewModel}"
-        Title="Experiences" Height="700" Width="600">
+        Title="Experiences" Height="700" Width="650">
     <Window.Resources>
         <conv:EnumDisplayConverter x:Key="EnumDisplayConverter" />
         <conv:DateRangeConverter x:Key="DateRangeConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="1.3*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -108,112 +109,148 @@
             <Grid Grid.Row="2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Margin="5" Padding="5" Content="Add Experience" />
-                <Button Grid.Column="1" Margin="5" Padding="5" Content="Edit Selected" />
-                <Button Grid.Column="3" Margin="5" Padding="5" Content="Remove Selected" />
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Margin="5" Padding="5" Content="Add Experience" Command="{Binding AddExperienceCommand}"/>
+                    <Button Margin="5" Padding="5" Content="Edit Selected" Command="{Binding EditExperienceCommand}" />
+                    <Button Margin="5" Padding="5" Content="Remove Selected" Command="{Binding RemoveExperienceCommand}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Margin="5" Padding="5" Content="Import" Command="{Binding ImportExperienceCommand}" />
+                    <Button Margin="5" Padding="5" Content="Export" Command="{Binding ExportExperienceCommand}" />
+                </StackPanel>
             </Grid>
         </Grid>
 
-        <!-- Selected Experience View -->
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <!-- Heading -->
-            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="5 10 5 5" Content="Experience Details" FontSize="16" FontWeight="SemiBold"/>
+        <!-- Heading -->
+        <Label Grid.Row="1" Grid.Column="0" Margin="5 10 5 5" Content="Experience Details" FontSize="16" FontWeight="SemiBold"/>
 
-            <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="Title" HorizontalAlignment="Left" />
-            <Label Grid.Row="1" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Title}" />
-            
-            <Label Grid.Row="2" Grid.Column="0" Margin="5" Content="Organization" HorizontalAlignment="Left" />
-            <Label Grid.Row="2" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Organization}" />
-
-            <Label Grid.Row="3" Grid.Column="0" Margin="5" Content="Summary" HorizontalAlignment="Left" />
-            <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
-                <TextBlock Text="{Binding SelectedExperience.Summary}" TextWrapping="Wrap" />
-            </Label>
-
-            <Label Grid.Row="4" Grid.Column="0" Margin="5" Content="Skills" HorizontalAlignment="Left" />
-            <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
-                <TextBlock Text="{Binding Skills}" TextWrapping="Wrap" />
-            </Label>
-
-            <Label Grid.Row="5" Grid.Column="0" Margin="5" Content="Links" />
-            <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
-                <TextBlock Text="{Binding Links}" TextWrapping="Wrap" />
-            </Label>
-
-            <Label Grid.Row="6" Grid.Column="0" Margin="5" Content="Evidence" HorizontalAlignment="Left" />
-            <ListBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding SelectedExperience.Evidence}">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="4,2" MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-
-            <Label Grid.Row="7" Grid.Column="0" Margin="5" Content="Contexts" HorizontalAlignment="Left" />
-            <ListBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding SelectedExperience.Contexts}">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="4,2" MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-
-            <Grid Grid.Row="1" Grid.Column="3" Grid.RowSpan="2">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <!-- Selected Experience View -->
+            <Grid> <!--.Row="2"-->
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Margin="5" Content="Type" />
-                <Label Grid.Row="0" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Type, Converter={StaticResource EnumDisplayConverter}}" />
+
+                <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="Title" HorizontalAlignment="Left" />
+                <Label Grid.Row="1" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Title}" />
                 
-                <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="Dates" />
-                <Label Grid.Row="1" Grid.Column="1" Margin="5" Content="{Binding DateRange}" />
+                <Label Grid.Row="2" Grid.Column="0" Margin="5" Content="Organization" HorizontalAlignment="Left" />
+                <Label Grid.Row="2" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Organization}" />
+
+                <Label Grid.Row="3" Grid.Column="0" Margin="5" Content="Summary" HorizontalAlignment="Left" />
+                <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
+                    <TextBlock Text="{Binding SelectedExperience.Summary}" TextWrapping="Wrap" />
+                </Label>
+
+                <Label Grid.Row="4" Grid.Column="0" Margin="5" Content="Skills" HorizontalAlignment="Left" />
+                <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
+                    <TextBlock Text="{Binding Skills}" TextWrapping="Wrap" />
+                </Label>
+
+                <Label Grid.Row="5" Grid.Column="0" Margin="5" Content="Links" />
+                <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
+                    <TextBlock Text="{Binding Links}" TextWrapping="Wrap" />
+                </Label>
+                
+                <GroupBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Header="Evidence" Margin="0,0,0,8">
+                    <GroupBox.Style>
+                        <Style TargetType="GroupBox">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedExperience.Evidence.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </GroupBox.Style>
+                    <ListBox ItemsSource="{Binding SelectedExperience.Evidence}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        HorizontalContentAlignment="Stretch">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="4,2"
+                               MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </GroupBox>
+
+
+                <GroupBox Grid.Row="6" Grid.Column="3" Grid.ColumnSpan="2" Header="Contexts" Margin="0,0,0,8">
+                    <GroupBox.Style>
+                        <Style TargetType="GroupBox">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedExperience.Contexts.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </GroupBox.Style>
+                    <ListBox ItemsSource="{Binding SelectedExperience.Contexts}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        HorizontalContentAlignment="Stretch">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="4,2"
+                               MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </GroupBox>
+
+                <Grid Grid.Row="1" Grid.Column="3" Grid.RowSpan="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Margin="5" Content="Type" />
+                    <Label Grid.Row="0" Grid.Column="1" Margin="5" Content="{Binding SelectedExperience.Type, Converter={StaticResource EnumDisplayConverter}}" />
+                    
+                    <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="Dates" />
+                    <Label Grid.Row="1" Grid.Column="1" Margin="5" Content="{Binding DateRange}" />
+                </Grid>
+                
+                <Label Grid.Row="8" Grid.Column="0" Margin="5" Content="Notes" />
+                <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
+                    <TextBlock Text="{Binding SelectedExperience.Notes}" TextWrapping="Wrap" />
+                </Label>
             </Grid>
-            
-            <Label Grid.Row="8" Grid.Column="0" Margin="5" Content="Notes" />
-            <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Margin="5">
-                <TextBlock Text="{Binding SelectedExperience.Notes}" TextWrapping="Wrap" />
-            </Label>
-        </Grid>
-        
+        </ScrollViewer>
+
         <!-- Bottom Buttons -->
-        <StackPanel Grid.Row="2" HorizontalAlignment="Right">
-            <Button Margin="5" Padding="5" Width="100" Content="Close" />
+        <StackPanel Grid.Row="3" HorizontalAlignment="Right">
+            <Button Margin="5" Padding="5" Width="100" Content="Close" Command="{Binding CloseCommand}"/>
         </StackPanel>
     </Grid>
 </Window>
