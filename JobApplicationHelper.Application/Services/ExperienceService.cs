@@ -24,7 +24,7 @@ public sealed class ExperienceService : IExperienceService
 
     public Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
     {
-        return repository.AddOrReplaceAsync(experience, cancellationToken);
+        return repository.AddOrReplaceAsync(experience, cancellationToken: cancellationToken);
     }
 
     public Task DeleteAsync(ExperienceId id, CancellationToken cancellationToken = default)

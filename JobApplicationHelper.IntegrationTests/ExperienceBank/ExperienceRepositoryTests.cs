@@ -32,7 +32,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -40,6 +40,46 @@ public sealed class ExperienceRepositoryTests
         var verificationRepository = new ExperienceRepository(verificationContext);
 
         var retrieved = await verificationRepository.GetAsync(experience.Id, TestContext.Current.CancellationToken);
+
+        Assert.NotNull(retrieved);
+
+        Assert.Equal(experience.Id, retrieved.Id);
+        Assert.Equal(experience.Title, retrieved.Title);
+        Assert.Equal(experience.Type, retrieved.Type);
+        Assert.Equal(experience.Organization, retrieved.Organization);
+        Assert.Equal(experience.Summary, retrieved.Summary);
+        Assert.Equal(experience.Notes, retrieved.Notes);
+
+        AssertDateRangeEqual(experience.DateRange, retrieved.DateRange);
+
+        Assert.Equal(experience.Evidence, retrieved.Evidence);
+
+        Assert.Equal(experience.Skills, retrieved.Skills);
+
+        Assert.Equal(experience.Contexts, retrieved.Contexts);
+
+        Assert.Equal(experience.Links, retrieved.Links);
+    }
+
+
+    [Fact]
+    public async Task Gets_experience_by_legacyId()
+    {
+        var experience = CreateExperience();
+        string legacyId = "legacyid";
+
+        await using (var dbContext = CreateDbContext())
+        {
+            var repository = new ExperienceRepository(dbContext);
+
+            await repository.AddOrReplaceAsync(experience, legacyId, cancellationToken: TestContext.Current.CancellationToken);
+        }
+
+        await using var verificationContext = CreateDbContext();
+
+        var verificationRepository = new ExperienceRepository(verificationContext);
+
+        var retrieved = await verificationRepository.GetByLegacyIdAsync(legacyId, TestContext.Current.CancellationToken);
 
         Assert.NotNull(retrieved);
 
@@ -86,11 +126,11 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(third, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(third, cancellationToken: TestContext.Current.CancellationToken);
 
-            await repository.AddOrReplaceAsync(first, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(first, cancellationToken: TestContext.Current.CancellationToken);
 
-            await repository.AddOrReplaceAsync(second, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(second, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -150,7 +190,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(first, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(first, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         var replacement = CreateExperience(
@@ -182,7 +222,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(replacement, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(replacement, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -264,7 +304,7 @@ public sealed class ExperienceRepositoryTests
 
             await repository.AddOrReplaceAsync(
                 first,
-                TestContext.Current.CancellationToken);
+                cancellationToken: TestContext.Current.CancellationToken);
         }
 
         var replacement = CreateExperience(
@@ -290,7 +330,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(replacement, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(replacement, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -336,7 +376,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(first, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(first, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         var second = CreateExperience(skills: ["c#"]);
@@ -345,7 +385,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(second, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(second, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -371,7 +411,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(first, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(first, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         var second = CreateExperience(contexts: ["professional"]);
@@ -380,7 +420,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(second, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(second, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -413,7 +453,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -458,7 +498,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -502,7 +542,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -537,7 +577,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -566,7 +606,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -607,7 +647,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -639,7 +679,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -671,7 +711,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -705,7 +745,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();
@@ -728,7 +768,7 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(experience, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(experience, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
@@ -777,14 +817,14 @@ public sealed class ExperienceRepositoryTests
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(first, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(first, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using (var dbContext = CreateDbContext())
         {
             var repository = new ExperienceRepository(dbContext);
 
-            await repository.AddOrReplaceAsync(second, TestContext.Current.CancellationToken);
+            await repository.AddOrReplaceAsync(second, cancellationToken: TestContext.Current.CancellationToken);
         }
 
         await using var verificationContext = CreateDbContext();

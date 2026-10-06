@@ -33,7 +33,16 @@ public sealed class ExperienceRepository : IExperienceRepository
             : entity.ToDomain();
     }
 
-    public async Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
+    public async Task<Experience?> GetByLegacyIdAsync(string legacyId, CancellationToken cancellationToken = default)
+    {
+        var entity = await QueryExperiences().SingleOrDefaultAsync(e => e.LegacyId == legacyId, cancellationToken);
+
+        return entity is null
+            ? null
+            : entity.ToDomain();
+    }
+
+    public async Task AddOrReplaceAsync(Experience experience, string? legacyId = null, CancellationToken cancellationToken = default)
     {
         var existing = await _dbContext.Experiences
             .Include(e => e.Evidence)
@@ -46,10 +55,14 @@ public sealed class ExperienceRepository : IExperienceRepository
         {
             var entity = await CreateEntityAsync(experience, cancellationToken);
 
+            entity.LegacyId = legacyId;
+
             _dbContext.Experiences.Add(entity);
         }
         else
         {
+            existing.LegacyId = legacyId;
+
             await ReplaceEntityAsync(existing, experience, cancellationToken);
         }
 

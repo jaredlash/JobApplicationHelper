@@ -8,7 +8,9 @@ public interface IExperienceRepository
 
     Task<Experience?> GetAsync(ExperienceId id, CancellationToken cancellationToken = default);
 
-    Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default);
+    Task<Experience?> GetByLegacyIdAsync(string legacyId, CancellationToken cancellationToken = default);
+
+    Task AddOrReplaceAsync(Experience experience, string? legacyId = null, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(ExperienceId id, CancellationToken cancellationToken = default);
 }
