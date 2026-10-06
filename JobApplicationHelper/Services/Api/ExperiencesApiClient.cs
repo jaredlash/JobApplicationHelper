@@ -6,11 +6,11 @@ using System.Net.Http.Json;
 
 namespace JobApplicationHelper.Services.Api;
 
-public sealed class ExperienceBankApiClient
+public sealed class ExperiencesApiClient
 {
     private readonly HttpClient _httpClient;
 
-    public ExperienceBankApiClient(HttpClient httpClient)
+    public ExperiencesApiClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }

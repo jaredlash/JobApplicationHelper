@@ -8,10 +8,10 @@ using System.Collections.ObjectModel;
 
 namespace JobApplicationHelper.ViewModels;
 
-public partial class ExperienceBankViewModel : ViewModelBase
+public partial class ExperiencesViewModel : ViewModelBase
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly ExperienceBankApiClient experienceBankApiClient;
+    private readonly ExperiencesApiClient experiencesApiClient;
     private readonly IWindowService _windowService;
 
     public Experience? SelectedExperience =>
@@ -19,21 +19,33 @@ public partial class ExperienceBankViewModel : ViewModelBase
             ? Experiences[SelectedIndex]
             : null;
 
-    public ExperienceBankViewModel(
+    public ExperiencesViewModel(
         IServiceProvider serviceProvider,
-        ExperienceBankApiClient experienceBankApiClient,
+        ExperiencesApiClient experienceBankApiClient,
         IWindowService windowService)
     {
         _serviceProvider = serviceProvider;
-        this.experienceBankApiClient = experienceBankApiClient;
+        this.experiencesApiClient = experienceBankApiClient;
         _windowService = windowService;
     }
 
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedExperience))]
+    [NotifyPropertyChangedFor(nameof(Skills))]
+    [NotifyPropertyChangedFor(nameof(Evidence))]
+    [NotifyPropertyChangedFor(nameof(Contexts))]
+    [NotifyPropertyChangedFor(nameof(DateRange))]
+    [NotifyPropertyChangedFor(nameof(Links))]
     [NotifyCanExecuteChangedFor(nameof(EditCommand))]
     private int selectedIndex = -1;
+
+    public string Skills => string.Join(", ", SelectedExperience?.Skills ?? []);
+    public string Evidence => string.Join(", ", SelectedExperience?.Evidence ?? []);
+    public string Contexts => string.Join(", ", SelectedExperience?.Contexts ?? []);
+    public string DateRange => SelectedExperience?.DateRange?.ToString() ?? string.Empty;
+    public string Links => string.Join(", ", SelectedExperience?.Links ?? []);
+
 
     public ObservableCollection<Experience> Experiences { get; } = [];
 
@@ -44,7 +56,7 @@ public partial class ExperienceBankViewModel : ViewModelBase
 
     private async Task ReloadAsync(ExperienceId? selectedExperienceId = null, CancellationToken cancellationToken = default)
     {
-        var experiences = await experienceBankApiClient.GetAllAsync(cancellationToken);
+        var experiences = await experiencesApiClient.GetAllAsync(cancellationToken);
 
         Experiences.Clear();
 
@@ -59,7 +71,6 @@ public partial class ExperienceBankViewModel : ViewModelBase
             return;
         }
 
-        // This approach was clearer than using LINQ to find the index of the experience with the specified ID.
         if (selectedExperienceId is not null)
         {
             

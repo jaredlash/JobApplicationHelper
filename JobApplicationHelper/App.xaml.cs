@@ -65,7 +65,7 @@ public partial class App : WpfApplication
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
-        builder.Services.AddHttpClient<ExperienceBankApiClient>((serviceProvider, client) =>
+        builder.Services.AddHttpClient<ExperiencesApiClient>((serviceProvider, client) =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
 
@@ -121,6 +121,7 @@ public partial class App : WpfApplication
 
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddTransient<MainWindowViewModel>();
+        builder.Services.AddTransient<ExperiencesViewModel>();
         builder.Services.AddTransient<JobRequirementsViewModel>();
         builder.Services.AddTransient<CoverLetterViewModel>();
         builder.Services.AddTransient<DraftWindowViewModel>(sp =>
@@ -148,6 +149,7 @@ public partial class App : WpfApplication
 
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
         builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
+        builder.Services.AddKeyedTransient<Window, ExperiencesView>(typeof(ExperiencesViewModel));
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
