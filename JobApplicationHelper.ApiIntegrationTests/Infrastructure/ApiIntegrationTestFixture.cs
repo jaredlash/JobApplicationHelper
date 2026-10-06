@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Mapping;
+using JobApplicationHelper.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
@@ -50,6 +51,16 @@ public sealed class ApiIntegrationTestFixture : IAsyncLifetime
         await dbContext.ExtractedJobRequirements.AddAsync(requirements.ToEntity());
 
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddExperienceAsync(Experience experience)
+    {
+        await using var scope = Factory.Services.CreateAsyncScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
+        var repository = new ExperienceRepository(dbContext);
+
+        await repository.AddOrReplaceAsync(experience);
     }
 
     public async ValueTask DisposeAsync()

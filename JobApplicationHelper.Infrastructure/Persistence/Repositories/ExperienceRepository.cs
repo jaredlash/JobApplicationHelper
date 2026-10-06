@@ -1,6 +1,7 @@
 ﻿using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence.Entities;
+using JobApplicationHelper.Infrastructure.Persistence.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobApplicationHelper.Infrastructure.Persistence.Repositories;
@@ -20,7 +21,7 @@ public sealed class ExperienceRepository : IExperienceRepository
             .OrderBy(e => e.Title)
             .ToListAsync(cancellationToken);
 
-        return entities.Select(MapToDomain).ToList();
+        return entities.Select(e => e.ToDomain()).ToList();
     }
 
     public async Task<Experience?> GetAsync(ExperienceId id, CancellationToken cancellationToken = default)
@@ -29,7 +30,7 @@ public sealed class ExperienceRepository : IExperienceRepository
 
         return entity is null
             ? null
-            : MapToDomain(entity);
+            : entity.ToDomain();
     }
 
     public async Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
@@ -67,7 +68,7 @@ public sealed class ExperienceRepository : IExperienceRepository
             Notes = experience.Notes
         };
 
-        MapDateRangeToEntity(entity, experience.DateRange);
+        entity.MapDateRange(experience.DateRange);
 
         await PopulateCollectionsAsync(entity, experience, cancellationToken);
 
@@ -82,7 +83,7 @@ public sealed class ExperienceRepository : IExperienceRepository
         entity.Summary = experience.Summary;
         entity.Notes = experience.Notes;
 
-        MapDateRangeToEntity(entity, experience.DateRange);
+        entity.MapDateRange(experience.DateRange);
 
         entity.Evidence.Clear();
         entity.Links.Clear();
@@ -203,77 +204,5 @@ public sealed class ExperienceRepository : IExperienceRepository
         _dbContext.Skills.Add(skill);
 
         return skill;
-    }
-
-    private static Experience MapToDomain(ExperienceEntity entity)
-    {
-        return new Experience
-        {
-            Id = new ExperienceId(entity.Id),
-            Title = entity.Title,
-            Type = entity.Type,
-            Organization = entity.Organization ?? string.Empty,
-
-            DateRange = MapDateRange(entity),
-
-            Summary = entity.Summary,
-
-            Skills = entity.Skills
-                .OrderBy(e => e.Skill.Name)
-                .Select(e => e.Skill.Name)
-                .ToList(),
-
-            Evidence = entity.Evidence
-                .OrderBy(e => e.SortOrder)
-                .Select(e => e.Text)
-                .ToList(),
-
-            Contexts = entity.Contexts
-                .OrderBy(e => e.Context.Name)
-                .Select(e => e.Context.Name)
-                .ToList(),
-
-            Links = entity.Links
-                .OrderBy(e => e.SortOrder)
-                .Select(e => e.Url)
-                .ToList(),
-
-            Notes = entity.Notes ?? string.Empty
-        };
-    }
-
-    private static void MapDateRangeToEntity(ExperienceEntity entity, DateRange? dateRange)
-    {
-        entity.StartYear = dateRange?.Start?.Year;
-        entity.StartMonth = dateRange?.Start?.Month;
-        entity.StartDay = dateRange?.Start?.Day;
-
-        entity.EndYear = dateRange?.End?.Year;
-        entity.EndMonth = dateRange?.End?.Month;
-        entity.EndDay = dateRange?.End?.Day;
-    }
-
-    private static DateRange? MapDateRange(ExperienceEntity entity)
-    {
-        return new DateRange
-        {
-            Start = entity.StartYear is not int startYear
-                ? null
-                : new PartialDate
-                {
-                    Year = startYear,
-                    Month = entity.StartMonth,
-                    Day = entity.StartDay
-                },
-
-            End = entity.EndYear is not int endYear
-                ? null
-                : new PartialDate
-                {
-                    Year = endYear,
-                    Month = entity.EndMonth,
-                    Day = entity.EndDay
-                }
-        };
     }
 }
