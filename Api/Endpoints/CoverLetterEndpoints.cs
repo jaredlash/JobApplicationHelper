@@ -36,7 +36,7 @@ public static class CoverLetterEndpoints
 
         var payload = new GenerateCoverLetterJobPayload(request.DraftParameters.ToDomain());
 
-        var payloadJson = JsonSerializer.Serialize(payload, BackgroundJobPayloadJson.Options);
+        var payloadJson = JsonSerializer.Serialize(payload, ApplicationJson.Options);
 
         var backgroundJobId = await backgroundJobService.CreateAsync(
             BackgroundJobType.GenerateCoverLetter,
@@ -77,7 +77,7 @@ public static class CoverLetterEndpoints
 
         var payload = new VerifyCoverLetterJobPayload(request.DraftParameters.ToDomain(), request.Draft);
 
-        var payloadJson = JsonSerializer.Serialize(payload, BackgroundJobPayloadJson.Options);
+        var payloadJson = JsonSerializer.Serialize(payload, ApplicationJson.Options);
 
         var backgroundJobId = await backgroundJobService.CreateAsync(
             BackgroundJobType.VerifyCoverLetter,

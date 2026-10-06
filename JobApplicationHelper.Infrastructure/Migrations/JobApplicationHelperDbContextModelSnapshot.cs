@@ -301,6 +301,20 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.ToTable("JobApplications", (string)null);
                 });
 
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", b =>
+                {
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SerializedExperience")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ExperienceId");
+
+                    b.ToTable("PendingExperienceImports");
+                });
+
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.SkillEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -419,6 +433,15 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.JobApplicationEntity", null)
                         .WithOne()
                         .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", "JobApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", null)
+                        .WithOne()
+                        .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", "ExperienceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -19,7 +19,7 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
     public DbSet<ExperienceContextEntity> ExperienceContexts => Set<ExperienceContextEntity>();
     public DbSet<SkillEntity> Skills => Set<SkillEntity>();
     public DbSet<ContextEntity> Contexts => Set<ContextEntity>();
-
+    public DbSet<PendingExperienceImportEntity> PendingExperienceImports => Set<PendingExperienceImportEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

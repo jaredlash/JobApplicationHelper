@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace JobApplicationHelper.Application.Services;
 
-public static class BackgroundJobPayloadJson
+public static class ApplicationJson
 {
     public static readonly JsonSerializerOptions Options = new()
     {
