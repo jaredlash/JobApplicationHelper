@@ -4,7 +4,6 @@ using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -21,6 +20,11 @@ public static class ExperienceEndpoints
 
         group.MapPost("/import", ImportExperiencesAsync)
             .DisableAntiforgery();
+
+        group.MapGet("pending-imports/count", GetPendingExperienceImportCountAsync);
+        group.MapGet("/pending-imports/next", GetNextPendingExperienceImportAsync);
+
+        group.MapPost("/pending-imports/{id:guid}/resolve", ResolvePendingExperienceImportAsync);
 
         return endpoints;
     }
@@ -110,5 +114,47 @@ public static class ExperienceEndpoints
         {
             return TypedResults.BadRequest(ex.Message);
         }
+    }
+
+    private static async Task<Ok<PendingExperienceImportCountResponse>>GetPendingExperienceImportCountAsync(
+        IPendingExperienceImportService pendingExperienceImportService,
+        CancellationToken cancellationToken)
+    {
+        var count = await pendingExperienceImportService.GetCountAsync(cancellationToken);
+
+        return TypedResults.Ok(new PendingExperienceImportCountResponse(count));
+    }
+
+    private static async Task<Results<Ok<PendingExperienceImportDto>, NotFound>>GetNextPendingExperienceImportAsync(
+        IPendingExperienceImportService service,
+        CancellationToken cancellationToken)
+    {
+        var pending = await service.GetNextAsync(cancellationToken);
+
+        if (pending is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(pending.ToDto());
+    }
+
+    private static async Task<Results<NoContent, BadRequest>>ResolvePendingExperienceImportAsync(
+        Guid id,
+        ResolvePendingExperienceImportRequest request,
+        IPendingExperienceImportService service,
+        CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<PendingExperienceImportResolution>(
+                request.Resolution,
+                ignoreCase: true,
+                out var resolution))
+        {
+            return TypedResults.BadRequest();
+        }
+
+        await service.ResolveAsync(new ExperienceId(id), resolution, cancellationToken);
+
+        return TypedResults.NoContent();
     }
 }

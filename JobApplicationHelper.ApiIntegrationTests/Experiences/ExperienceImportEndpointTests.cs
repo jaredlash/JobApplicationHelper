@@ -2,7 +2,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using JobApplicationHelper.ApiIntegrationTests.Infrastructure;
-using JobApplicationHelper.Application.Repositories;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence;

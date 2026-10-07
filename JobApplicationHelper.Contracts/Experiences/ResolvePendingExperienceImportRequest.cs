@@ -1,0 +1,3 @@
+﻿namespace JobApplicationHelper.Contracts.Experiences;
+
+public sealed record ResolvePendingExperienceImportRequest(string Resolution);

@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
         services.AddScoped<IBackgroundJobExecutor, BackgroundJobExecutor>();
         services.AddScoped<IExperienceImportService, ExperienceImportService>();
+        services.AddScoped<IPendingExperienceImportService, PendingExperienceImportService>();
 
         return services;
     }

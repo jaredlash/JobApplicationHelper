@@ -38,7 +38,7 @@ public sealed class ExperienceImportService : IExperienceImportService
                 continue;
             }
 
-            if (AreEquivalent(existing, experience))
+            if (ExperienceComparer.AreEquivalent(existing, experience))
             {
                 skippedCount++;
                 continue;
@@ -84,48 +84,5 @@ public sealed class ExperienceImportService : IExperienceImportService
             Links = [.. importedExperience.Links],
             Notes = importedExperience.Notes
         };
-    }
-
-    private static bool AreEquivalent(Experience existing, Experience imported)
-    {
-        return existing.Title == imported.Title
-            && existing.Type == imported.Type
-            && existing.Organization == imported.Organization
-            && AreEquivalent(existing.DateRange, imported.DateRange)
-            && existing.Summary == imported.Summary
-            && AreEquivalentUnordered(existing.Skills, imported.Skills)
-            && existing.Evidence.SequenceEqual(imported.Evidence)
-            && AreEquivalentUnordered(existing.Contexts, imported.Contexts)
-            && existing.Links.SequenceEqual(imported.Links)
-            && existing.Notes == imported.Notes;
-    }
-
-    private static bool AreEquivalentUnordered(IReadOnlyList<string> existing, IReadOnlyList<string> imported)
-    {
-        return existing.Count == imported.Count
-            && existing.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(imported);
-    }
-
-    private static bool AreEquivalent(DateRange? existing, DateRange? imported)
-    {
-        if (existing is null || imported is null)
-        {
-            return existing is null && imported is null;
-        }
-
-        return AreEquivalent(existing.Start, imported.Start)
-            && AreEquivalent(existing.End, imported.End);
-    }
-
-    private static bool AreEquivalent(PartialDate? existing, PartialDate? imported)
-    {
-        if (existing is null || imported is null)
-        {
-            return existing is null && imported is null;
-        }
-
-        return existing.Year == imported.Year
-            && existing.Month == imported.Month
-            && existing.Day == imported.Day;
     }
 }
