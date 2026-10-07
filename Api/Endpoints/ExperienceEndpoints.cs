@@ -1,9 +1,10 @@
-﻿using JobApplicationHelper.ApiMappings.ToDto;
-using JobApplicationHelper.ApiMappings.ToDomain;
+﻿using JobApplicationHelper.ApiMappings.ToDomain;
+using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Application.Services;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JobApplicationHelper.Api.Endpoints;
 
@@ -17,6 +18,9 @@ public static class ExperienceEndpoints
         group.MapGet("/{id:guid}", GetExperienceAsync);
         group.MapPut("/{id:guid}", UpsertExperienceAsync);
         group.MapDelete("/{id:guid}", DeleteExperienceAsync);
+
+        group.MapPost("/import", ImportExperiencesAsync)
+            .DisableAntiforgery();
 
         return endpoints;
     }
@@ -69,5 +73,42 @@ public static class ExperienceEndpoints
         await experienceService.DeleteAsync(new ExperienceId(id), cancellationToken);
 
         return TypedResults.NoContent();
+    }
+
+    private static async Task<Results<Ok<ImportExperiencesResponse>, BadRequest<string>>> ImportExperiencesAsync(
+        IFormFile file,
+        IExperienceBankImportService importService,
+        IExperienceImportService experienceImportService,
+        CancellationToken cancellationToken)
+    {
+        if (file.Length == 0)
+        {
+            return TypedResults.BadRequest("The uploaded experience bank is empty.");
+        }
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+
+            var import = await importService.ImportAsync(
+                stream,
+                file.FileName,
+                cancellationToken);
+            
+            var result = await experienceImportService.ImportAsync(
+                import,
+                cancellationToken);
+            
+            var response = new ImportExperiencesResponse(
+                result.AddedCount,
+                result.SkippedCount,
+                result.PendingCount);
+
+            return TypedResults.Ok(response);
+        }
+        catch (InvalidDataException ex)
+        {
+            return TypedResults.BadRequest(ex.Message);
+        }
     }
 }

@@ -20,15 +20,43 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
             .Build();
     }
 
+    public async Task<ExperienceBankImportModel> ImportAsync(Stream stream, string sourceName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
+
+        using var reader = new StreamReader(stream);
+
+        var yaml = await reader.ReadToEndAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(yaml))
+        {
+            throw new InvalidDataException($"The experience bank '{sourceName}' is empty.");
+        }
+
+        try
+        {
+            var experienceBank = _deserializer.Deserialize<ExperienceBankImportModel>(yaml)
+                ?? throw new InvalidDataException("The experience bank could not be deserialized.");
+
+            Validate(experienceBank, sourceName);
+            Sanitize(experienceBank);
+
+            return experienceBank;
+        }
+        catch (YamlException ex)
+        {
+            throw new InvalidDataException($"The experience bank contains invalid YAML: {ex.Message}", ex);
+        }
+    }
+
     public async Task<ExperienceBankImportModel> ImportAsync(string filePath, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException(
-                "The experience bank file could not be found.",
-                filePath);
+            throw new FileNotFoundException("The experience bank file could not be found.", filePath);
         }
 
         await using var stream = new FileStream(

@@ -24,8 +24,8 @@ public static class DependencyInjection
         services.AddScoped<ICoverLetterService, CoverLetterService>();
         services.AddScoped<IJobRequirementService, JobRequirementService>();
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
-
         services.AddScoped<IBackgroundJobExecutor, BackgroundJobExecutor>();
+        services.AddScoped<IExperienceImportService, ExperienceImportService>();
 
         return services;
     }

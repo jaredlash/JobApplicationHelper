@@ -83,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<ICoverLetterDraftRepository, CoverLetterDraftRepository>();
         services.AddScoped<IVerifyCoverLetterResultRepository, VerifyCoverLetterResultRepository>();
         services.AddScoped<IExperienceRepository, ExperienceRepository>();
+        services.AddScoped<IPendingExperienceImportRepository, PendingExperienceImportRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
