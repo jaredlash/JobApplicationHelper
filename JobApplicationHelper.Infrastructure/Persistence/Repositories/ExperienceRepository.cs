@@ -61,7 +61,7 @@ public sealed class ExperienceRepository : IExperienceRepository
         }
         else
         {
-            existing.LegacyId = legacyId;
+            existing.LegacyId ??= legacyId;
 
             await ReplaceEntityAsync(existing, experience, cancellationToken);
         }
