@@ -85,6 +85,41 @@ public sealed class ExperiencesApiClient
             cancellationToken);
     }
 
+    public async Task<int> GetPendingExperienceImportCountAsync(CancellationToken cancellationToken = default)
+    {
+        using var httpResponse = await _httpClient.GetAsync($"api/experiences/pending-imports/count", cancellationToken);
+
+        httpResponse.EnsureSuccessStatusCode();
+
+        var pendingImportCountResponse = await ReadRequiredJsonAsync<PendingExperienceImportCountResponse>(httpResponse.Content, "Error reading the response", cancellationToken);
+
+        return pendingImportCountResponse.Count;
+    }
+
+    public async Task<PendingExperienceImport?> GetNextPendingExperienceImportAsync(CancellationToken cancellationToken = default)
+    {
+        using var httpResponse = await _httpClient.GetAsync($"api/experiences/pending-imports/next", cancellationToken);
+
+        if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+            return null;
+
+        httpResponse.EnsureSuccessStatusCode();
+
+        var pendingImportDto = await ReadRequiredJsonAsync<PendingExperienceImportDto>(httpResponse.Content, "Error reading the response", cancellationToken);
+
+        return new PendingExperienceImport(pendingImportDto.Current.ToDomain(), pendingImportDto.Pending.ToDomain());
+    }
+
+    public async Task ResolvePendingExperienceImportAsync(ExperienceId id, PendingExperienceImportResolution resolution, CancellationToken cancellationToken = default)
+    {
+        var resolutionRequest = new ResolvePendingExperienceImportRequest(resolution.ToString());
+
+        using var httpResponse = await _httpClient.PostAsJsonAsync($"api/experiences/pending-imports/{id.Value}/resolve", resolutionRequest, cancellationToken);
+
+        httpResponse.EnsureSuccessStatusCode();
+    }
+
+
     private static async Task<T> ReadRequiredJsonAsync<T>(HttpContent content, string errorMessage, CancellationToken cancellationToken)
     {
         try
