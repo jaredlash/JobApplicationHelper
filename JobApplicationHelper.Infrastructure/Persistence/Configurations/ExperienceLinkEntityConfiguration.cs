@@ -21,14 +21,5 @@ public sealed class ExperienceLinkEntityConfiguration : IEntityTypeConfiguration
 
         builder.Property(e => e.Description)
             .HasMaxLength(500);
-
-        builder.Property(e => e.SortOrder)
-            .IsRequired();
-
-        builder.HasIndex(e => new
-        {
-            e.ExperienceId,
-            e.SortOrder
-        });
     }
 }

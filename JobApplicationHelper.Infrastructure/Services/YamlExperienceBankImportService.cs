@@ -150,6 +150,18 @@ public sealed class YamlExperienceBankImportService : IExperienceBankImportServi
             experience.Summary ??= string.Empty;
             experience.Summary = experience.Summary.TrimEnd();
             experience.Organization ??= string.Empty;
+
+
+            experience.Title = experience.Title.TrimEnd();
+            experience.Organization = experience.Organization.TrimEnd();
+            experience.Summary = experience.Summary.TrimEnd();
+
+            experience.Skills = experience.Skills.Select(s => s.TrimEnd()).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+            experience.Evidence = experience.Evidence.Select(e => e.TrimEnd()).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+            experience.Contexts = experience.Contexts.Select(e => e.TrimEnd()).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+            experience.Links = experience.Links.Select(l => l.TrimEnd()).OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
+
+            experience.Notes = experience.Notes.TrimEnd();
         }
     }
 }

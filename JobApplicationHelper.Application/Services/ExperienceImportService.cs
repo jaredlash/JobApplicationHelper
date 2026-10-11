@@ -76,7 +76,7 @@ public sealed class ExperienceImportService : IExperienceImportService
             Title = importedExperience.Title,
             Type = importedExperience.Type,
             Organization = importedExperience.Organization,
-            DateRange = importedExperience.DateRange,
+            DateRange = importedExperience.DateRange ?? new DateRange() { Start = null, End = null },
             Summary = importedExperience.Summary,
             Skills = [.. importedExperience.Skills],
             Evidence = [.. importedExperience.Evidence],

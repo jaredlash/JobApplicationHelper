@@ -110,10 +110,10 @@ public sealed class ExperienceEndpointTests
         Assert.Equal(request.Organization, result.Organization);
         AssertDateRangeEqual(request.DateRange, result.DateRange);
         Assert.Equal(request.Summary, result.Summary);
-        Assert.Equal(request.Skills.OrderBy(x => x), result.Skills.OrderBy(x => x));
-        Assert.Equal(request.Evidence, result.Evidence);
-        Assert.Equal(request.Contexts.OrderBy(x => x), result.Contexts.OrderBy(x => x));
-        Assert.Equal(request.Links, result.Links);
+        Assert.Equal(request.Skills.OrderBy(x => x, StringComparer.OrdinalIgnoreCase), result.Skills.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        Assert.Equal(request.Evidence.OrderBy(x => x, StringComparer.OrdinalIgnoreCase), result.Evidence.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        Assert.Equal(request.Contexts.OrderBy(x => x, StringComparer.OrdinalIgnoreCase), result.Contexts.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        Assert.Equal(request.Links.OrderBy(x => x, StringComparer.OrdinalIgnoreCase), result.Links.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
         Assert.Equal(request.Notes, result.Notes);
     }
 
@@ -298,16 +298,20 @@ public sealed class ExperienceEndpointTests
         Assert.Equal(expected.Summary, actual.Summary);
 
         Assert.Equal(
-            expected.Skills.OrderBy(x => x),
-            actual.Skills.OrderBy(x => x));
-
-        Assert.Equal(expected.Evidence, actual.Evidence);
+            expected.Skills.OrderBy(x => x, StringComparer.OrdinalIgnoreCase),
+            actual.Skills.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
 
         Assert.Equal(
-            expected.Contexts.OrderBy(x => x),
-            actual.Contexts.OrderBy(x => x));
+            expected.Evidence.OrderBy(x => x, StringComparer.OrdinalIgnoreCase),
+            actual.Evidence.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
 
-        Assert.Equal(expected.Links, actual.Links);
+        Assert.Equal(
+            expected.Contexts.OrderBy(x => x, StringComparer.OrdinalIgnoreCase),
+            actual.Contexts.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+
+        Assert.Equal(
+            expected.Links.OrderBy(x => x, StringComparer.OrdinalIgnoreCase),
+            actual.Links.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
         Assert.Equal(expected.Notes, actual.Notes);
     }
 

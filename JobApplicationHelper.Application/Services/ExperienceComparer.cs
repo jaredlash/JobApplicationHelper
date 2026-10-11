@@ -12,9 +12,9 @@ public static class ExperienceComparer
             && AreEquivalent(first.DateRange, second.DateRange)
             && first.Summary == second.Summary
             && AreEquivalentUnordered(first.Skills, second.Skills)
-            && first.Evidence.SequenceEqual(second.Evidence)
+            && AreEquivalentUnordered(first.Evidence, second.Evidence)
             && AreEquivalentUnordered(first.Contexts, second.Contexts)
-            && first.Links.SequenceEqual(second.Links)
+            && AreEquivalentUnordered(first.Links, second.Links)
             && first.Notes == second.Notes;
     }
 
@@ -24,13 +24,8 @@ public static class ExperienceComparer
             && first.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(second);
     }
 
-    private static bool AreEquivalent(DateRange? first, DateRange? second)
+    private static bool AreEquivalent(DateRange first, DateRange second)
     {
-        if (first is null || second is null)
-        {
-            return first is null && second is null;
-        }
-
         return AreEquivalent(first.Start, second.Start)
             && AreEquivalent(first.End, second.End);
     }

@@ -124,17 +124,45 @@ public partial class ExperiencesViewModel : ViewModelBase
     private bool CanEditExperience() => SelectedExperience is not null;
 
     [RelayCommand(CanExecute = nameof(CanRemoveExperience))]
-    private async Task RemoveExperienceAsync()
+    private async Task RemoveExperienceAsync(CancellationToken cancellationToken = default)
     {
-        // TODO: Implement removal later.
-        await Task.CompletedTask;
+        if (SelectedExperience is null) return;
+
+        await experiencesApiClient.DeleteAsync(SelectedExperience.Id.Value, cancellationToken);
+
+        await ReloadAsync(null, cancellationToken);
     }
     private bool CanRemoveExperience() => SelectedExperience is not null;
 
     [RelayCommand]
-    private void ImportExperience()
+    private async Task ImportExperience(CancellationToken cancellationToken = default)
     {
-        // TODO: Implement YAML import later.
+        var pendingCount = await experiencesApiClient.GetPendingExperienceImportCountAsync(cancellationToken);
+        if (pendingCount > 0)
+        {
+            var response = _windowService.ShowConfirmDialog("Pending imports", "There are pending experience imports.  Do you want to resolve these first?");
+            if (response == true)
+            {
+                var resolvePendingViewModel = _serviceProvider.GetRequiredService<ComparePendingExperienceViewModel>();
+                var firstPendingImport = await experiencesApiClient.GetNextPendingExperienceImportAsync(cancellationToken);
+
+                if (firstPendingImport == null)
+                {
+                    _windowService.ShowAlertDialog("All imports resolved", "All pending imports have been automatically resolved.");
+                }
+                else
+                {
+                    resolvePendingViewModel.PendingExperienceImport = firstPendingImport;
+                    _windowService.ShowDialog(resolvePendingViewModel);
+                }
+            }
+        }
+
+
+        var viewModel = _serviceProvider.GetRequiredService<ImportExperiencesViewModel>();
+        var result = _windowService.ShowDialog(viewModel);
+        
+        await ReloadAsync(SelectedExperience?.Id, cancellationToken);
     }
 
     [RelayCommand]

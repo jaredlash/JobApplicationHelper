@@ -183,16 +183,13 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.Property<Guid>("ExperienceId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExperienceId", "SortOrder");
+                    b.HasIndex("ExperienceId");
 
                     b.ToTable("ExperienceEvidence", (string)null);
                 });
@@ -209,9 +206,6 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.Property<Guid>("ExperienceId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -219,7 +213,7 @@ namespace JobApplicationHelper.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExperienceId", "SortOrder");
+                    b.HasIndex("ExperienceId");
 
                     b.ToTable("ExperienceLinks", (string)null);
                 });

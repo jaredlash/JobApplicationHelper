@@ -10,7 +10,7 @@ public sealed class Experience
 
     public string Organization { get; set; } = string.Empty;
 
-    public DateRange? DateRange { get; set; }
+    public DateRange DateRange { get; set; } = new DateRange { Start = null, End = null };
 
     public string Summary { get; set; } = string.Empty;
 

@@ -130,20 +130,15 @@ public sealed class ExperienceRepository : IExperienceRepository
 
     private async Task PopulateCollectionsAsync(ExperienceEntity entity, Experience experience, CancellationToken cancellationToken)
     {
-        var evidenceIndex = 0;
-
         foreach (var evidence in experience.Evidence.Where(e => !string.IsNullOrWhiteSpace(e)))
         {
             entity.Evidence.Add(new ExperienceEvidenceEntity
             {
                 Id = Guid.NewGuid(),
                 ExperienceId = entity.Id,
-                SortOrder = evidenceIndex++,
                 Text = evidence.Trim()
             });
         }
-
-        var linkIndex = 0;
 
         foreach (var link in experience.Links.Where(l => !string.IsNullOrWhiteSpace(l)))
         {
@@ -151,7 +146,6 @@ public sealed class ExperienceRepository : IExperienceRepository
             {
                 Id = Guid.NewGuid(),
                 ExperienceId = entity.Id,
-                SortOrder = linkIndex++,
                 Url = link.Trim(),
                 Description = null
             });

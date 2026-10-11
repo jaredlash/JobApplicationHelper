@@ -22,22 +22,22 @@ public static class ExperiencesMapping
             Summary = entity.Summary,
 
             Skills = entity.Skills
-                .OrderBy(e => e.Skill.Name)
+                .OrderBy(e => e.Skill.Name, StringComparer.OrdinalIgnoreCase)
                 .Select(e => e.Skill.Name)
                 .ToList(),
 
             Evidence = entity.Evidence
-                .OrderBy(e => e.SortOrder)
+                .OrderBy(e => e.Text, StringComparer.OrdinalIgnoreCase)
                 .Select(e => e.Text)
                 .ToList(),
 
             Contexts = entity.Contexts
-                .OrderBy(e => e.Context.Name)
+                .OrderBy(e => e.Context.Name, StringComparer.OrdinalIgnoreCase)
                 .Select(e => e.Context.Name)
                 .ToList(),
 
             Links = entity.Links
-                .OrderBy(e => e.SortOrder)
+                .OrderBy(e => e.Url, StringComparer.OrdinalIgnoreCase)
                 .Select(e => e.Url)
                 .ToList(),
 

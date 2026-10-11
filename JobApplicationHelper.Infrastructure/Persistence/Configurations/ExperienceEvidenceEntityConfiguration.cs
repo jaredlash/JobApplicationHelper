@@ -17,14 +17,5 @@ public sealed class ExperienceEvidenceEntityConfiguration : IEntityTypeConfigura
 
         builder.Property(e => e.Text)
             .IsRequired();
-
-        builder.Property(e => e.SortOrder)
-            .IsRequired();
-
-        builder.HasIndex(e => new
-        {
-            e.ExperienceId,
-            e.SortOrder
-        });
     }
 }
