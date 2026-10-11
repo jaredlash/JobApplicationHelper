@@ -18,10 +18,9 @@ namespace JobApplicationHelper.Views
     /// </summary>
     public partial class ExperiencesView : Window
     {
-        public ExperiencesView(ExperiencesViewModel viewModel)
+        public ExperiencesView()
         {
             InitializeComponent();
-            DataContext = viewModel;
         }
     }
 }
