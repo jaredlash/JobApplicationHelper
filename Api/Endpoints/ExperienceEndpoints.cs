@@ -15,7 +15,7 @@ public static class ExperienceEndpoints
 
         group.MapGet("/", GetAllExperiencesAsync);
         group.MapGet("/{id:guid}", GetExperienceAsync);
-        group.MapPut("/{id:guid}", UpsertExperienceAsync);
+        group.MapPut("/{id:guid}", AddOrReplaceExperienceAsync);
         group.MapDelete("/{id:guid}", DeleteExperienceAsync);
 
         group.MapPost("/import", ImportExperiencesAsync)
@@ -56,13 +56,13 @@ public static class ExperienceEndpoints
             : TypedResults.Ok(experience.ToDto());
     }
 
-    private static async Task<NoContent> UpsertExperienceAsync(
+    private static async Task<NoContent> AddOrReplaceExperienceAsync(
         Guid id,
-        UpsertExperienceRequest request,
+        ExperienceDto experienceDto,
         IExperienceService experienceService,
         CancellationToken cancellationToken)
     {
-        var experience = request.ToDomain(id);
+        var experience = experienceDto.ToDomain();
 
         await experienceService.AddOrReplaceAsync(experience, cancellationToken);
 

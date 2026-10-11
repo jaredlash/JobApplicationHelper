@@ -1,12 +1,20 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
+using JobApplicationHelper.Services.Api;
 
 namespace JobApplicationHelper.ViewModels;
 
 public partial class ExperienceEditViewModel : ViewModelBase
 {
-    //private readonly IExperienceBankService _experienceBankService;
+    private readonly ExperiencesApiClient experiencesApiClient;
+
+    public ExperienceEditViewModel(ExperiencesApiClient experiencesApiClient)
+    {
+        this.experiencesApiClient = experiencesApiClient;
+        DateRange = new DateRange();
+    }
 
     private Experience? _originalExperience;
 
@@ -27,7 +35,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     private string? organization;
 
     [ObservableProperty]
-    private DateRange? dateRange;
+    private DateRange dateRange;
 
     [ObservableProperty]
     private string? summary;
@@ -47,10 +55,6 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [ObservableProperty]
     private string? notes;
 
-    public ExperienceEditViewModel()
-    {
-    }
-
     public void InitializeForAdd()
     {
         _originalExperience = null;
@@ -59,7 +63,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
         Title = string.Empty;
         Type = default;
         Organization = null;
-        DateRange = null;
+        DateRange = new DateRange();
         Summary = null;
         Skills = [];
         Evidence = [];
@@ -79,7 +83,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
         Title = experience.Title;
         Type = experience.Type;
         Organization = experience.Organization;
-        DateRange = CloneDateRange(experience.DateRange);
+        //DateRange = CloneDateRange(experience.DateRange);
         Summary = experience.Summary;
         Skills = [.. experience.Skills];
         Evidence = [.. experience.Evidence];
@@ -92,81 +96,33 @@ public partial class ExperienceEditViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAsync()
+    private async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        //if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(Title))
-        //{
+        ValidateAllProperties();
+
+        //if (HasErrors)
         //    return;
-        //}
 
-        //var experience = CreateExperience();
+        //if (!TryCreateDateRange(out var dateRange))
+        //    return;
 
-        //if (IsEditMode)
+        //var experience = CreateExperience(dateRange);
+
+        //try
         //{
-        //    await _experienceBankService.UpdateAsync(experience);
+        //    await experiencesApiClient.AddOrReplaceAsync(experience, cancellationToken);
+        //    TryClose(true);
         //}
-        //else
+        //catch (Exception ex)
         //{
-        //    await _experienceBankService.AddAsync(experience);
+        //    // Expose an appropriate error message for the UI.
+        //    //ErrorMessage = ex.Message;
         //}
-
-        TryClose(true);
     }
 
     [RelayCommand]
     private void Cancel()
     {
         TryClose(false);
-    }
-
-    //private Experience CreateExperience()
-    //{
-    //    return new Experience
-    //    {
-    //        Id = Id.Trim(),
-    //        Title = Title.Trim(),
-    //        Type = Type,
-    //        Organization = string.IsNullOrWhiteSpace(Organization)
-    //            ? null
-    //            : Organization.Trim(),
-    //        DateRange = CloneDateRange(DateRange),
-    //        Summary = string.IsNullOrWhiteSpace(Summary)
-    //            ? null
-    //            : Summary.Trim(),
-    //        Skills = [.. Skills],
-    //        Evidence = [.. Evidence],
-    //        Contexts = [.. Contexts],
-    //        Links = [.. Links],
-    //        Notes = string.IsNullOrWhiteSpace(Notes)
-    //            ? null
-    //            : Notes.Trim()
-    //    };
-    //}
-
-    private static DateRange? CloneDateRange(DateRange? dateRange)
-    {
-        if (dateRange is null)
-        {
-            return null;
-        }
-
-        return new DateRange
-        {
-            Start = dateRange.Start is null
-                ? null
-                : new PartialDate
-                {
-                    Year = dateRange.Start.Year,
-                    Month = dateRange.Start.Month
-                },
-
-            End = dateRange.End is null
-                ? null
-                : new PartialDate
-                {
-                    Year = dateRange.End.Year,
-                    Month = dateRange.End.Month
-                }
-        };
     }
 }

@@ -1,4 +1,5 @@
 ﻿using JobApplicationHelper.ApiMappings.ToDomain;
+using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using System.IO;
@@ -51,9 +52,9 @@ public sealed class ExperiencesApiClient
         return experience.ToDomain();
     }
 
-    public async Task UpsertAsync(Guid id, UpsertExperienceRequest request, CancellationToken cancellationToken = default)
+    public async Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
     {
-        using var httpResponse = await _httpClient.PutAsJsonAsync($"api/experiences/{id}", request, cancellationToken);
+        using var httpResponse = await _httpClient.PutAsJsonAsync($"api/experiences/{experience.Id.Value}", experience.ToDto(), cancellationToken);
 
         httpResponse.EnsureSuccessStatusCode();
     }

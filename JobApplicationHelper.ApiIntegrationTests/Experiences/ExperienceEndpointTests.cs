@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using JobApplicationHelper.ApiIntegrationTests.Infrastructure;
+using JobApplicationHelper.ApiMappings.ToDto;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 
@@ -88,7 +89,10 @@ public sealed class ExperienceEndpointTests
         // Arrange
         var id = Guid.NewGuid();
 
-        var request = CreateRequest();
+        var experience = CreateExperience();
+        experience.Id = new ExperienceId(id);
+
+        var request = experience.ToDto();
 
         // Act
         var response = await client.PutAsJsonAsync($"/api/experiences/{id}", request, TestContext.Current.CancellationToken);
@@ -125,38 +129,41 @@ public sealed class ExperienceEndpointTests
 
         await fixture.AddExperienceAsync(experience);
 
-        var request = new UpsertExperienceRequest(
-            Title: "Updated Experience",
-            Type: "PersonalProject",
-            Organization: "Updated Organization",
-            DateRange: new DateRangeDto(
-                new PartialDateDto(2024, 3, 15),
-                new PartialDateDto(2025, 9, 30)),
-            Summary: "Updated summary.",
-            Skills:
+        var updatedExperience = new Experience()
+        {
+            Id = experience.Id,
+            Title = "Updated Experience",
+            Type = ExperienceType.PersonalProject,
+            Organization = "Updated Organization",
+            DateRange = new DateRange(new PartialDate(2024, 3, 15), new PartialDate(2025, 9, 30)),
+            Summary = "Updated summary.",
+            Skills =
             [
                 "C#",
                 "ASP.NET Core",
                 "PostgreSQL"
             ],
-            Evidence:
+            Evidence =
             [
                 "Updated evidence one.",
                 "Updated evidence two."
             ],
-            Contexts:
+            Contexts =
             [
                 "Backend",
                 "Web Development"
             ],
-            Links:
+            Links =
             [
                 "https://example.com/updated"
             ],
-            Notes: "Updated notes.");
+            Notes = "Updated notes."
+        };
+
+        var updatedExperienceDto = updatedExperience.ToDto();
 
         // Act
-        var response = await client.PutAsJsonAsync($"/api/experiences/{experience.Id.Value}", request, TestContext.Current.CancellationToken);
+        var response = await client.PutAsJsonAsync($"/api/experiences/{experience.Id.Value}", updatedExperienceDto, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -170,16 +177,16 @@ public sealed class ExperienceEndpointTests
         Assert.NotNull(result);
 
         Assert.Equal(experience.Id.Value, result.Id);
-        Assert.Equal(request.Title, result.Title);
-        Assert.Equal(request.Type, result.Type);
-        Assert.Equal(request.Organization, result.Organization);
-        AssertDateRangeEqual(request.DateRange, result.DateRange);
-        Assert.Equal(request.Summary, result.Summary);
-        Assert.Equal(request.Skills.OrderBy(x => x), result.Skills.OrderBy(x => x));
-        Assert.Equal(request.Evidence, result.Evidence);
-        Assert.Equal(request.Contexts.OrderBy(x => x), result.Contexts.OrderBy(x => x));
-        Assert.Equal(request.Links, result.Links);
-        Assert.Equal(request.Notes, result.Notes);
+        Assert.Equal(updatedExperienceDto.Title, result.Title);
+        Assert.Equal(updatedExperienceDto.Type.ToLower(), result.Type.ToLower());
+        Assert.Equal(updatedExperienceDto.Organization, result.Organization);
+        AssertDateRangeEqual(updatedExperienceDto.DateRange, result.DateRange);
+        Assert.Equal(updatedExperienceDto.Summary, result.Summary);
+        Assert.Equal(updatedExperienceDto.Skills.OrderBy(x => x), result.Skills.OrderBy(x => x));
+        Assert.Equal(updatedExperienceDto.Evidence, result.Evidence);
+        Assert.Equal(updatedExperienceDto.Contexts.OrderBy(x => x), result.Contexts.OrderBy(x => x));
+        Assert.Equal(updatedExperienceDto.Links, result.Links);
+        Assert.Equal(updatedExperienceDto.Notes, result.Notes);
     }
 
     [Fact]
@@ -248,38 +255,6 @@ public sealed class ExperienceEndpointTests
             ],
             Notes = "Test experience."
         };
-    }
-
-    private static UpsertExperienceRequest CreateRequest()
-    {
-        return new UpsertExperienceRequest(
-            Title: "Software Engineer",
-            Type: "Professional",
-            Organization: "Test Organization",
-            DateRange: new DateRangeDto(
-                new PartialDateDto(2020, 6, 1),
-                new PartialDateDto(2023, 12, 15)),
-            Summary: "Built software for a test organization.",
-            Skills:
-            [
-                "C#",
-                "PostgreSQL"
-            ],
-            Evidence:
-            [
-                "Implemented backend services.",
-                "Created automated tests."
-            ],
-            Contexts:
-            [
-                "Backend Development",
-                "Testing"
-            ],
-            Links:
-            [
-                "https://example.com/experience"
-            ],
-            Notes: "Test request.");
     }
 
     private static void AssertExperienceDto(

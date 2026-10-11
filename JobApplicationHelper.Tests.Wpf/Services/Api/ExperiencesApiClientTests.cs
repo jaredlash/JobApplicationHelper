@@ -188,21 +188,24 @@ public sealed class ExperiencesApiClientTests
     }
 
     [Fact]
-    public async Task UpsertAsync_sends_put_request_with_experience_id()
+    public async Task AddOrReplaceAsync_sends_put_request_with_experience_id()
     {
         var id = Guid.NewGuid();
 
-        var requestModel = new UpsertExperienceRequest(
-            "Software Developer",
-            ExperienceType.Professional.ToString(),
-            "Example Company",
-            null,
-            "Built software.",
-            ["C#", "WPF"],
-            ["Delivered a feature."],
-            ["Professional"],
-            ["https://example.com"],
-            "Notes");
+        var requestModel = new Experience()
+        {
+            Id = new ExperienceId(id),
+            Title = "Software Developer",
+            Type = ExperienceType.Professional,
+            Organization = "Example Company",
+            DateRange = new DateRange(),
+            Summary = "Built software.",
+            Skills = ["C#", "WPF"],
+            Evidence = ["Delivered a feature."],
+            Contexts = ["Professional"],
+            Links = ["https://example.com"],
+            Notes = "Notes"
+        };
 
         var handler = CreateHandler();
         handler.ResponseFactory = (_, _) =>
@@ -211,7 +214,7 @@ public sealed class ExperiencesApiClientTests
 
         var client = CreateClient(handler);
 
-        await client.UpsertAsync(id, requestModel, TestContext.Current.CancellationToken);
+        await client.AddOrReplaceAsync(requestModel, TestContext.Current.CancellationToken);
 
         var request = Assert.Single(handler.Requests);
 
@@ -222,21 +225,24 @@ public sealed class ExperiencesApiClientTests
     }
 
     [Fact]
-    public async Task UpsertAsync_sends_request_body()
+    public async Task AddOrReplaceAsync_sends_request_body()
     {
         var id = Guid.NewGuid();
 
-        var requestModel = new UpsertExperienceRequest(
-            "Software Developer",
-            ExperienceType.Professional.ToString(),
-            "Example Company",
-            null,
-            "Built software.",
-            ["C#", "WPF"],
-            ["Delivered a feature."],
-            ["Professional"],
-            ["https://example.com"],
-            "Notes");
+        var requestModel = new Experience()
+        {
+            Id = new ExperienceId(id),
+            Title = "Software Developer",
+            Type = ExperienceType.Professional,
+            Organization = "Example Company",
+            DateRange = new DateRange(),
+            Summary = "Built software.",
+            Skills = ["C#", "WPF"],
+            Evidence = ["Delivered a feature."],
+            Contexts = ["Professional"],
+            Links = ["https://example.com"],
+            Notes = "Notes"
+        };
 
         var handler = CreateHandler();
         handler.ResponseFactory = (_, _) =>
@@ -245,14 +251,14 @@ public sealed class ExperiencesApiClientTests
 
         var client = CreateClient(handler);
 
-        await client.UpsertAsync(id, requestModel, TestContext.Current.CancellationToken);
+        await client.AddOrReplaceAsync(requestModel, TestContext.Current.CancellationToken);
 
         var request = Assert.Single(handler.Requests);
-        var body = await request.Content!.ReadFromJsonAsync<UpsertExperienceRequest>(TestContext.Current.CancellationToken);
+        var body = await request.Content!.ReadFromJsonAsync<ExperienceDto>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(body);
         Assert.Equal(requestModel.Title, body.Title);
-        Assert.Equal(requestModel.Type, body.Type);
+        Assert.Equal(requestModel.Type.ToString().ToLower(), body.Type.ToLower());
         Assert.Equal(requestModel.Organization, body.Organization);
         Assert.Equal(requestModel.Summary, body.Summary);
         Assert.Equal(requestModel.Skills, body.Skills);
@@ -263,18 +269,15 @@ public sealed class ExperiencesApiClientTests
     }
 
     [Fact]
-    public async Task UpsertAsync_succeeds_when_response_is_no_content()
+    public async Task AddOrReplaceAsync_succeeds_when_response_is_no_content()
     {
         var handler = CreateHandler();
         handler.ResponseFactory = (_, _) =>
-            Task.FromResult(
-                new HttpResponseMessage(HttpStatusCode.NoContent));
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));
 
         var client = CreateClient(handler);
 
-        await client.UpsertAsync(
-            Guid.NewGuid(),
-            CreateUpsertExperienceRequest(), TestContext.Current.CancellationToken);
+        await client.AddOrReplaceAsync(CreateExperience(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -282,15 +285,12 @@ public sealed class ExperiencesApiClientTests
     {
         var handler = CreateHandler();
         handler.ResponseFactory = (_, _) =>
-            Task.FromResult(
-                new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
         var client = CreateClient(handler);
 
         await Assert.ThrowsAsync<HttpRequestException>(
-            () => client.UpsertAsync(
-                Guid.NewGuid(),
-                CreateUpsertExperienceRequest(), TestContext.Current.CancellationToken));
+            () => client.AddOrReplaceAsync(CreateExperience(), TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -504,19 +504,22 @@ public sealed class ExperiencesApiClientTests
             "Notes");
     }
 
-    private static UpsertExperienceRequest CreateUpsertExperienceRequest()
+    private static Experience CreateExperience()
     {
-        return new UpsertExperienceRequest(
-            "Software Developer",
-            ExperienceType.Professional.ToString(),
-            "Example Company",
-            null,
-            "Built software.",
-            ["C#", "WPF"],
-            ["Delivered a feature."],
-            ["Professional"],
-            ["https://example.com"],
-            "Notes");
+        return new Experience
+        {
+            Id = new ExperienceId(Guid.NewGuid()),
+            Title = "Software Developer",
+            Type = ExperienceType.Professional,
+            Organization = "Example Company",
+            DateRange = new DateRange(),
+            Summary = "Built software.",
+            Skills = ["C#", "WPF"],
+            Evidence = ["Delivered a feature."],
+            Contexts = ["Professional"],
+            Links = ["https://example.com"],
+            Notes = "Notes"
+        };
     }
 
     private static MemoryStream CreateYamlStream()
