@@ -129,6 +129,7 @@ public partial class App : WpfApplication
         builder.Services.AddTransient<ComparePendingExperienceViewModel>();
         builder.Services.AddTransient<ConfirmDialogViewModel>();
         builder.Services.AddTransient<AlertDialogViewModel>();
+        builder.Services.AddTransient<ExperienceEditViewModel>();
         builder.Services.AddTransient<JobRequirementsViewModel>();
         builder.Services.AddTransient<CoverLetterViewModel>();
         builder.Services.AddTransient<DraftWindowViewModel>(sp =>
@@ -162,6 +163,7 @@ public partial class App : WpfApplication
         builder.Services.AddKeyedTransient<Window, ComparePendingExperienceView>(typeof(ComparePendingExperienceViewModel));
         builder.Services.AddKeyedTransient<Window, ConfirmDialogView>(typeof(ConfirmDialogViewModel));
         builder.Services.AddKeyedTransient<Window, AlertDialogView>(typeof(AlertDialogViewModel));
+        builder.Services.AddKeyedTransient<Window, ExperienceEditView>(typeof(ExperienceEditViewModel));
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
         builder.Services.AddTransient<DraftWindow>();

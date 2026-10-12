@@ -1,11 +1,14 @@
-﻿using JobApplicationHelper.Domain.Models;
-
-namespace JobApplicationHelper.Application.Services;
+﻿namespace JobApplicationHelper.Domain.Models;
 
 public static class ExperienceComparer
 {
-    public static bool AreEquivalent(Experience first, Experience second)
+    public static bool AreEquivalent(Experience? first, Experience? second)
     {
+        if (first is null || second is null)
+        {
+            return first is null && second is null;
+        }
+
         return first.Title == second.Title
             && first.Type == second.Type
             && first.Organization == second.Organization

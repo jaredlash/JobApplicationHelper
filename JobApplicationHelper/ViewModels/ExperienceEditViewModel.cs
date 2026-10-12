@@ -3,27 +3,27 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
+using JobApplicationHelper.WindowService;
+using System.Collections.ObjectModel;
 
 namespace JobApplicationHelper.ViewModels;
 
 public partial class ExperienceEditViewModel : ViewModelBase
 {
     private readonly ExperiencesApiClient experiencesApiClient;
+    private readonly IWindowService windowService;
 
-    public ExperienceEditViewModel(ExperiencesApiClient experiencesApiClient)
+    public ExperienceEditViewModel(ExperiencesApiClient experiencesApiClient, IWindowService windowService)
     {
         this.experiencesApiClient = experiencesApiClient;
-        DateRange = new DateRange();
+        this.windowService = windowService;
     }
 
-    private Experience? _originalExperience;
+    private Experience? originalExperience;
 
-    public bool IsEditMode => _originalExperience is not null;
+    public bool IsEditMode => originalExperience is not null;
 
     public string DialogTitle => IsEditMode ? "Edit Experience" : "Add Experience";
-
-    [ObservableProperty]
-    private ExperienceId id;
 
     [ObservableProperty]
     private string title = string.Empty;
@@ -31,40 +31,49 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [ObservableProperty]
     private ExperienceType type;
 
-    [ObservableProperty]
-    private string? organization;
+    public ExperienceType[] AvailableTypes => Enum.GetValues<ExperienceType>().OrderBy(x => x.ToString()).ToArray();
 
     [ObservableProperty]
-    private DateRange dateRange;
+    private string? organization = string.Empty;
 
     [ObservableProperty]
-    private string? summary;
+    private string startDateText = string.Empty;
+
+    [ObservableProperty]
+    private string endDateText = string.Empty;
+
+    [ObservableProperty]
+    private string summary = string.Empty;
 
     [ObservableProperty]
     private List<string> skills = [];
 
+    public string SkillsText => string.Join(", ", Skills);
+
     [ObservableProperty]
-    private List<string> evidence = [];
+    private ObservableCollection<EditableEvidence> evidence = [];
 
     [ObservableProperty]
     private List<string> contexts = [];
 
+    public string ContextsText => string.Join(", ", Contexts);
+
     [ObservableProperty]
-    private List<string> links = [];
+    private ObservableCollection<EditableLink> links = [];
 
     [ObservableProperty]
     private string? notes;
 
     public void InitializeForAdd()
     {
-        _originalExperience = null;
+        originalExperience = null;
 
-        Id = new ExperienceId(Guid.NewGuid());
         Title = string.Empty;
         Type = default;
         Organization = null;
-        DateRange = new DateRange();
-        Summary = null;
+        StartDateText = string.Empty;
+        EndDateText = string.Empty;
+        Summary = string.Empty;
         Skills = [];
         Evidence = [];
         Contexts = [];
@@ -77,18 +86,18 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
     public void InitializeForEdit(Experience experience)
     {
-        _originalExperience = experience;
+        originalExperience = experience;
 
-        Id = experience.Id;
         Title = experience.Title;
         Type = experience.Type;
         Organization = experience.Organization;
-        //DateRange = CloneDateRange(experience.DateRange);
+        StartDateText = PartialDateParser.FormatForEditing(experience.DateRange.Start);
+        EndDateText = PartialDateParser.FormatForEditing(experience.DateRange.End);
         Summary = experience.Summary;
         Skills = [.. experience.Skills];
-        Evidence = [.. experience.Evidence];
+        Evidence = new ObservableCollection<EditableEvidence>(experience.Evidence.Select(e => new EditableEvidence(e)));
         Contexts = [.. experience.Contexts];
-        Links = [.. experience.Links];
+        Links = new ObservableCollection<EditableLink>(experience.Links.Select(link => new EditableLink(link)));
         Notes = experience.Notes;
 
         OnPropertyChanged(nameof(IsEditMode));
@@ -96,33 +105,122 @@ public partial class ExperienceEditViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void AddEvidence()
+    {
+        Evidence.Add(new EditableEvidence());
+    }
+
+    [RelayCommand]
+    private void RemoveEvidence(EditableEvidence evidence)
+    {
+        Evidence.Remove(evidence);
+    }
+
+    [RelayCommand]
+    private void AddLink()
+    {
+        Links.Add(new EditableLink());
+    }
+
+    [RelayCommand]
+    private void RemoveLink(EditableLink link)
+    {
+        Links.Remove(link);
+    }
+
+    [RelayCommand]
     private async Task SaveAsync(CancellationToken cancellationToken = default)
     {
         ValidateAllProperties();
 
-        //if (HasErrors)
-        //    return;
+        if (HasErrors)
+            return;
 
-        //if (!TryCreateDateRange(out var dateRange))
-        //    return;
+        var experience = CreateExperience();
+        if (experience is null)
+            return;
 
-        //var experience = CreateExperience(dateRange);
+        try
+        {
+            //await experiencesApiClient.AddOrReplaceAsync(experience, cancellationToken);
 
-        //try
-        //{
-        //    await experiencesApiClient.AddOrReplaceAsync(experience, cancellationToken);
-        //    TryClose(true);
-        //}
-        //catch (Exception ex)
-        //{
-        //    // Expose an appropriate error message for the UI.
-        //    //ErrorMessage = ex.Message;
-        //}
+            TryClose(true);
+        }
+        catch (Exception)
+        {
+            // Expose an appropriate error message for the UI.
+            //ErrorMessage = ex.Message;
+        }
     }
 
     [RelayCommand]
-    private void Cancel()
+    private async Task CancelAsync(CancellationToken cancellationToken = default)
     {
+        var experience = CreateExperience();
+
+        if ((IsEditMode == false && IsBlank == false)  // Add-mode and the form is no longer blank
+            || (IsEditMode && ExperienceComparer.AreEquivalent(experience, originalExperience) == false)) // Edit mode and the form has been modified
+        {
+            var response = windowService.ShowConfirmDialog("Unsaved changes", "There are unsaved changes.  Are you sure?");
+            if (response == true)
+            {
+                TryClose(false);
+            }
+            return;
+        }
+
         TryClose(false);
+    }
+
+    private Experience? CreateExperience()
+    {
+        if (!TryCreateDateRange(out var dateRange))
+            return null;
+
+        var experience = new Experience()
+        {
+            Id = new ExperienceId(Guid.NewGuid()),
+            Title = "Title",
+            Type = ExperienceType.Other,
+            Organization = "Organization",
+            DateRange = dateRange,
+            Summary = "Summary",
+            Skills = [],
+            Evidence = Evidence.Select(e => e.Value.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)).ToList(),
+            Contexts = [],
+            Links = Links.Select(link => link.Value.Trim()).Where(link => !string.IsNullOrWhiteSpace(link)).ToList(),
+            Notes = "Notes"
+        };
+
+        return experience;
+    }
+
+    private bool IsBlank =>
+        string.IsNullOrWhiteSpace(Title)
+            && Type == ExperienceType.Professional
+            && string.IsNullOrWhiteSpace(Organization)
+            && string.IsNullOrWhiteSpace(StartDateText)
+            && string.IsNullOrWhiteSpace(EndDateText)
+            && string.IsNullOrWhiteSpace(Summary)
+            && Skills.Count == 0
+            && Evidence.Count == 0
+            && Contexts.Count == 0
+            && Links.Count == 0
+            && string.IsNullOrWhiteSpace(Notes);
+
+    private bool TryCreateDateRange(out DateRange dateRange)
+    {
+        if (!PartialDateParser.TryParse(StartDateText, out var start) ||
+            !PartialDateParser.TryParse(EndDateText, out var end))
+        {
+            dateRange = new DateRange();
+            return false;
+        }
+
+        dateRange = start is null && end is null
+            ? new DateRange()
+            : new DateRange { Start = start, End = end };
+
+        return true;
     }
 }
