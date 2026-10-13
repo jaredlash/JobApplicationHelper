@@ -31,4 +31,14 @@ public sealed class ExperienceService : IExperienceService
     {
         return repository.DeleteAsync(id, cancellationToken);
     }
+
+    public Task<IReadOnlyList<string>> GetContextSuggestions(CancellationToken cancellationToken = default)
+    {
+        return repository.GetContextSuggestions(cancellationToken);
+    }
+
+    public Task<IReadOnlyList<string>> GetSkillSuggestions(CancellationToken cancellationToken = default)
+    {
+        return repository.GetSkillSuggestions(cancellationToken);
+    }
 }

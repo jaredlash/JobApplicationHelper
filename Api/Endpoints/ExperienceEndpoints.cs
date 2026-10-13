@@ -18,6 +18,9 @@ public static class ExperienceEndpoints
         group.MapPut("/{id:guid}", AddOrReplaceExperienceAsync);
         group.MapDelete("/{id:guid}", DeleteExperienceAsync);
 
+        group.MapGet("/suggestions/contexts", GetContextSuggestions);
+        group.MapGet("/suggestions/skills", GetSkillSuggestions);
+
         group.MapPost("/import", ImportExperiencesAsync)
             .DisableAntiforgery();
 
@@ -77,6 +80,24 @@ public static class ExperienceEndpoints
         await experienceService.DeleteAsync(new ExperienceId(id), cancellationToken);
 
         return TypedResults.NoContent();
+    }
+
+    private static async Task<Ok<CompletionSuggestionsResponse>> GetContextSuggestions(
+        IExperienceService experienceService,
+        CancellationToken cancellationToken)
+    {
+        var suggestions = await experienceService.GetContextSuggestions(cancellationToken);
+
+        return TypedResults.Ok(new CompletionSuggestionsResponse(suggestions));
+    }
+
+    private static async Task<Ok<CompletionSuggestionsResponse>> GetSkillSuggestions(
+        IExperienceService experienceService,
+        CancellationToken cancellationToken)
+    {
+        var suggestions = await experienceService.GetSkillSuggestions(cancellationToken);
+
+        return TypedResults.Ok(new CompletionSuggestionsResponse(suggestions));
     }
 
     private static async Task<Results<Ok<ImportExperiencesResponse>, BadRequest<string>>> ImportExperiencesAsync(

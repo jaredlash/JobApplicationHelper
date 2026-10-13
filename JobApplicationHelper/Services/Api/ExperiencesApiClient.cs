@@ -52,6 +52,35 @@ public sealed class ExperiencesApiClient
         return experience.ToDomain();
     }
 
+    public async Task<IReadOnlyList<string>> GetContextSuggestions(CancellationToken cancellationToken = default)
+    {
+        using var httpResponse = await _httpClient.GetAsync("api/experiences/suggestions/contexts", cancellationToken);
+
+        httpResponse.EnsureSuccessStatusCode();
+
+        var response = await ReadRequiredJsonAsync<CompletionSuggestionsResponse>(
+            httpResponse.Content,
+            "Could not load contexts suggestions.",
+            cancellationToken);
+
+        return response.CompletionSuggestions;
+    }
+
+
+    public async Task<IReadOnlyList<string>> GetSkillSuggestions(CancellationToken cancellationToken = default)
+    {
+        using var httpResponse = await _httpClient.GetAsync("api/experiences/suggestions/skills", cancellationToken);
+
+        httpResponse.EnsureSuccessStatusCode();
+
+        var response = await ReadRequiredJsonAsync<CompletionSuggestionsResponse>(
+            httpResponse.Content,
+            "Could not load skills suggestions.",
+            cancellationToken);
+
+        return response.CompletionSuggestions;
+    }
+
     public async Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default)
     {
         using var httpResponse = await _httpClient.PutAsJsonAsync($"api/experiences/{experience.Id.Value}", experience.ToDto(), cancellationToken);

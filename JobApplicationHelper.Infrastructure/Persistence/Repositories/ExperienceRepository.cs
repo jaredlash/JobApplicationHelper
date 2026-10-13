@@ -116,6 +116,58 @@ public sealed class ExperienceRepository : IExperienceRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<string>> GetContextSuggestions(CancellationToken cancellationToken = default)
+    {
+        var skills = await _dbContext.ExperienceContexts
+            .GroupBy(es => es.ContextId)
+            .Select(g => new
+            {
+                ContextId = g.Key,
+                UsageCount = g.Count()
+            })
+            .Join(
+                _dbContext.Contexts,
+                usage => usage.ContextId,
+                context => context.Id,
+                (usage, context) => new
+                {
+                    context.Name,
+                    usage.UsageCount
+                })
+            .OrderByDescending(x => x.UsageCount)
+            .ThenBy(x => x.Name)
+            .Select(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+        return skills;
+    }
+
+    public async Task<IReadOnlyList<string>> GetSkillSuggestions(CancellationToken cancellationToken = default)
+    {
+        var skills = await _dbContext.ExperienceSkills
+            .GroupBy(es => es.SkillId)
+            .Select(g => new
+            {
+                SkillId = g.Key,
+                UsageCount = g.Count()
+            })
+            .Join(
+                _dbContext.Skills,
+                usage => usage.SkillId,
+                skill => skill.Id,
+                (usage, skill) => new
+                {
+                    skill.Name,
+                    usage.UsageCount
+                })
+            .OrderByDescending(x => x.UsageCount)
+            .ThenBy(x => x.Name)
+            .Select(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+        return skills;
+    }
+
     private IQueryable<ExperienceEntity> QueryExperiences()
     {
         return _dbContext.Experiences

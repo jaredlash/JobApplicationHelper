@@ -11,4 +11,8 @@ public interface IExperienceService
     Task AddOrReplaceAsync(Experience experience, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(ExperienceId id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> GetContextSuggestions(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> GetSkillSuggestions(CancellationToken cancellationToken = default);
 }
