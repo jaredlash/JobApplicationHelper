@@ -45,7 +45,7 @@ public static class ExperiencesMapping
         };
     }
 
-    private static DateRange? MapEntityDateRangeToDomain(ExperienceEntity entity)
+    private static DateRange MapEntityDateRangeToDomain(ExperienceEntity entity)
     {
         return new DateRange
         {
