@@ -842,6 +842,108 @@ public sealed class ExperienceRepositoryTests
         Assert.Equal("Second version", retrieved.Title);
     }
 
+    [Fact]
+    public async Task GetSkillSuggestions_Orders_by_usage_then_alphabetically()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var suffix = Guid.NewGuid().ToString("N");
+
+        var mostUsed = $"MostUsed-{suffix}";
+        var alpha = $"Alpha-{suffix}";
+        var beta = $"Beta-{suffix}";
+        var leastUsed = $"LeastUsed-{suffix}";
+
+        var experiences = new[]
+        {
+            CreateExperience(skills: [mostUsed], contexts: [], evidence: [], links: []),
+            CreateExperience(skills: [mostUsed], contexts: [], evidence: [], links: []),
+            CreateExperience(skills: [mostUsed], contexts: [], evidence: [], links: []),
+        
+            CreateExperience(skills: [alpha], contexts: [], evidence: [], links: []),
+            CreateExperience(skills: [alpha], contexts: [], evidence: [], links: []),
+        
+            CreateExperience(skills: [beta], contexts: [], evidence: [], links: []),
+            CreateExperience(skills: [beta], contexts: [], evidence: [], links: []),
+        
+            CreateExperience(skills: [leastUsed], contexts: [], evidence: [], links: [])
+        };
+
+        await using var dbContext = CreateDbContext();
+        var repository = new ExperienceRepository(dbContext);
+
+        foreach (var experience in experiences)
+        {
+            await repository.AddOrReplaceAsync(experience, cancellationToken: cancellationToken);
+        }
+
+        var suggestions = await repository.GetSkillSuggestions(cancellationToken);
+
+        var expectedNames = new[]
+        {
+            mostUsed,
+            alpha,
+            beta,
+            leastUsed
+        };
+
+        var actualOrder = suggestions
+            .Where(expectedNames.Contains)
+            .ToArray();
+
+        Assert.Equal(expectedNames, actualOrder);
+    }
+
+    [Fact]
+    public async Task GetContextSuggestions_Orders_by_usage_then_alphabetically()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var suffix = Guid.NewGuid().ToString("N");
+
+        var mostUsed = $"MostUsed-{suffix}";
+        var alpha = $"Alpha-{suffix}";
+        var beta = $"Beta-{suffix}";
+        var leastUsed = $"LeastUsed-{suffix}";
+
+        var experiences = new[]
+        {
+            CreateExperience(skills: [], contexts: [mostUsed], evidence: [], links: []),
+            CreateExperience(skills: [], contexts: [mostUsed], evidence: [], links: []),
+            CreateExperience(skills: [], contexts: [mostUsed], evidence: [], links: []),
+
+            CreateExperience(skills: [], contexts: [alpha], evidence: [], links: []),
+            CreateExperience(skills: [], contexts: [alpha], evidence: [], links: []),
+
+            CreateExperience(skills: [], contexts: [beta], evidence: [], links: []),
+            CreateExperience(skills: [], contexts: [beta], evidence: [], links: []),
+
+            CreateExperience(skills: [], contexts: [leastUsed], evidence: [], links: [])
+        };
+
+        await using var dbContext = CreateDbContext();
+        var repository = new ExperienceRepository(dbContext);
+
+        foreach (var experience in experiences)
+        {
+            await repository.AddOrReplaceAsync(experience, cancellationToken: cancellationToken);
+        }
+
+        var suggestions = await repository.GetContextSuggestions(cancellationToken);
+
+        var expectedNames = new[]
+        {
+            mostUsed,
+            alpha,
+            beta,
+            leastUsed
+        };
+
+        var actualOrder = suggestions
+            .Where(expectedNames.Contains)
+            .ToArray();
+
+        Assert.Equal(expectedNames, actualOrder);
+    }
+
     private static Experience CreateExperience(
         Guid? id = null,
         string title = "Test Experience",
