@@ -100,9 +100,9 @@
                 </TextBlock>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
                     <TextBlock Text="to" VerticalAlignment="Center" Margin="8,0"/>
-                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
                 </StackPanel>
             </Grid>
 

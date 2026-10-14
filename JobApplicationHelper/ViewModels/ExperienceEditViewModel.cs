@@ -4,6 +4,7 @@ using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace JobApplicationHelper.ViewModels;
 
@@ -25,6 +26,8 @@ public partial class ExperienceEditViewModel : ViewModelBase
     public string DialogTitle => IsEditMode ? "Edit Experience" : "Add Experience";
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Title is required")]
     private string title = string.Empty;
 
     [ObservableProperty]
@@ -36,10 +39,24 @@ public partial class ExperienceEditViewModel : ViewModelBase
     private string organization = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [CustomValidation(typeof(ExperienceEditViewModel), nameof(ValidateStartDateText))]
     private string startDateText = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [CustomValidation(typeof(ExperienceEditViewModel), nameof(ValidateEndDateText))]
     private string endDateText = string.Empty;
+
+    partial void OnStartDateTextChanged(string value)
+    {
+        ValidateProperty(EndDateText, nameof(EndDateText));
+    }
+
+    partial void OnEndDateTextChanged(string value)
+    {
+        ValidateProperty(StartDateText, nameof(StartDateText));
+    }
 
     [ObservableProperty]
     private string summary = string.Empty;
@@ -249,5 +266,68 @@ public partial class ExperienceEditViewModel : ViewModelBase
             : new DateRange { Start = start, End = end };
 
         return true;
+    }
+
+    public static ValidationResult? ValidateStartDateText(string? value, ValidationContext context)
+    {
+        var viewModel = (ExperienceEditViewModel)context.ObjectInstance;
+
+        if (!PartialDateParser.TryParse(value, out var start))
+        {
+            return new ValidationResult(
+                "Enter a valid start date using YYYY, YYYY-MM, or YYYY-MM-DD.");
+        }
+
+        if (!PartialDateParser.TryParse(viewModel.EndDateText, out var end))
+        {
+            // The end-date property will report its own parsing error.
+            return ValidationResult.Success;
+        }
+
+        if (IsStartAfterEnd(start, end))
+        {
+            return new ValidationResult(
+                "Start date must not be later than end date.");
+        }
+
+        return ValidationResult.Success;
+    }
+
+    public static ValidationResult? ValidateEndDateText(string? value, ValidationContext context)
+    {
+        var viewModel = (ExperienceEditViewModel)context.ObjectInstance;
+
+        if (!PartialDateParser.TryParse(value, out var end))
+        {
+            return new ValidationResult(
+                "Enter a valid end date using YYYY, YYYY-MM, or YYYY-MM-DD.");
+        }
+
+        if (!PartialDateParser.TryParse(viewModel.StartDateText, out var start))
+        {
+            // The start-date property will report its own parsing error.
+            return ValidationResult.Success;
+        }
+
+        if (IsStartAfterEnd(start, end))
+        {
+            return new ValidationResult(
+                "Start date must not be later than end date.");
+        }
+
+        return ValidationResult.Success;
+    }
+
+    private static bool IsStartAfterEnd(PartialDate? start, PartialDate? end)
+    {
+        if (start is null || end is null)
+            return false;
+
+        // Missing month/day components are treated as January/the first day.
+        var startKey = (start.Year, start.Month ?? 1, start.Day ?? 1);
+
+        var endKey = (end.Year, end.Month ?? 1, end.Day ?? 1);
+
+        return startKey.CompareTo(endKey) > 0;
     }
 }
