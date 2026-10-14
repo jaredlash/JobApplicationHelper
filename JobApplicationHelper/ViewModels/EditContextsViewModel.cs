@@ -11,8 +11,7 @@ public partial class EditContextsViewModel : ViewModelBase
 {
     private readonly ExperiencesApiClient experiencesApiClient;
 
-    public EditContextsViewModel(
-        ExperiencesApiClient experiencesApiClient)
+    public EditContextsViewModel(ExperiencesApiClient experiencesApiClient)
     {
         this.experiencesApiClient = experiencesApiClient;
     }
@@ -34,9 +33,7 @@ public partial class EditContextsViewModel : ViewModelBase
 
     public bool CanSave => !HasDuplicateContexts;
 
-    public async Task InitializeAsync(
-        IEnumerable<string> contexts,
-        CancellationToken cancellationToken = default)
+    public async Task InitializeAsync(IEnumerable<string> contexts, CancellationToken cancellationToken = default)
     {
         foreach (var entry in ContextEntries)
         {
@@ -57,9 +54,7 @@ public partial class EditContextsViewModel : ViewModelBase
 
         try
         {
-            CompletionSuggestions =
-                await experiencesApiClient.GetContextSuggestions(
-                    cancellationToken);
+            CompletionSuggestions = await experiencesApiClient.GetContextSuggestions(cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -84,8 +79,7 @@ public partial class EditContextsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void RemoveContext(
-        EditableSuggestionViewModel? entry)
+    private void RemoveContext(EditableSuggestionViewModel? entry)
     {
         if (entry is null || !ContextEntries.Remove(entry))
         {
@@ -110,9 +104,7 @@ public partial class EditContextsViewModel : ViewModelBase
 
     private void AddContextEntry(string value = "")
     {
-        var entry = new EditableSuggestionViewModel(
-            value,
-            CompletionSuggestions);
+        var entry = new EditableSuggestionViewModel(value, CompletionSuggestions);
 
         entry.PropertyChanged += OnContextEntryPropertyChanged;
         ContextEntries.Add(entry);
@@ -120,9 +112,7 @@ public partial class EditContextsViewModel : ViewModelBase
         OnContextsChanged();
     }
 
-    private void OnContextEntryPropertyChanged(
-        object? sender,
-        PropertyChangedEventArgs e)
+    private void OnContextEntryPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(EditableSuggestionViewModel.Value))
         {
@@ -139,8 +129,7 @@ public partial class EditContextsViewModel : ViewModelBase
         SaveCommand.NotifyCanExecuteChanged();
     }
 
-    partial void OnCompletionSuggestionsChanged(
-        IReadOnlyList<string> value)
+    partial void OnCompletionSuggestionsChanged(IReadOnlyList<string> value)
     {
         foreach (var entry in ContextEntries)
         {

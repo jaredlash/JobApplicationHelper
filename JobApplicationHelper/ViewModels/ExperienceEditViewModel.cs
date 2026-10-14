@@ -273,8 +273,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         if (!PartialDateParser.TryParse(value, out var start))
         {
-            return new ValidationResult(
-                "Enter a valid start date using YYYY, YYYY-MM, or YYYY-MM-DD.");
+            return new ValidationResult("Enter a valid start date using YYYY, YYYY-MM, or YYYY-MM-DD.");
         }
 
         if (!PartialDateParser.TryParse(viewModel.EndDateText, out var end))
@@ -285,8 +284,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         if (IsStartAfterEnd(start, end))
         {
-            return new ValidationResult(
-                "Start date must not be later than end date.");
+            return new ValidationResult("Start date must not be later than end date.");
         }
 
         return ValidationResult.Success;
@@ -298,8 +296,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         if (!PartialDateParser.TryParse(value, out var end))
         {
-            return new ValidationResult(
-                "Enter a valid end date using YYYY, YYYY-MM, or YYYY-MM-DD.");
+            return new ValidationResult("Enter a valid end date using YYYY, YYYY-MM, or YYYY-MM-DD.");
         }
 
         if (!PartialDateParser.TryParse(viewModel.StartDateText, out var start))
@@ -310,8 +307,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         if (IsStartAfterEnd(start, end))
         {
-            return new ValidationResult(
-                "Start date must not be later than end date.");
+            return new ValidationResult("Start date must not be later than end date.");
         }
 
         return ValidationResult.Success;

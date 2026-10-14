@@ -16,8 +16,7 @@ public sealed class ExperienceImportEndpointTests
     private readonly ApiIntegrationTestFixture fixture;
     private readonly HttpClient client;
 
-    public ExperienceImportEndpointTests(
-        ApiIntegrationTestFixture fixture)
+    public ExperienceImportEndpointTests(ApiIntegrationTestFixture fixture)
     {
         this.fixture = fixture;
         client = fixture.CreateClient();
@@ -58,24 +57,19 @@ public sealed class ExperienceImportEndpointTests
             """);
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result =
-            await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-                TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(1, result.AddedCount);
         Assert.Equal(0, result.SkippedCount);
         Assert.Equal(0, result.PendingCount);
 
-        var persisted = await GetExperienceAsync(
-            new ExperienceId(id));
+        var persisted = await GetExperienceAsync(new ExperienceId(id));
 
         Assert.NotNull(persisted);
         Assert.Equal("Software Engineer", persisted.Title);
@@ -89,20 +83,15 @@ public sealed class ExperienceImportEndpointTests
 
         await fixture.AddExperienceAsync(experience);
 
-        var yaml = CreateYaml(
-            CreateExperienceYaml(experience));
+        var yaml = CreateYaml(CreateExperienceYaml(experience));
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result =
-            await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-                TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(0, result.AddedCount);
@@ -122,10 +111,7 @@ public sealed class ExperienceImportEndpointTests
 
         await fixture.AddExperienceAsync(experience);
 
-        var yaml = CreateYaml(
-            CreateExperienceYaml(
-                experience,
-                title: "Updated Experience"));
+        var yaml = CreateYaml(CreateExperienceYaml(experience, title: "Updated Experience"));
 
         // Act
         var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
@@ -133,9 +119,7 @@ public sealed class ExperienceImportEndpointTests
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result =
-            await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-                TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(0, result.AddedCount);
@@ -189,14 +173,11 @@ public sealed class ExperienceImportEndpointTests
               notes: Second notes
             """);
 
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-            TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.AddedCount);
@@ -210,22 +191,15 @@ public sealed class ExperienceImportEndpointTests
         // Arrange
         const string legacyId = "legacy-experience-1";
 
-        var yaml = CreateYaml(
-            CreateExperienceYaml(
-                legacyId,
-                "Imported Experience"));
+        var yaml = CreateYaml(CreateExperienceYaml(legacyId, "Imported Experience"));
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result =
-            await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-                TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(1, result.AddedCount);
@@ -247,26 +221,17 @@ public sealed class ExperienceImportEndpointTests
 
         var experience = CreateExperience();
 
-        await fixture.AddExperienceAsync(
-            experience,
-            legacyId);
+        await fixture.AddExperienceAsync(experience, legacyId);
 
-        var yaml = CreateYaml(
-            CreateExperienceYaml(
-                legacyId,
-                experience.Title));
+        var yaml = CreateYaml(CreateExperienceYaml(legacyId, experience.Title));
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result =
-            await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(
-                TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<ImportExperiencesResponse>(TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(0, result.AddedCount);
@@ -286,9 +251,7 @@ public sealed class ExperienceImportEndpointTests
         var yaml = string.Empty;
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -307,87 +270,56 @@ public sealed class ExperienceImportEndpointTests
             """;
 
         // Act
-        var response = await PostImportAsync(
-            yaml,
-            TestContext.Current.CancellationToken);
+        var response = await PostImportAsync(yaml, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    private async Task<HttpResponseMessage> PostImportAsync(
-        string yaml,
-        CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> PostImportAsync(string yaml, CancellationToken cancellationToken)
     {
         using var content = new MultipartFormDataContent();
 
-        using var fileContent = new ByteArrayContent(
-            System.Text.Encoding.UTF8.GetBytes(yaml));
+        using var fileContent = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(yaml));
 
-        fileContent.Headers.ContentType =
-            new MediaTypeHeaderValue("application/x-yaml");
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-yaml");
 
-        content.Add(
-            fileContent,
-            "file",
-            "experience-bank.yaml");
+        content.Add(fileContent, "file", "experience-bank.yaml");
 
-        return await client.PostAsync(
-            "/api/experiences/import",
-            content,
-            cancellationToken);
+        return await client.PostAsync("/api/experiences/import", content, cancellationToken);
     }
 
-    private async Task<Experience?> GetExperienceAsync(
-        ExperienceId id)
+    private async Task<Experience?> GetExperienceAsync(ExperienceId id)
     {
-        await using var scope =
-            fixture.Factory.Services.CreateAsyncScope();
+        await using var scope = fixture.Factory.Services.CreateAsyncScope();
 
-        var dbContext =
-            scope.ServiceProvider
-                .GetRequiredService<JobApplicationHelperDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
         var repository = new ExperienceRepository(dbContext);
 
-        return await repository.GetAsync(
-            id,
-            TestContext.Current.CancellationToken);
+        return await repository.GetAsync(id, TestContext.Current.CancellationToken);
     }
 
-    private async Task<Experience?> GetExperienceByLegacyIdAsync(
-        string legacyId)
+    private async Task<Experience?> GetExperienceByLegacyIdAsync(string legacyId)
     {
-        await using var scope =
-            fixture.Factory.Services.CreateAsyncScope();
+        await using var scope = fixture.Factory.Services.CreateAsyncScope();
 
-        var dbContext =
-            scope.ServiceProvider
-                .GetRequiredService<JobApplicationHelperDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
         var repository = new ExperienceRepository(dbContext);
 
-        return await repository.GetByLegacyIdAsync(
-            legacyId,
-            TestContext.Current.CancellationToken);
+        return await repository.GetByLegacyIdAsync(legacyId, TestContext.Current.CancellationToken);
     }
 
-    private async Task<Experience?> GetPendingImportAsync(
-        ExperienceId id)
+    private async Task<Experience?> GetPendingImportAsync(ExperienceId id)
     {
-        await using var scope =
-            fixture.Factory.Services.CreateAsyncScope();
+        await using var scope = fixture.Factory.Services.CreateAsyncScope();
 
-        var dbContext =
-            scope.ServiceProvider
-                .GetRequiredService<JobApplicationHelperDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
-        var repository =
-            new PendingExperienceImportRepository(dbContext);
+        var repository = new PendingExperienceImportRepository(dbContext);
 
-        return await repository.GetAsync(
-            id,
-            TestContext.Current.CancellationToken);
+        return await repository.GetAsync(id, TestContext.Current.CancellationToken);
     }
 
     private static string CreateYaml(params string[] experiences)
@@ -403,9 +335,7 @@ public sealed class ExperienceImportEndpointTests
         return result;
     }
 
-    private static string IndentYaml(
-        string yaml,
-        int spaces)
+    private static string IndentYaml(string yaml, int spaces)
     {
         var indentation = new string(' ', spaces);
 
@@ -417,13 +347,9 @@ public sealed class ExperienceImportEndpointTests
         return result;
     }
 
-    private static string CreateExperienceYaml(
-        Experience experience,
-        string? title = null)
+    private static string CreateExperienceYaml(Experience experience, string? title = null)
     {
-        var result =  CreateExperienceYaml(
-            experience.Id.Value.ToString(),
-            title ?? experience.Title);
+        var result =  CreateExperienceYaml(experience.Id.Value.ToString(), title ?? experience.Title);
 
         return result;
     }
@@ -465,14 +391,10 @@ public sealed class ExperienceImportEndpointTests
 
     private static Experience CreateExperience()
     {
-        return CreateExperience(
-            Guid.NewGuid(),
-            "Senior Software Engineer");
+        return CreateExperience(Guid.NewGuid(), "Senior Software Engineer");
     }
 
-    private static Experience CreateExperience(
-        Guid id,
-        string title)
+    private static Experience CreateExperience(Guid id, string title)
     {
         return new Experience
         {

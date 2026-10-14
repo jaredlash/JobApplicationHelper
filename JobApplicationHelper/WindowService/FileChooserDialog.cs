@@ -22,17 +22,6 @@ public class FileChooserDialog : IFileChooserDialog
             Multiselect = false
         };
 
-        //var dialog2 = new FolderBrowserDialog
-        //{
-        //    Description = Title,
-        //    UseDescriptionForTitle = true,
-        //    SelectedPath = InitialFolder,
-
-        //    ShowNewFolderButton = false
-        //};
-
-
-        // Process open file dialog box results 
         var result = dialog.ShowDialog();
         if (result == true)
         {

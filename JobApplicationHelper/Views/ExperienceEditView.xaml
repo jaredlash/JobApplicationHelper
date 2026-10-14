@@ -120,14 +120,14 @@
             <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal">
                 <Label Content="Skills" FontWeight="SemiBold"/>
                 <TextBlock Style="{StaticResource HelpHintStyle}">
-        <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
                     <TextBlock.ToolTip>
                         <ToolTip>
                             <TextBlock MaxWidth="300" TextWrapping="Wrap"
-                    Text="Choose consistent skill names, such as C#, Node.js, or REST APIs. Reuse an existing suggestion when it represents the same skill."/>
+                                Text="Choose consistent skill names, such as C#, Node.js, or REST APIs. Reuse an existing suggestion when it represents the same skill."/>
                         </ToolTip>
                     </TextBlock.ToolTip>
-    </TextBlock>
+                </TextBlock>
             </StackPanel>
             <StackPanel Grid.Row="5" Grid.Column="1" Margin="5">
                 <TextBlock Text="{Binding SkillsText}" TextWrapping="Wrap"/>
@@ -150,19 +150,18 @@
                             <DockPanel Margin="0,3">
 
                                 <Button
-            DockPanel.Dock="Right"
-            Margin="5,0,0,0"
-            Command="{Binding DataContext.RemoveEvidenceCommand,
-                RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-            CommandParameter="{Binding}">
+                                    DockPanel.Dock="Right"
+                                    Margin="5,0,0,0"
+                                    Command="{Binding DataContext.RemoveEvidenceCommand,
+                                        RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding}">
                                     <TextBlock Text="&#xE653;"
-                               FontFamily="Segoe Fluent Icons"
-                               Margin="5"
-                               FontSize="8"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               ToolTip="Remove evidence"
-                    />
+                                        FontFamily="Segoe Fluent Icons"
+                                        Margin="5"
+                                        FontSize="8"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ToolTip="Remove evidence" />
                                 </Button>
 
                                 <TextBox TextWrapping="Wrap" MinHeight="20" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
@@ -188,11 +187,11 @@
                             <DockPanel Margin="0,3">
 
                                 <Button
-                            DockPanel.Dock="Right"
-                            Margin="5,0,0,0"
-                            Command="{Binding DataContext.RemoveLinkCommand,
-                                RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                            CommandParameter="{Binding}">
+                                    DockPanel.Dock="Right"
+                                    Margin="5,0,0,0"
+                                    Command="{Binding DataContext.RemoveLinkCommand,
+                                        RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding}">
                                     <TextBlock Text="&#xE653;"
                                                FontFamily="Segoe Fluent Icons"
                                                Margin="5"
@@ -239,5 +238,4 @@
             </StackPanel>
         </Grid>
     </ScrollViewer>
-
 </Window>

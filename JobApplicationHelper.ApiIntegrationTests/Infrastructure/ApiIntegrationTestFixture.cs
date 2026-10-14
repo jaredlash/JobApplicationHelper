@@ -80,11 +80,9 @@ public sealed class ApiIntegrationTestFixture :
     {
         await using var scope = Factory.Services.CreateAsyncScope();
 
-        var dbContext =
-            scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationHelperDbContext>();
 
-        await dbContext.ExtractedJobRequirements.AddAsync(
-            requirements.ToEntity());
+        await dbContext.ExtractedJobRequirements.AddAsync(requirements.ToEntity());
 
         await dbContext.SaveChangesAsync();
     }

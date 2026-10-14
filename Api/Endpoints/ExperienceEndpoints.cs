@@ -50,9 +50,7 @@ public static class ExperienceEndpoints
         IExperienceService experienceService,
         CancellationToken cancellationToken)
     {
-        var experience = await experienceService.GetAsync(
-            new ExperienceId(id),
-            cancellationToken);
+        var experience = await experienceService.GetAsync(new ExperienceId(id), cancellationToken);
 
         return experience is null
             ? TypedResults.NotFound()
