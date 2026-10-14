@@ -1,10 +1,9 @@
 ﻿using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Infrastructure.Persistence;
 using JobApplicationHelper.Infrastructure.Persistence.Repositories;
-using JobApplicationHelper.Infrastructure.Persistence.Mapping;
 using Microsoft.EntityFrameworkCore;
 
-namespace JobApplicationHelper.IntegrationTests.ExperienceBank;
+namespace JobApplicationHelper.IntegrationTests.Experiences;
 
 public sealed class ExperienceRepositoryTests
     : IClassFixture<PostgreSqlFixture>

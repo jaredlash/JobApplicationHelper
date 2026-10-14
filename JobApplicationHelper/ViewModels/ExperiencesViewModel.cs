@@ -21,11 +21,11 @@ public partial class ExperiencesViewModel : ViewModelBase
 
     public ExperiencesViewModel(
         IServiceProvider serviceProvider,
-        ExperiencesApiClient experienceBankApiClient,
+        ExperiencesApiClient experiencesApiClient,
         IWindowService windowService)
     {
         _serviceProvider = serviceProvider;
-        this.experiencesApiClient = experienceBankApiClient;
+        this.experiencesApiClient = experiencesApiClient;
         _windowService = windowService;
     }
 

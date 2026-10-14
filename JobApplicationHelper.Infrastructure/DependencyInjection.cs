@@ -18,11 +18,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<ExperienceBankOptions>()
-            .Bind(configuration.GetSection("ExperienceBank"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
         services.AddOptions<ApplicationDocumentOptions>()
             .Bind(configuration.GetSection("ApplicationDocuments"))
             .ValidateDataAnnotations()
@@ -38,7 +33,7 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
+        services.AddSingleton<IExperienceImporter, YamlExperienceImporter>();
         services.AddSingleton<IChatClient>(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();

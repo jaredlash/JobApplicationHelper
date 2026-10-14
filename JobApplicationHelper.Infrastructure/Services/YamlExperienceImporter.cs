@@ -7,11 +7,11 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace JobApplicationHelper.Infrastructure.Services;
 
-public sealed class YamlExperienceBankImportService : IExperienceBankImportService
+public sealed class YamlExperienceImporter : IExperienceImporter
 {
     private readonly IDeserializer _deserializer;
 
-    public YamlExperienceBankImportService()
+    public YamlExperienceImporter()
     {
         _deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)

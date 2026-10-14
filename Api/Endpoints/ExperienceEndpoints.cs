@@ -102,7 +102,7 @@ public static class ExperienceEndpoints
 
     private static async Task<Results<Ok<ImportExperiencesResponse>, BadRequest<string>>> ImportExperiencesAsync(
         IFormFile file,
-        IExperienceBankImportService importService,
+        IExperienceImporter importService,
         IExperienceImportService experienceImportService,
         CancellationToken cancellationToken)
     {
