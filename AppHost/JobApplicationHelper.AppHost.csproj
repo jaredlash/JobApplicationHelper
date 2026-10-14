@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.12" />
-	<PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.6.0" />
+	<PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.6.1" />
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
   </ItemGroup>
 
@@ -22,5 +22,9 @@
     <ProjectReference Include="..\Api\JobApplicationHelper.Api.csproj" />
     <ProjectReference Include="..\JobApplicationHelper.Infrastructure\JobApplicationHelper.Infrastructure.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+	<NoWarn>$(NoWarn);ASPIRE004</NoWarn>
+  </PropertyGroup>
 
 </Project>
