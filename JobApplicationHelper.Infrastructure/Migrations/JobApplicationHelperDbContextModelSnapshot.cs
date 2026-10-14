@@ -20,6 +20,7 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.BackgroundJobEntity", b =>
@@ -66,6 +67,24 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.ToTable("BackgroundJobs", (string)null);
                 });
 
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ContextEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("citext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Contexts", (string)null);
+                });
+
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.CoverLetterDraftEntity", b =>
                 {
                     b.Property<Guid>("JobApplicationId")
@@ -81,6 +100,137 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.HasKey("JobApplicationId");
 
                     b.ToTable("CoverLetterDrafts", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceContextEntity", b =>
+                {
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ContextId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ExperienceId", "ContextId");
+
+                    b.HasIndex("ContextId");
+
+                    b.ToTable("ExperienceContexts", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("EndDay")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("EndMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("EndYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LegacyId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Organization")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("StartDay")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StartMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StartYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique();
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("Experiences", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEvidenceEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExperienceId");
+
+                    b.ToTable("ExperienceEvidence", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceLinkEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExperienceId");
+
+                    b.ToTable("ExperienceLinks", (string)null);
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceSkillEntity", b =>
+                {
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ExperienceId", "SkillId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("ExperienceSkills", (string)null);
                 });
 
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", b =>
@@ -145,6 +295,38 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                     b.ToTable("JobApplications", (string)null);
                 });
 
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", b =>
+                {
+                    b.Property<Guid>("ExperienceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SerializedExperience")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ExperienceId");
+
+                    b.ToTable("PendingExperienceImports");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.SkillEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("citext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Skills", (string)null);
+                });
+
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.VerifyCoverLetterResultEntity", b =>
                 {
                     b.Property<Guid>("JobApplicationId")
@@ -180,11 +362,80 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceContextEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ContextEntity", "Context")
+                        .WithMany("Experiences")
+                        .HasForeignKey("ContextId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", "Experience")
+                        .WithMany("Contexts")
+                        .HasForeignKey("ExperienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Context");
+
+                    b.Navigation("Experience");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEvidenceEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", "Experience")
+                        .WithMany("Evidence")
+                        .HasForeignKey("ExperienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Experience");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceLinkEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", "Experience")
+                        .WithMany("Links")
+                        .HasForeignKey("ExperienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Experience");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceSkillEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", "Experience")
+                        .WithMany("Skills")
+                        .HasForeignKey("ExperienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.SkillEntity", "Skill")
+                        .WithMany("Experiences")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Experience");
+
+                    b.Navigation("Skill");
+                });
+
             modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", b =>
                 {
                     b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.JobApplicationEntity", null)
                         .WithOne()
                         .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.ExtractedJobRequirementsEntity", "JobApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", b =>
+                {
+                    b.HasOne("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", null)
+                        .WithOne()
+                        .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.PendingExperienceImportEntity", "ExperienceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -196,6 +447,27 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                         .HasForeignKey("JobApplicationHelper.Infrastructure.Persistence.Entities.VerifyCoverLetterResultEntity", "JobApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ContextEntity", b =>
+                {
+                    b.Navigation("Experiences");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.ExperienceEntity", b =>
+                {
+                    b.Navigation("Contexts");
+
+                    b.Navigation("Evidence");
+
+                    b.Navigation("Links");
+
+                    b.Navigation("Skills");
+                });
+
+            modelBuilder.Entity("JobApplicationHelper.Infrastructure.Persistence.Entities.SkillEntity", b =>
+                {
+                    b.Navigation("Experiences");
                 });
 #pragma warning restore 612, 618
         }

@@ -15,6 +15,27 @@ public class WindowService : IWindowService
         currentWindows = [];
     }
 
+    public void ShowAlertDialog(string title, string message)
+    {
+        var alertDialogViewModel = serviceProvider.GetRequiredService<AlertDialogViewModel>();
+        alertDialogViewModel.Title = title;
+        alertDialogViewModel.Message = message;
+
+        ShowDialog(alertDialogViewModel);
+    }
+
+    public bool? ShowConfirmDialog(string title, string message, string yesText = "Yes", string noText = "No")
+    {
+
+        var confirmDialogViewModel = serviceProvider.GetRequiredService<ConfirmDialogViewModel>();
+        confirmDialogViewModel.Title = title;
+        confirmDialogViewModel.Message = message;
+        confirmDialogViewModel.YesText = yesText;
+        confirmDialogViewModel.NoText = noText;
+
+        return ShowDialog(confirmDialogViewModel);
+    }
+
     public bool? ShowDialog<TViewModel>(TViewModel viewModel) where TViewModel : ViewModelBase
     {
         Window view;

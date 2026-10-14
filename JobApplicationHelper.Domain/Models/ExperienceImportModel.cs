@@ -1,0 +1,26 @@
+﻿namespace JobApplicationHelper.Domain.Models;
+
+public sealed class ExperienceImportModel
+{
+    public required string Id { get; set; }
+
+    public required string Title { get; set; }
+
+    public required ExperienceType Type { get; set; }
+
+    public string Organization { get; set; } = string.Empty;
+
+    public DateRange? DateRange { get; set; }
+
+    public string Summary { get; set; } = string.Empty;
+
+    public List<string> Skills { get; set; } = [];
+
+    public List<string> Evidence { get; set; } = [];
+
+    public List<string> Contexts { get; set; } = [];
+
+    public List<string> Links { get; set; } = [];
+
+    public string Notes { get; set; } = string.Empty;
+}

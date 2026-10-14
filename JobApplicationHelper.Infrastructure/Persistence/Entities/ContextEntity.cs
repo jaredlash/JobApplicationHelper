@@ -1,0 +1,10 @@
+﻿namespace JobApplicationHelper.Infrastructure.Persistence.Entities;
+
+public sealed class ContextEntity
+{
+    public Guid Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public ICollection<ExperienceContextEntity> Experiences { get; set; } = [];
+}

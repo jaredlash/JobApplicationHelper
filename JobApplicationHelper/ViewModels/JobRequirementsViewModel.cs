@@ -14,7 +14,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 {
     private readonly JobRequirementsApiClient jobRequirementsApiClient;
     private readonly IBackgroundJobPollingService backgroundJobPollingService;
-    private readonly ExperienceBankApiClient experienceBankApiClient;
+    private readonly ExperiencesApiClient experiencesApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
     private readonly CoverLetterDraftParameters draftParameters;
@@ -24,7 +24,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     public JobRequirementsViewModel(
         JobRequirementsApiClient jobRequirementsApiClient,
         IBackgroundJobPollingService backgroundJobPollingService,
-        ExperienceBankApiClient experienceBankApiClient,
+        ExperiencesApiClient experiencesApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
         CoverLetterDraftParameters draftParameters,
@@ -32,7 +32,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
     {
         this.jobRequirementsApiClient = jobRequirementsApiClient;
         this.backgroundJobPollingService = backgroundJobPollingService;
-        this.experienceBankApiClient = experienceBankApiClient;
+        this.experiencesApiClient = experiencesApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
         this.draftParameters = draftParameters;
@@ -202,7 +202,7 @@ public partial class JobRequirementsViewModel : ViewModelBase
 
     private async Task LoadExperienceBank(CancellationToken cancellationToken = default)
     {
-        _allExperiences = await experienceBankApiClient.GetAllAsync(cancellationToken);
+        _allExperiences = await experiencesApiClient.GetAllAsync(cancellationToken);
         OnExperienceFilterChanged(ExperienceFilter);
     }
 

@@ -1,0 +1,129 @@
+﻿<Window x:Class="JobApplicationHelper.Views.EditSkillsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:conv="clr-namespace:JobApplicationHelper.Converters"
+        xmlns:behaviors="clr-namespace:JobApplicationHelper.Behaviors"
+        xmlns:viewmodels="clr-namespace:JobApplicationHelper.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewmodels:EditSkillsViewModel}"
+        Title="Edit Skills"
+        Width="480"
+        Height="520"
+        MinWidth="380"
+        MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock FontSize="18"
+                       FontWeight="SemiBold"
+                       Text="Skills"/>
+            <TextBlock Margin="0,4,0,0"
+                       Foreground="Gray"
+                       Text="Add, edit, or remove skills. You can enter any skill, even if it isn't suggested."/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding SkillEntries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,3,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0"
+                                  Margin="0,0,8,0">
+                                <TextBox x:Name="SkillTextBox"
+                                         Padding="6,5"
+                                         VerticalContentAlignment="Center"
+                                         Text="{Binding Value,
+                                             Mode=TwoWay,
+                                             UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Type a skill or choose a suggestion"
+                                         behaviors:SuggestionKeyboardBehavior.IsEnabled="True"
+                                         behaviors:SuggestionKeyboardBehavior.HasSuggestions="{Binding HasSuggestions}"
+                                         behaviors:SuggestionKeyboardBehavior.MoveUpCommand="{Binding MoveSuggestionUpCommand}"
+                                         behaviors:SuggestionKeyboardBehavior.MoveDownCommand="{Binding MoveSuggestionDownCommand}"
+                                         behaviors:SuggestionKeyboardBehavior.AcceptCommand="{Binding AcceptSelectedSuggestionCommand}"/>
+
+                                <Popup PlacementTarget="{Binding ElementName=SkillTextBox}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       IsOpen="{Binding HasSuggestions, Mode=OneWay}">
+                                    <Border Background="White"
+                                            BorderBrush="Gray"
+                                            BorderThickness="1"
+                                            MaxHeight="160"
+                                            MinWidth="200">
+                                        <ListBox ItemsSource="{Binding Suggestions}"
+                                                 SelectedItem="{Binding SelectedSuggestion, Mode=TwoWay}"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Padding"
+                                                            Value="6,4"/>
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                        </ListBox>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+
+                            <Button Grid.Column="1"
+                                    Content="Remove"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding DataContext.RemoveSkillCommand,
+                                        RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                    CommandParameter="{Binding}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Margin="0,8,0,12">
+            <Button Content="Add skill"
+                    HorizontalAlignment="Left"
+                    Padding="10,5"
+                    Command="{Binding AddSkillCommand}"/>
+
+            <TextBlock Margin="0,8,0,0"
+                       Foreground="Firebrick"
+                       Text="Each skill must be unique."
+                       Visibility="{Binding HasDuplicateSkills,
+                           Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Cancel"
+                    MinWidth="85"
+                    Margin="0,0,8,0"
+                    Padding="12,6"
+                    Command="{Binding CancelCommand}"/>
+            <Button Content="Save"
+                    MinWidth="85"
+                    Padding="12,6"
+                    IsDefault="False"
+                    Command="{Binding SaveCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

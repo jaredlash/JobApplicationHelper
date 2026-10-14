@@ -157,7 +157,7 @@ public sealed class BackgroundJobExecutorTests
 
         var testDraftParameters = CreateCoverLetterDraftParameters();
         var generateCoverLetterRequest = new GenerateCoverLetterJobPayload(testDraftParameters);
-        var payloadJson = JsonSerializer.Serialize(generateCoverLetterRequest, BackgroundJobPayloadJson.Options);
+        var payloadJson = JsonSerializer.Serialize(generateCoverLetterRequest, ApplicationJson.Options);
 
         var job = BackgroundJob.Create(BackgroundJobType.GenerateCoverLetter, BackgroundJobPriority.Normal, jobApplicationId, payloadJson);
 

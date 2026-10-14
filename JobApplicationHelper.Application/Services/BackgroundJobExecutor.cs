@@ -68,7 +68,7 @@ public sealed class BackgroundJobExecutor(
 
         GenerateCoverLetterJobPayload? payload = null;
         try {
-            payload = JsonSerializer.Deserialize<GenerateCoverLetterJobPayload>(job.Payload, BackgroundJobPayloadJson.Options);
+            payload = JsonSerializer.Deserialize<GenerateCoverLetterJobPayload>(job.Payload, ApplicationJson.Options);
         }
         catch (JsonException)
         {
@@ -95,7 +95,7 @@ public sealed class BackgroundJobExecutor(
         VerifyCoverLetterJobPayload? payload = null;
         try
         {
-            payload = JsonSerializer.Deserialize<VerifyCoverLetterJobPayload>(job.Payload, BackgroundJobPayloadJson.Options);
+            payload = JsonSerializer.Deserialize<VerifyCoverLetterJobPayload>(job.Payload, ApplicationJson.Options);
         }
         catch (JsonException)
         {

@@ -1,0 +1,76 @@
+﻿<Window x:Class="JobApplicationHelper.Views.ExperiencesImportResultView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JobApplicationHelper.Views"
+        xmlns:viewModels="clr-namespace:JobApplicationHelper.ViewModels"
+        xmlns:conv="clr-namespace:JobApplicationHelper.Converters"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModels:ExperiencesImportResultViewModel}"
+        Title="Import Result" Height="300" Width="300">
+    <Window.Resources>
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" FontSize="16" FontWeight="SemiBold">Experiences Import Result</Label>
+        <Label Grid.Row="1" Grid.Column="0" Margin="10 5 10 5" HorizontalAlignment="Right" Content="{Binding Result.AddedCount}" />
+        <Label Grid.Row="1" Grid.Column="1" Margin="0 5 10 5" Content="experiences added" />
+        <Label Grid.Row="2" Grid.Column="0" Margin="10 5 10 5" HorizontalAlignment="Right" Content="{Binding Result.SkippedCount}" />
+        <Label Grid.Row="2" Grid.Column="1" Margin="0 5 10 5" Content="experiences skipped" />
+        <Label Grid.Row="3" Grid.Column="0" Margin="10 5 10 5" HorizontalAlignment="Right" Content="{Binding Result.PendingCount}" />
+        <Label Grid.Row="3" Grid.Column="1" Margin="0 5 10 5" Content="experiences pending" />
+        <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="10 0"/>
+        <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10 5" VerticalAlignment="Top" Content="=" />
+        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="0 5 10 5" VerticalAlignment="Top" HorizontalAlignment="Right" Content="{Binding TotalCountDescription}" />
+        
+        <Button Grid.Row="6"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                Padding="5"
+                Width="80"
+                HorizontalAlignment="Center"
+                Content="Close"
+                Visibility="{Binding ShowResolveOption, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                Command="{Binding CloseCommand}"/>
+        
+        <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding ShowResolveOption, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                Margin="10"
+                Padding="5"
+                Width="80"
+                HorizontalAlignment="Center"
+                Content="Close"
+                Visibility="Visible"
+                Command="{Binding CloseCommand}"/>
+            <Button Grid.Column="2"
+                Margin="10"
+                Padding="5"
+                HorizontalAlignment="Center"
+                Content="Resolve Pending"
+                Visibility="Visible"
+                Command="{Binding ResolvePendingImportsCommand}"/>
+        </Grid>
+    </Grid>
+</Window>

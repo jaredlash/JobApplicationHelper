@@ -18,11 +18,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<ExperienceBankOptions>()
-            .Bind(configuration.GetSection("ExperienceBank"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
         services.AddOptions<ApplicationDocumentOptions>()
             .Bind(configuration.GetSection("ApplicationDocuments"))
             .ValidateDataAnnotations()
@@ -38,7 +33,7 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton<IExperienceBankImportService, YamlExperienceBankImportService>();
+        services.AddSingleton<IExperienceImporter, YamlExperienceImporter>();
         services.AddSingleton<IChatClient>(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
@@ -60,15 +55,6 @@ public static class DependencyInjection
 
             return chatClient.AsIChatClient();
         });
-        //services.AddDbContext<ExperienceBankDbContext>((serviceProvider, options) =>
-        //{
-        //    var configuration =
-        //        serviceProvider.GetRequiredService<IConfiguration>();
-
-        //    var experienceBankOptions = serviceProvider.GetRequiredService<IOptions<ExperienceBankOptions>>().Value;
-
-        //    options.UseSqlite($"Data Source={experienceBankOptions.DatabaseFileName}");
-        //});
 
         services.AddDbContext<JobApplicationHelperDbContext>((serviceProvider, options) =>
         {
@@ -91,6 +77,8 @@ public static class DependencyInjection
         services.AddScoped<IExtractedJobRequirementsRepository, ExtractedJobRequirementsRepository>();
         services.AddScoped<ICoverLetterDraftRepository, CoverLetterDraftRepository>();
         services.AddScoped<IVerifyCoverLetterResultRepository, VerifyCoverLetterResultRepository>();
+        services.AddScoped<IExperienceRepository, ExperienceRepository>();
+        services.AddScoped<IPendingExperienceImportRepository, PendingExperienceImportRepository>();
 
         services.AddScoped<ICandidateContentProvider, CandidateContentProvider>();
         services.AddScoped<IApplicationMaterialsService, ApplicationMaterialsService>();
@@ -101,8 +89,7 @@ public static class DependencyInjection
         // Deliberately registered as a Singleton since it is an in-memory queue to share among all users
         services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
 
-        //ervices.AddScoped<IExperienceBankService, EfExperienceBankService>();
-        services.AddScoped<IExperienceBankService, TempYamlExperienceBankService>();
+        services.AddScoped<IExperienceService, ExperienceService>();
 
         return services;
     }

@@ -2,6 +2,28 @@
 
 public sealed class PartialDate
 {
+    public PartialDate()
+    {
+    }
+
+    public PartialDate(int year)
+    {
+        Year = year;
+    }
+
+    public PartialDate(int year, int month)
+    {
+        Year = year;
+        Month = month;
+    }
+
+    public PartialDate(int year, int month, int day)
+    {
+        Year = year;
+        Month = month;
+        Day = day;
+    }
+
     public int Year { get; set; }
 
     public int? Month { get; set; }

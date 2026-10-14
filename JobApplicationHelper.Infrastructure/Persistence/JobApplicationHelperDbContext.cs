@@ -12,8 +12,21 @@ public sealed class JobApplicationHelperDbContext(DbContextOptions<JobApplicatio
     public DbSet<CoverLetterDraftEntity> CoverLetterDrafts => Set<CoverLetterDraftEntity>();
     public DbSet<VerifyCoverLetterResultEntity> VerifyCoverLetterResults => Set<VerifyCoverLetterResultEntity>();
 
+    public DbSet<ExperienceEntity> Experiences => Set<ExperienceEntity>();
+    public DbSet<ExperienceEvidenceEntity> ExperienceEvidence => Set<ExperienceEvidenceEntity>();
+    public DbSet<ExperienceLinkEntity> ExperienceLinks => Set<ExperienceLinkEntity>();
+    public DbSet<ExperienceSkillEntity> ExperienceSkills => Set<ExperienceSkillEntity>();
+    public DbSet<ExperienceContextEntity> ExperienceContexts => Set<ExperienceContextEntity>();
+    public DbSet<SkillEntity> Skills => Set<SkillEntity>();
+    public DbSet<ContextEntity> Contexts => Set<ContextEntity>();
+    public DbSet<PendingExperienceImportEntity> PendingExperienceImports => Set<PendingExperienceImportEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasPostgresExtension("citext");
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobApplicationHelperDbContext).Assembly);
     }
 }

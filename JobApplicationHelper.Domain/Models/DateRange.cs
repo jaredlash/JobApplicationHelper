@@ -2,6 +2,16 @@
 
 public sealed class DateRange
 {
+    public DateRange()
+    {
+    }
+
+    public DateRange(PartialDate? start = null, PartialDate? end = null)
+    {
+        Start = start;
+        End = end;
+    }
+
     public PartialDate? Start { get; set; }
 
     public PartialDate? End { get; set; }

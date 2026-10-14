@@ -2,7 +2,7 @@
 
 public sealed class Experience
 {
-    public required string Id { get; set; }
+    public required ExperienceId Id { get; set; }
 
     public required string Title { get; set; }
 
@@ -10,7 +10,7 @@ public sealed class Experience
 
     public string Organization { get; set; } = string.Empty;
 
-    public DateRange? DateRange { get; set; }
+    public DateRange DateRange { get; set; } = new DateRange { Start = null, End = null };
 
     public string Summary { get; set; } = string.Empty;
 
@@ -26,8 +26,7 @@ public sealed class Experience
 
     public bool MatchFilter(string filter)
     {
-        return Id.Contains(filter, StringComparison.OrdinalIgnoreCase)
-            || Title.Contains(filter, StringComparison.OrdinalIgnoreCase)
+        return Title.Contains(filter, StringComparison.OrdinalIgnoreCase)
             || Organization.Contains(filter, StringComparison.OrdinalIgnoreCase)
             || Summary.Contains(filter, StringComparison.OrdinalIgnoreCase)
             || Skills.Any(s => s.Contains(filter, StringComparison.OrdinalIgnoreCase))
