@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.Services.Experiences;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.DependencyInjection;

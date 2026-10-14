@@ -4,7 +4,6 @@ using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
 
 namespace JobApplicationHelper.ViewModels;
 

@@ -1,5 +1,4 @@
 ﻿using JobApplicationHelper.Contracts.CoverLetters;
-using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Contracts.JobRequirements;
 using JobApplicationHelper.Domain.Models;
 
