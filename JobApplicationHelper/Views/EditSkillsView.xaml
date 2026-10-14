@@ -15,7 +15,7 @@
         MinHeight="320"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
-        <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
 
     <Grid Margin="16">
