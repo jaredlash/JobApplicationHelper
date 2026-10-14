@@ -6,13 +6,13 @@ namespace JobApplicationHelper.WindowService;
 
 public class WindowService : IWindowService
 {
-    private readonly Dictionary<Type, Window> currentWindows;
     private readonly IServiceProvider serviceProvider;
+    private readonly IOpenWindowRegistry openWindowRegistry;
 
-    public WindowService(IServiceProvider serviceProvider)
+    public WindowService(IServiceProvider serviceProvider, IOpenWindowRegistry openWindowRegistry)
     {
         this.serviceProvider = serviceProvider;
-        currentWindows = [];
+        this.openWindowRegistry = openWindowRegistry;
     }
 
     public void ShowAlertDialog(string title, string message)
@@ -36,56 +36,133 @@ public class WindowService : IWindowService
         return ShowDialog(confirmDialogViewModel);
     }
 
-    public bool? ShowDialog<TViewModel>(TViewModel viewModel) where TViewModel : ViewModelBase
+    public bool? ShowDialog<TViewModel>(TViewModel viewModel)
+        where TViewModel : ViewModelBase
     {
-        Window view;
-        Type vmType = typeof(TViewModel);
+        ArgumentNullException.ThrowIfNull(viewModel);
 
-        view = serviceProvider.GetKeyedService<Window>(vmType) ?? throw new InvalidOperationException($"No window registered for view model type {vmType.FullName}");
+        Type viewModelType = viewModel.GetType();
+        Window view = CreateWindow(viewModelType, viewModel);
 
-        view.DataContext = viewModel;
-
-        currentWindows.Add(vmType, view);
-
-        viewModel.CloseAction = (r) => {
-            view.DialogResult = r;
-        };
-
-
-        view.Closed += (o, args) =>
+        viewModel.CloseAction = result =>
         {
-            viewModel.OnClose();
-            currentWindows.Remove(vmType);
-            viewModel.CloseAction = null;
+            view.DialogResult = result;
         };
 
+        view.Closed += (_, _) =>
+        {
+            try
+            {
+                viewModel.OnClose();
+            }
+            finally
+            {
+                viewModel.CloseAction = null;
+            }
+        };
 
         return view.ShowDialog();
     }
 
     public void ShowWindow<TViewModel>(TViewModel viewModel) where TViewModel : ViewModelBase
     {
-        Type vmType = typeof(TViewModel);
+        ArgumentNullException.ThrowIfNull(viewModel);
 
-        if (currentWindows.TryGetValue(vmType, out Window? view) == false)
+        Type viewModelType = viewModel.GetType();
+
+        if (viewModel is ISingleWindowViewModel)
         {
-            view = serviceProvider.GetKeyedService<Window>(vmType) ?? throw new InvalidOperationException($"No window registered for view model type {vmType.FullName}");
-
-            view.DataContext = viewModel;
-
-            currentWindows.Add(vmType, view);
-
-            viewModel.CloseAction = (r) => { view.Close(); };
-
-            view.Closed += (o, args) =>
+            if (openWindowRegistry.TryGetSingle(viewModelType, out _, out Window? existingWindow))
             {
-                viewModel.OnClose();
-                currentWindows.Remove(vmType);
-                viewModel.CloseAction = null;
+                Activate(existingWindow!);
+                return;
+            }
+
+            Window view = CreateWindow(viewModelType, viewModel);
+
+            openWindowRegistry.RegisterSingle(viewModelType, viewModel, view);
+
+            viewModel.CloseAction = _ => view.Close();
+
+            view.Closed += (_, _) =>
+            {
+                try
+                {
+                    openWindowRegistry.RemoveSingle(viewModelType, viewModel, view);
+                }
+                finally
+                {
+                    try
+                    {
+                        viewModel.OnClose();
+                    }
+                    finally
+                    {
+                        viewModel.CloseAction = null;
+                    }
+                }
             };
+
+            Activate(view);
+            return;
         }
 
-        view.Show();
+        if (openWindowRegistry.TryGetWindow(viewModel, out Window? existingInstanceWindow))
+        {
+            Activate(existingInstanceWindow!);
+            return;
+        }
+
+        Window instanceView = CreateWindow(viewModelType, viewModel);
+
+        openWindowRegistry.RegisterInstance(viewModel, instanceView);
+
+        viewModel.CloseAction = _ => instanceView.Close();
+
+        instanceView.Closed += (_, _) =>
+        {
+            try
+            {
+                openWindowRegistry.RemoveInstance(viewModel, instanceView);
+            }
+            finally
+            {
+                try
+                {
+                    viewModel.OnClose();
+                }
+                finally
+                {
+                    viewModel.CloseAction = null;
+                }
+            }
+        };
+
+        Activate(instanceView);
+    }
+
+    private Window CreateWindow(Type viewModelType, ViewModelBase viewModel)
+    {
+        Window view = serviceProvider.GetKeyedService<Window>(viewModelType)
+            ?? throw new InvalidOperationException($"No window registered for view model type {viewModelType.FullName}");
+
+        view.DataContext = viewModel;
+
+        return view;
+    }
+
+    private static void Activate(Window view)
+    {
+        if (!view.IsVisible)
+        {
+            view.Show();
+        }
+
+        if (view.WindowState == WindowState.Minimized)
+        {
+            view.WindowState = WindowState.Normal;
+        }
+
         view.Activate();
     }
 }

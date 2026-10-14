@@ -11,18 +11,18 @@ public partial class ImportExperiencesViewModel : ViewModelBase
 {
     private readonly ExperiencesImportService experiencesImportService;
     private readonly IFileChooserDialog fileChooserDialog;
-    private readonly IServiceProvider serviceProvider;
+    private readonly IViewModelFactory viewModelFactory;
     private readonly IWindowService windowService;
 
     public ImportExperiencesViewModel(
         ExperiencesImportService experiencesImportService,
         IFileChooserDialog fileChooserDialog,
-        IServiceProvider serviceProvider,
+        IViewModelFactory viewModelFactory,
         IWindowService windowService)
     {
         this.experiencesImportService = experiencesImportService;
         this.fileChooserDialog = fileChooserDialog;
-        this.serviceProvider = serviceProvider;
+        this.viewModelFactory = viewModelFactory;
         this.windowService = windowService;
         SelectedFile = string.Empty;
     }
@@ -56,10 +56,9 @@ public partial class ImportExperiencesViewModel : ViewModelBase
     private async Task ImportExperiences(CancellationToken cancellationToken = default)
     {
         var result = await experiencesImportService.ImportYamlFileAsync(SelectedFile, cancellationToken);
-        var resultViewModel = serviceProvider.GetService<ExperiencesImportResultViewModel>()
-            ?? throw new InvalidOperationException("ExperiencesImportResultViewModel not registered in DI container.");
-        
-        resultViewModel.Result = result;
+        var resultViewModel = viewModelFactory.Create<ExperiencesImportResultViewModel>();
+
+        resultViewModel.Initialize(result);
 
         windowService.ShowDialog(resultViewModel);
     }

@@ -12,10 +12,11 @@ namespace JobApplicationHelper.ViewModels
     public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly JobApplicationsApiClient jobApplicationsApiClient;
+        private readonly LocationsApiClient locationsApiClient;
         private readonly IApiHealthService apiHealthService;
         private readonly IFolderLauncher folderLauncher;
         private readonly IWindowService windowService;
-        private readonly IServiceProvider serviceProvider;
+        private readonly IViewModelFactory viewModelFactory;
 
         public MainWindowViewModel(
             JobApplicationsApiClient jobApplicationsApiClient,
@@ -23,13 +24,14 @@ namespace JobApplicationHelper.ViewModels
             IApiHealthService apiHealthService,
             IFolderLauncher folderLauncher,
             IWindowService windowService,
-            IServiceProvider serviceProvider)
+            IViewModelFactory viewModelFactory)
         {
             this.jobApplicationsApiClient = jobApplicationsApiClient;
+            this.locationsApiClient = locationsApiClient;
             this.apiHealthService = apiHealthService;
             this.folderLauncher = folderLauncher;
             this.windowService = windowService;
-            this.serviceProvider = serviceProvider;
+            this.viewModelFactory = viewModelFactory;
             Locations = [];
         }
 
@@ -82,7 +84,7 @@ namespace JobApplicationHelper.ViewModels
         {
             await apiHealthService.WaitUntilReadyAsync(cancellationToken);
 
-            var locations = await serviceProvider.GetRequiredService<LocationsApiClient>().GetAllAsync(cancellationToken);
+            var locations = await locationsApiClient.GetAllAsync(cancellationToken);
             Locations = new BindingList<Location>([.. locations]);
 
             ResetForm();
@@ -146,12 +148,9 @@ namespace JobApplicationHelper.ViewModels
 
         private void OpenCoverletterDraftWindow(JobApplicationId applicationId, string jobPosting)
         {
-            var draftWindowViewModel = serviceProvider.GetService<DraftWindowViewModel>() ?? throw new InvalidOperationException("DraftWindowViewModel not registered in DI container.");
+            var draftWindowViewModel = viewModelFactory.Create<DraftWindowViewModel>();
 
-            draftWindowViewModel.CoverLetter.ApplicationId = applicationId;
-            draftWindowViewModel.CoverLetter.CountryCode = SelectedLocation.CountryCode; // TODO: Remove this when persisting the applications in a database
-            draftWindowViewModel.JobRequirements.JobPosting = jobPosting;
-            draftWindowViewModel.JobRequirements.ApplicationId = applicationId;
+            draftWindowViewModel.Initialize(applicationId, SelectedLocation.CountryCode, jobPosting);
 
             windowService.ShowWindow(draftWindowViewModel);
         }
@@ -171,7 +170,7 @@ namespace JobApplicationHelper.ViewModels
         [RelayCommand]
         private async Task OpenExperiencesWindow(CancellationToken cancellationToken = default)
         {
-            var experiencesViewModel = serviceProvider.GetRequiredService<ExperiencesViewModel>();
+            var experiencesViewModel = viewModelFactory.Create<ExperiencesViewModel>();
             await experiencesViewModel.InitializeAsync(cancellationToken);
 
             windowService.ShowWindow(experiencesViewModel);

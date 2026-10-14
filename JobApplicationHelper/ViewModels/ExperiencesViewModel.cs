@@ -3,14 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace JobApplicationHelper.ViewModels;
 
-public partial class ExperiencesViewModel : ViewModelBase
+public partial class ExperiencesViewModel : ViewModelBase, ISingleWindowViewModel
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IViewModelFactory viewModelFactory;
     private readonly ExperiencesApiClient experiencesApiClient;
     private readonly IWindowService _windowService;
 
@@ -20,11 +19,11 @@ public partial class ExperiencesViewModel : ViewModelBase
             : null;
 
     public ExperiencesViewModel(
-        IServiceProvider serviceProvider,
+        IViewModelFactory viewModelFactory,
         ExperiencesApiClient experiencesApiClient,
         IWindowService windowService)
     {
-        _serviceProvider = serviceProvider;
+        this.viewModelFactory = viewModelFactory;
         this.experiencesApiClient = experiencesApiClient;
         _windowService = windowService;
     }
@@ -86,7 +85,7 @@ public partial class ExperiencesViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddExperienceAsync()
     {
-        var viewModel = _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+        var viewModel = viewModelFactory.Create<ExperienceEditViewModel>();
 
         viewModel.InitializeForAdd();
 
@@ -110,7 +109,7 @@ public partial class ExperiencesViewModel : ViewModelBase
 
         var experienceId = experience.Id;
 
-        var viewModel = _serviceProvider.GetRequiredService<ExperienceEditViewModel>();
+        var viewModel = viewModelFactory.Create<ExperienceEditViewModel>();
 
         viewModel.InitializeForEdit(experience);
 
@@ -143,7 +142,7 @@ public partial class ExperiencesViewModel : ViewModelBase
             var response = _windowService.ShowConfirmDialog("Pending imports", "There are pending experience imports.  Do you want to resolve these first?");
             if (response == true)
             {
-                var resolvePendingViewModel = _serviceProvider.GetRequiredService<ComparePendingExperienceViewModel>();
+                var resolvePendingViewModel = viewModelFactory.Create<ComparePendingExperienceViewModel>();
                 var firstPendingImport = await experiencesApiClient.GetNextPendingExperienceImportAsync(cancellationToken);
 
                 if (firstPendingImport == null)
@@ -159,7 +158,7 @@ public partial class ExperiencesViewModel : ViewModelBase
         }
 
 
-        var viewModel = _serviceProvider.GetRequiredService<ImportExperiencesViewModel>();
+        var viewModel = viewModelFactory.Create<ImportExperiencesViewModel>();
         var result = _windowService.ShowDialog(viewModel);
         
         await ReloadAsync(SelectedExperience?.Id, cancellationToken);

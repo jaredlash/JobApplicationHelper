@@ -17,6 +17,7 @@ public partial class CoverLetterViewModel : ViewModelBase
     private readonly JobApplicationsApiClient jobApplicationsApiClient;
     private readonly IDraftNavigation navigation;
     private readonly IWindowService windowService;
+    private readonly IViewModelFactory viewModelFactory;
     private readonly CoverLetterDraftParameters draftParameters;
     private readonly ILogger<CoverLetterViewModel> logger;
 
@@ -27,6 +28,7 @@ public partial class CoverLetterViewModel : ViewModelBase
         JobApplicationsApiClient jobApplicationsApiClient,
         IDraftNavigation navigation,
         IWindowService windowService,
+        IViewModelFactory viewModelFactory,
         CoverLetterDraftParameters draftParameters,
         ILogger<CoverLetterViewModel> logger)
     {
@@ -35,6 +37,7 @@ public partial class CoverLetterViewModel : ViewModelBase
         this.jobApplicationsApiClient = jobApplicationsApiClient;
         this.navigation = navigation;
         this.windowService = windowService;
+        this.viewModelFactory = viewModelFactory;
         this.draftParameters = draftParameters;
         this.logger = logger;
     }
@@ -210,7 +213,9 @@ public partial class CoverLetterViewModel : ViewModelBase
 
     private void DisplayVerificationResult(VerificationResult verificationResult)
     {
-        var verificationResultDialogViewModel = new VerificationResultDialogViewModel(verificationResult);
+        var verificationResultDialogViewModel = viewModelFactory.Create<VerificationResultDialogViewModel>();
+        verificationResultDialogViewModel.Initialize(verificationResult);
+
         windowService.ShowDialog(verificationResultDialogViewModel);
     }
 

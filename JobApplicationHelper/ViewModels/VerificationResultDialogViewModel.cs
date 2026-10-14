@@ -6,13 +6,13 @@ namespace JobApplicationHelper.ViewModels;
 
 public partial class VerificationResultDialogViewModel : ViewModelBase
 {
-    public VerificationResultDialogViewModel(VerificationResult verificationResult)
+    public void Initialize(VerificationResult verificationResult)
     {
-        this.verificationResult = verificationResult;
+        VerificationResult = verificationResult;
     }
 
     [ObservableProperty]
-    private VerificationResult verificationResult;
+    private VerificationResult verificationResult = new();
 
     [RelayCommand]
     private void Okay()

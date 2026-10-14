@@ -171,6 +171,8 @@ public partial class App : WpfApplication
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
         builder.Services.AddTransient<DraftWindow>();
+        builder.Services.AddSingleton<IOpenWindowRegistry, OpenWindowRegistry>();
+        builder.Services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
 
 

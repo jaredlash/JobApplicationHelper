@@ -26,15 +26,11 @@ public partial class EditSkillsViewModel : ViewModelBase
             .Where(skill => !string.IsNullOrWhiteSpace(skill))
             .ToArray();
 
-    public bool HasDuplicateSkills =>
-        Skills.Distinct(StringComparer.OrdinalIgnoreCase).Count() != Skills.Count;
+    public bool HasDuplicateSkills => Skills.Distinct(StringComparer.OrdinalIgnoreCase).Count() != Skills.Count;
 
-    public bool CanSave =>
-        !HasDuplicateSkills;
+    public bool CanSave => !HasDuplicateSkills;
 
-    public async Task InitializeAsync(
-        IEnumerable<string> skills,
-        CancellationToken cancellationToken = default)
+    public async Task InitializeAsync(IEnumerable<string> skills, CancellationToken cancellationToken = default)
     {
         SkillEntries.Clear();
 
@@ -111,9 +107,7 @@ public partial class EditSkillsViewModel : ViewModelBase
         OnSkillsChanged();
     }
 
-    private void OnSkillEntryPropertyChanged(
-        object? sender,
-        PropertyChangedEventArgs e)
+    private void OnSkillEntryPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(EditableSuggestionViewModel.Value))
         {
@@ -130,8 +124,7 @@ public partial class EditSkillsViewModel : ViewModelBase
         SaveCommand.NotifyCanExecuteChanged();
     }
 
-    partial void OnCompletionSuggestionsChanged(
-        IReadOnlyList<string> value)
+    partial void OnCompletionSuggestionsChanged(IReadOnlyList<string> value)
     {
         foreach (var entry in SkillEntries)
         {
