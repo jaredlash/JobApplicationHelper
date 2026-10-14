@@ -10,14 +10,19 @@ namespace JobApplicationHelper.ViewModels;
 public partial class ExperiencesImportResultViewModel : ViewModelBase
 {
     private readonly ExperiencesApiClient experiencesApiClient;
-    private readonly IServiceProvider serviceProvider;
+    private readonly IViewModelFactory viewModelFactory;
     private readonly IWindowService windowService;
 
-    public ExperiencesImportResultViewModel(ExperiencesApiClient experiencesApiClient, IServiceProvider serviceProvider, IWindowService windowService)
+    public ExperiencesImportResultViewModel(ExperiencesApiClient experiencesApiClient, IViewModelFactory viewModelFactory, IWindowService windowService)
     {
         this.experiencesApiClient = experiencesApiClient;
-        this.serviceProvider = serviceProvider;
+        this.viewModelFactory = viewModelFactory;
         this.windowService = windowService;
+    }
+
+    public void Initialize(ImportExperiencesResponse result)
+    {
+        Result = result;
     }
 
     [ObservableProperty]
@@ -32,7 +37,6 @@ public partial class ExperiencesImportResultViewModel : ViewModelBase
     [RelayCommand]
     private async Task ResolvePendingImports(CancellationToken cancellationToken = default)
     {
-        var resolvePendingViewModel = serviceProvider.GetRequiredService<ComparePendingExperienceViewModel>();
         var firstPendingImport = await experiencesApiClient.GetNextPendingExperienceImportAsync(cancellationToken);
 
         if (firstPendingImport == null)
@@ -41,7 +45,8 @@ public partial class ExperiencesImportResultViewModel : ViewModelBase
         }
         else
         {
-            resolvePendingViewModel.PendingExperienceImport = firstPendingImport;
+            var resolvePendingViewModel = viewModelFactory.Create<ComparePendingExperienceViewModel>();
+            resolvePendingViewModel.Initialize(firstPendingImport);
             windowService.ShowDialog(resolvePendingViewModel);
         }
 

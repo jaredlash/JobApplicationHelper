@@ -1,11 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JobApplicationHelper.Contracts.Experiences;
 using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.WindowService;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System.ComponentModel.Design.Serialization;
 
 namespace JobApplicationHelper.ViewModels;
 
@@ -18,6 +15,11 @@ public partial class ComparePendingExperienceViewModel : ViewModelBase
     {
         this.experiencesApiClient = experiencesApiClient;
         this.windowService = windowService;
+    }
+
+    public void Initialize(PendingExperienceImport pendingExperienceImport)
+    {
+        PendingExperienceImport = pendingExperienceImport;
     }
 
     [ObservableProperty]

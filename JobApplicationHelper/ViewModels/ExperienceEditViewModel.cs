@@ -12,11 +12,13 @@ public partial class ExperienceEditViewModel : ViewModelBase
 {
     private readonly ExperiencesApiClient experiencesApiClient;
     private readonly IWindowService windowService;
+    private readonly IViewModelFactory viewModelFactory;
 
-    public ExperienceEditViewModel(ExperiencesApiClient experiencesApiClient, IWindowService windowService)
+    public ExperienceEditViewModel(ExperiencesApiClient experiencesApiClient, IWindowService windowService, IViewModelFactory viewModelFactory)
     {
         this.experiencesApiClient = experiencesApiClient;
         this.windowService = windowService;
+        this.viewModelFactory = viewModelFactory;
     }
 
     private Experience? originalExperience;
@@ -125,7 +127,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [RelayCommand]
     private async Task EditSkills(CancellationToken cancellationToken = default)
     {
-        var editSkillsViewModel = new EditSkillsViewModel(experiencesApiClient);
+        var editSkillsViewModel = viewModelFactory.Create<EditSkillsViewModel>();
 
         await editSkillsViewModel.InitializeAsync(Skills, cancellationToken);
 
@@ -138,7 +140,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     [RelayCommand]
     private async Task EditContexts(CancellationToken cancellationToken = default)
     {
-        var editContextsViewModel = new EditContextsViewModel(experiencesApiClient);
+        var editContextsViewModel = viewModelFactory.Create<EditContextsViewModel>();
 
         await editContextsViewModel.InitializeAsync(Contexts, cancellationToken);
 
