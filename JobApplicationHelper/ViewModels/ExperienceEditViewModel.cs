@@ -186,14 +186,13 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         try
         {
-            //await experiencesApiClient.AddOrReplaceAsync(experience, cancellationToken);
+            await experiencesApiClient.AddOrReplaceAsync(experience, cancellationToken);
 
             TryClose(true);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Expose an appropriate error message for the UI.
-            //ErrorMessage = ex.Message;
+            windowService.ShowAlertDialog("Problem saving experience", $"An error occurred when trying to save the experience: {ex.Message}");
         }
     }
 
@@ -223,16 +222,16 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         var experience = new Experience()
         {
-            Id = new ExperienceId(Guid.NewGuid()),
+            Id = originalExperience?.Id ?? new ExperienceId(Guid.NewGuid()),
             Title = Title,
             Type = Type,
             Organization = Organization,
             DateRange = dateRange,
             Summary = Summary,
             Skills = [.. Skills],
-            Evidence = Evidence.Select(e => e.Value.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)).ToList(),
+            Evidence = [.. Evidence.Select(e => e.Value.Trim()).Where(e => !string.IsNullOrWhiteSpace(e))],
             Contexts = [.. Contexts],
-            Links = Links.Select(link => link.Value.Trim()).Where(link => !string.IsNullOrWhiteSpace(link)).ToList(),
+            Links = [.. Links.Select(link => link.Value.Trim()).Where(link => !string.IsNullOrWhiteSpace(link))],
             Notes = Notes
         };
 
