@@ -1,4 +1,5 @@
-﻿using JobApplicationHelper.Domain.Models;
+﻿using JobApplicationHelper.DependencyInjection;
+using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Services.Api;
 using JobApplicationHelper.Services.BackgroundJobs;
 using JobApplicationHelper.Services.Experiences;
@@ -53,8 +54,6 @@ public partial class App : WpfApplication
             var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
 
             client.BaseAddress = new Uri(options.BaseUrl);
-
-            client.Timeout = TimeSpan.FromMinutes(10);
         });
 
         builder.Services.AddHttpClient<CoverLettersApiClient>((serviceProvider, client) =>
@@ -62,8 +61,6 @@ public partial class App : WpfApplication
             var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
 
             client.BaseAddress = new Uri(options.BaseUrl);
-
-            client.Timeout = TimeSpan.FromMinutes(10);
         });
 
         builder.Services.AddHttpClient<ExperiencesApiClient>((serviceProvider, client) =>
@@ -123,15 +120,7 @@ public partial class App : WpfApplication
 
         builder.Services.AddSingleton<MainWindow>();
         builder.Services.AddTransient<MainWindowViewModel>();
-        builder.Services.AddTransient<ExperiencesViewModel>();
-        builder.Services.AddTransient<ImportExperiencesViewModel>();
-        builder.Services.AddTransient<ExperiencesImportResultViewModel>();
-        builder.Services.AddTransient<ComparePendingExperienceViewModel>();
-        builder.Services.AddTransient<ConfirmDialogViewModel>();
-        builder.Services.AddTransient<AlertDialogViewModel>();
-        builder.Services.AddTransient<ExperienceEditViewModel>();
-        builder.Services.AddTransient<EditSkillsViewModel>();
-        builder.Services.AddTransient<EditContextsViewModel>();
+
         builder.Services.AddTransient<JobRequirementsViewModel>();
         builder.Services.AddTransient<CoverLetterViewModel>();
         builder.Services.AddTransient<DraftWindowViewModel>(sp =>
@@ -156,30 +145,26 @@ public partial class App : WpfApplication
 
             return viewModel;
         });
-
         builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
-        builder.Services.AddKeyedTransient<Window, VerificationResultDialog>(typeof(VerificationResultDialogViewModel));
-        builder.Services.AddKeyedTransient<Window, ExperiencesView>(typeof(ExperiencesViewModel));
-        builder.Services.AddKeyedTransient<Window, ImportExperiencesView>(typeof(ImportExperiencesViewModel));
-        builder.Services.AddKeyedTransient<Window, ExperiencesImportResultView>(typeof(ExperiencesImportResultViewModel));
-        builder.Services.AddKeyedTransient<Window, ComparePendingExperienceView>(typeof(ComparePendingExperienceViewModel));
-        builder.Services.AddKeyedTransient<Window, ConfirmDialogView>(typeof(ConfirmDialogViewModel));
-        builder.Services.AddKeyedTransient<Window, AlertDialogView>(typeof(AlertDialogViewModel));
-        builder.Services.AddKeyedTransient<Window, ExperienceEditView>(typeof(ExperienceEditViewModel));
-        builder.Services.AddKeyedTransient<Window, EditSkillsView>(typeof(EditSkillsViewModel));
-        builder.Services.AddKeyedTransient<Window, EditContextsView>(typeof(EditContextsViewModel));
+
+        builder.Services.AddViewWithViewModel<VerificationResultDialogViewModel, VerificationResultDialog>();
+        builder.Services.AddViewWithViewModel<ExperiencesViewModel, ExperiencesView>();
+        builder.Services.AddViewWithViewModel<ImportExperiencesViewModel, ImportExperiencesView>();
+        builder.Services.AddViewWithViewModel<ExperiencesImportResultViewModel, ExperiencesImportResultView>();
+        builder.Services.AddViewWithViewModel<ComparePendingExperienceViewModel, ComparePendingExperienceView>();
+        builder.Services.AddViewWithViewModel<ConfirmDialogViewModel, ConfirmDialogView>();
+        builder.Services.AddViewWithViewModel<AlertDialogViewModel, AlertDialogView>();
+        builder.Services.AddViewWithViewModel<ExperienceEditViewModel, ExperienceEditView>();
+        builder.Services.AddViewWithViewModel<EditSkillsViewModel, EditSkillsView>();
+        builder.Services.AddViewWithViewModel<EditContextsViewModel, EditContextsView>();
+
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
         builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IOpenWindowRegistry, OpenWindowRegistry>();
         builder.Services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        builder.Services.AddSingleton<IWindowService, JobApplicationHelper.WindowService.WindowService>();
+        builder.Services.AddSingleton<IWindowService, WindowService.WindowService>();
 
-
-
-        // Temporary refactoring, these will be moved to the API DI
-        //builder.Services.AddApplication(builder.Configuration);
-        //builder.Services.AddInfrastructure(builder.Configuration);
 
         AppHost = builder.Build();
 
