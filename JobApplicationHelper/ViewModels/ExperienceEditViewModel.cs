@@ -33,7 +33,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     public ExperienceType[] AvailableTypes => Enum.GetValues<ExperienceType>().OrderBy(x => x.ToString()).ToArray();
 
     [ObservableProperty]
-    private string? organization = string.Empty;
+    private string organization = string.Empty;
 
     [ObservableProperty]
     private string startDateText = string.Empty;
@@ -45,6 +45,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     private string summary = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SkillsText))]
     private List<string> skills = [];
 
     public string SkillsText => string.Join(", ", Skills);
@@ -53,6 +54,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     private ObservableCollection<EditableEvidence> evidence = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ContextsText))]
     private List<string> contexts = [];
 
     public string ContextsText => string.Join(", ", Contexts);
@@ -61,7 +63,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
     private ObservableCollection<EditableLink> links = [];
 
     [ObservableProperty]
-    private string? notes;
+    private string notes = string.Empty;
 
     public void InitializeForAdd()
     {
@@ -69,7 +71,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         Title = string.Empty;
         Type = default;
-        Organization = null;
+        Organization = string.Empty;
         StartDateText = string.Empty;
         EndDateText = string.Empty;
         Summary = string.Empty;
@@ -77,7 +79,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
         Evidence = [];
         Contexts = [];
         Links = [];
-        Notes = null;
+        Notes = string.Empty;
 
         OnPropertyChanged(nameof(IsEditMode));
         OnPropertyChanged(nameof(DialogTitle));
@@ -101,6 +103,32 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(IsEditMode));
         OnPropertyChanged(nameof(DialogTitle));
+    }
+
+    [RelayCommand]
+    private async Task EditSkills(CancellationToken cancellationToken = default)
+    {
+        var editSkillsViewModel = new EditSkillsViewModel(experiencesApiClient);
+
+        await editSkillsViewModel.InitializeAsync(Skills, cancellationToken);
+
+        if (windowService.ShowDialog(editSkillsViewModel) == true)
+        {
+            Skills = editSkillsViewModel.Skills.ToList();
+        }
+    }
+
+    [RelayCommand]
+    private async Task EditContexts(CancellationToken cancellationToken = default)
+    {
+        var editContextsViewModel = new EditContextsViewModel(experiencesApiClient);
+
+        await editContextsViewModel.InitializeAsync(Contexts, cancellationToken);
+
+        if (windowService.ShowDialog(editContextsViewModel) == true)
+        {
+            Contexts = editContextsViewModel.Contexts.ToList();
+        }
     }
 
     [RelayCommand]
@@ -179,16 +207,16 @@ public partial class ExperienceEditViewModel : ViewModelBase
         var experience = new Experience()
         {
             Id = new ExperienceId(Guid.NewGuid()),
-            Title = "Title",
-            Type = ExperienceType.Other,
-            Organization = "Organization",
+            Title = Title,
+            Type = Type,
+            Organization = Organization,
             DateRange = dateRange,
-            Summary = "Summary",
-            Skills = [],
+            Summary = Summary,
+            Skills = [.. Skills],
             Evidence = Evidence.Select(e => e.Value.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)).ToList(),
-            Contexts = [],
+            Contexts = [.. Contexts],
             Links = Links.Select(link => link.Value.Trim()).Where(link => !string.IsNullOrWhiteSpace(link)).ToList(),
-            Notes = "Notes"
+            Notes = Notes
         };
 
         return experience;
@@ -196,7 +224,7 @@ public partial class ExperienceEditViewModel : ViewModelBase
 
     private bool IsBlank =>
         string.IsNullOrWhiteSpace(Title)
-            && Type == ExperienceType.Professional
+            && Type == default
             && string.IsNullOrWhiteSpace(Organization)
             && string.IsNullOrWhiteSpace(StartDateText)
             && string.IsNullOrWhiteSpace(EndDateText)

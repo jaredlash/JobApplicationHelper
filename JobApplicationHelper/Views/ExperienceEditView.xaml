@@ -131,14 +131,14 @@
             </StackPanel>
             <StackPanel Grid.Row="5" Grid.Column="1" Margin="5">
                 <TextBlock Text="{Binding SkillsText}" TextWrapping="Wrap"/>
-                <Button Content="Edit skills" HorizontalAlignment="Left" Margin="0,5,0,0" />
+                <Button Content="Edit skills" HorizontalAlignment="Left" Margin="0,5,0,0" Command="{Binding EditSkillsCommand}"/>
             </StackPanel>
 
             <!-- Contexts -->
             <Label Grid.Row="6" Grid.Column="0" Content="Contexts" VerticalAlignment="Top" FontWeight="SemiBold" />
             <StackPanel Grid.Row="6" Grid.Column="1" Margin="5">
                 <TextBlock Text="{Binding ContextsText}" TextWrapping="Wrap" />
-                <Button Content="Edit contexts" HorizontalAlignment="Left" Margin="0,5,0,0" />
+                <Button Content="Edit contexts" HorizontalAlignment="Left" Margin="0,5,0,0" Command="{Binding EditContextsCommand}"/>
             </StackPanel>
 
             <!-- Evidence -->
