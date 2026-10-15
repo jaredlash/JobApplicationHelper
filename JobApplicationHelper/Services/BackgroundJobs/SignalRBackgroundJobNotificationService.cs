@@ -3,6 +3,7 @@ using JobApplicationHelper.Domain.Models;
 using JobApplicationHelper.Exceptions;
 using JobApplicationHelper.Services.Api;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace JobApplicationHelper.Services.BackgroundJobs;
@@ -14,9 +15,9 @@ public sealed class SignalRBackgroundJobNotificationService :
     private readonly HubConnection hubConnection;
 
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<BackgroundJobStatusChanged>> waiters = new();
-    private readonly BackgroundJobsApiClient backgroundJobsApiClient;
+    private readonly IServiceScopeFactory serviceScopeFactory;
 
-    public SignalRBackgroundJobNotificationService(BackgroundJobsApiClient backgroundJobsApiClient, string hubUrl)
+    public SignalRBackgroundJobNotificationService(IServiceScopeFactory serviceScopeFactory, Uri hubUrl)
     {
         hubConnection = new HubConnectionBuilder()
             .WithUrl(hubUrl)
@@ -25,8 +26,7 @@ public sealed class SignalRBackgroundJobNotificationService :
 
         hubConnection.On<BackgroundJobStatusChanged>("BackgroundJobStatusChanged", OnBackgroundJobStatusChanged);
         hubConnection.Closed += OnConnectionClosed;
-
-        this.backgroundJobsApiClient = backgroundJobsApiClient;
+        this.serviceScopeFactory = serviceScopeFactory;
     }
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
@@ -66,6 +66,9 @@ public sealed class SignalRBackgroundJobNotificationService :
         {
             // Check again after registering the waiter. This closes the race
             // between the initial status check and registering the waiter.
+            using var scope = serviceScopeFactory.CreateScope();
+            var backgroundJobsApiClient = scope.ServiceProvider.GetRequiredService<BackgroundJobsApiClient>();
+
             var response = await backgroundJobsApiClient.GetAsync(backgroundJobId, cancellationToken);
 
             var status = ParseStatus(response.Status);

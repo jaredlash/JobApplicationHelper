@@ -10,13 +10,12 @@ public static class ApplicationServicesServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddSingleton<IBackgroundJobNotificationService>(serviceProvider =>
+        services.AddSingleton<IBackgroundJobNotificationService>(sp =>
         {
-            var backgroundJobsApiClient = serviceProvider.GetRequiredService<BackgroundJobsApiClient>();
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+            var options = sp.GetRequiredService<IOptions<ApiOptions>>().Value;
             var hubUri = new Uri(new Uri(options.BaseUrl), "hubs/background-jobs");
 
-            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, hubUri.ToString());
+            return ActivatorUtilities.CreateInstance<SignalRBackgroundJobNotificationService>(sp, hubUri);
         });
 
         services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
