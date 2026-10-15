@@ -28,9 +28,15 @@
     </Window.Resources>
 
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-              HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="12">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -248,19 +254,18 @@
                  VerticalScrollBarVisibility="Auto"
                  Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <!-- Save / Cancel -->
-            <StackPanel Grid.Row="10" Grid.Column="1"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="5,15,5,5">
-                <Button Content="Cancel"
+            <!-- Save / Cancel removed from scrollable area - buttons placed below -->
+            </Grid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="12,8,12,12">
+            <Button Content="Cancel"
                     MinWidth="85" Margin="5"
                     Command="{Binding CancelCommand}"/>
-                <Button Content="Save"
+            <Button Content="Save"
                     MinWidth="85" Margin="5"
                     IsDefault="True"
                     Command="{Binding SaveCommand}"/>
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        </StackPanel>
+    </Grid>
 </Window>
