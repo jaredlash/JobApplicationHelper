@@ -27,10 +27,6 @@ public partial class App : WpfApplication
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.Configuration
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-
         builder.Services.AddApiOptions();
 
         builder.Services.AddApiHttpClient<JobRequirementsApiClient>();
