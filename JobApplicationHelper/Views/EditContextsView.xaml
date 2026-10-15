@@ -27,9 +27,20 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
-            <TextBlock FontSize="18"
-                       FontWeight="SemiBold"
-                       Text="Contexts"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontSize="18"
+                           FontWeight="SemiBold"
+                           Text="Contexts"/>
+                <TextBlock Foreground="Gray" Cursor="Help" Margin="6,0,0,0" VerticalAlignment="Top">
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <TextBlock MaxWidth="300" TextWrapping="Wrap"
+                                       Text="The type of work performed, for example 'Backend Development'"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <TextBlock Margin="0,4,0,0"
                        Foreground="Gray"
                        Text="Add, edit, or remove contexts. You can enter any context, even if it isn't suggested."/>

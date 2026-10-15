@@ -90,13 +90,17 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <TextBlock Grid.Column="1" Text="Dates" VerticalAlignment="Center" Margin="16,0,8,0" FontWeight="SemiBold">
-                    <TextBlock.ToolTip>
-                        <ToolTip>
-                            <TextBlock TextWrapping="Wrap" MaxWidth="320" Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
-                        </ToolTip>
-                    </TextBlock.ToolTip>
-                </TextBlock>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,8,0">
+                    <TextBlock Text="Dates" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Style="{StaticResource HelpHintStyle}">
+                        <Run Text="[?]" BaselineAlignment="Superscript"/>
+                        <TextBlock.ToolTip>
+                            <ToolTip>
+                                <TextBlock TextWrapping="Wrap" MaxWidth="320" Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
+                            </ToolTip>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" SpellCheck.IsEnabled="False" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
@@ -134,14 +138,36 @@
             </StackPanel>
 
             <!-- Contexts -->
-            <Label Grid.Row="6" Grid.Column="0" Content="Contexts" VerticalAlignment="Top" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal">
+                <Label Content="Contexts" FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource HelpHintStyle}">
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <TextBlock MaxWidth="300" TextWrapping="Wrap"
+                                Text="The type of work performed, for example 'Backend Development'"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <StackPanel Grid.Row="6" Grid.Column="1" Margin="5">
                 <TextBlock Text="{Binding ContextsText}" TextWrapping="Wrap" />
                 <Button Content="Edit contexts" HorizontalAlignment="Left" Margin="0,5,0,0" Command="{Binding EditContextsCommand}"/>
             </StackPanel>
 
             <!-- Evidence -->
-            <Label Grid.Row="7" Grid.Column="0" Content="Evidence" VerticalAlignment="Top" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="7" Grid.Column="0" Orientation="Horizontal">
+                <Label Content="Evidence" FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource HelpHintStyle}">
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <TextBlock MaxWidth="300" TextWrapping="Wrap"
+                                Text="Accomplishments from the experience such as those found on a CV/resume"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <StackPanel Grid.Row="7" Grid.Column="1" Margin="5">
                 <ItemsControl ItemsSource="{Binding Evidence}">
                     <ItemsControl.ItemTemplate>
