@@ -40,11 +40,10 @@ public partial class App : WpfApplication
     protected override async void OnStartup(StartupEventArgs e)
     {
         await AppHost!.StartAsync();
+        base.OnStartup(e);
 
         var mainWindow = AppHost.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
-
-        base.OnStartup(e);
     }
 
     protected override async void OnExit(ExitEventArgs e)
