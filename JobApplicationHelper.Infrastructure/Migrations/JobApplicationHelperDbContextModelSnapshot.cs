@@ -136,6 +136,7 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Organization")
@@ -200,6 +201,7 @@ namespace JobApplicationHelper.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
