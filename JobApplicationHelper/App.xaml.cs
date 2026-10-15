@@ -54,51 +54,7 @@ public partial class App : WpfApplication
         builder.Services.AddTransient<ExperiencesImportService>();
 
 
-        builder.Services.AddSingleton<MainWindow>();
-        builder.Services.AddTransient<MainWindowViewModel>();
-
-        builder.Services.AddTransient<JobRequirementsViewModel>();
-        builder.Services.AddTransient<CoverLetterViewModel>();
-        builder.Services.AddTransient<DraftWindowViewModel>(sp =>
-        {
-            var navigation = new DraftNavigation();
-            var draftParameters = new CoverLetterDraftParameters();
-
-            var jobRequirements =
-                ActivatorUtilities.CreateInstance<JobRequirementsViewModel>(
-                    sp,
-                    [navigation, draftParameters]);
-
-            var coverLetter =
-                ActivatorUtilities.CreateInstance<CoverLetterViewModel>(
-                    sp,
-                    [navigation, draftParameters]);
-
-            var viewModel = new DraftWindowViewModel(
-                jobRequirements,
-                coverLetter);
-            navigation.Initialize(viewModel);
-
-            return viewModel;
-        });
-        builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
-
-        builder.Services.AddViewWithViewModel<VerificationResultDialogViewModel, VerificationResultDialog>();
-        builder.Services.AddViewWithViewModel<ExperiencesViewModel, ExperiencesView>();
-        builder.Services.AddViewWithViewModel<ImportExperiencesViewModel, ImportExperiencesView>();
-        builder.Services.AddViewWithViewModel<ExperiencesImportResultViewModel, ExperiencesImportResultView>();
-        builder.Services.AddViewWithViewModel<ComparePendingExperienceViewModel, ComparePendingExperienceView>();
-        builder.Services.AddViewWithViewModel<ConfirmDialogViewModel, ConfirmDialogView>();
-        builder.Services.AddViewWithViewModel<AlertDialogViewModel, AlertDialogView>();
-        builder.Services.AddViewWithViewModel<ExperienceEditViewModel, ExperienceEditView>();
-        builder.Services.AddViewWithViewModel<EditSkillsViewModel, EditSkillsView>();
-        builder.Services.AddViewWithViewModel<EditContextsViewModel, EditContextsView>();
-
-        builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
-        builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
-        builder.Services.AddSingleton<IOpenWindowRegistry, OpenWindowRegistry>();
-        builder.Services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        builder.Services.AddSingleton<IWindowService, WindowService.WindowService>();
+        builder.Services.AddWindowServices();
 
 
         AppHost = builder.Build();
