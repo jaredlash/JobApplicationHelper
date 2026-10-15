@@ -2,6 +2,7 @@
 using JobApplicationHelper.Services.Api;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
 
 namespace JobApplicationHelper.DependencyInjection;
 
@@ -46,18 +47,10 @@ public static class ApiServiceCollectionExtensions
         return services;
     }
 
-
     public static IServiceCollection AddApiHttpClient<TClient>(this IServiceCollection services)
         where TClient : class
     {
-        services.AddHttpClient<TClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider
-                .GetRequiredService<IOptions<ApiOptions>>()
-                .Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
+        services.AddHttpClient<TClient>(ConfigureApiHttpClient);
 
         return services;
     }
@@ -66,16 +59,24 @@ public static class ApiServiceCollectionExtensions
         where TClient : class
         where TImplementation : class, TClient
     {
-        services.AddHttpClient<TClient, TImplementation>(
-            (serviceProvider, client) =>
-            {
-                var options = serviceProvider
-                    .GetRequiredService<IOptions<ApiOptions>>()
-                    .Value;
-
-                client.BaseAddress = new Uri(options.BaseUrl);
-            });
+        services.AddHttpClient<TClient, TImplementation>(ConfigureApiHttpClient);
 
         return services;
+    }
+
+    private static void ConfigureApiHttpClient(IServiceProvider serviceProvider, HttpClient client)
+    {
+        var options = serviceProvider
+            .GetRequiredService<IOptions<ApiOptions>>()
+            .Value;
+
+        var baseUrl = options.BaseUrl.Trim();
+
+        if (!baseUrl.EndsWith('/'))
+        {
+            baseUrl += "/";
+        }
+
+        client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
     }
 }
