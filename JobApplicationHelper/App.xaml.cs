@@ -28,15 +28,7 @@ public partial class App : WpfApplication
         var builder = Host.CreateApplicationBuilder();
 
         builder.Services.AddApiOptions();
-
-        builder.Services.AddApiHttpClient<JobRequirementsApiClient>();
-        builder.Services.AddApiHttpClient<CoverLettersApiClient>();
-        builder.Services.AddApiHttpClient<ExperiencesApiClient>();
-        builder.Services.AddApiHttpClient<LocationsApiClient>();
-        builder.Services.AddApiHttpClient<JobApplicationsApiClient>();
-        builder.Services.AddApiHttpClient<BackgroundJobsApiClient>();
-        builder.Services.AddApiHttpClient<IApiHealthService, ApiHealthService>();
-
+        builder.Services.AddApiHttpClients();
         builder.Services.AddApplicationServices();
         builder.Services.AddWindowServices();
 

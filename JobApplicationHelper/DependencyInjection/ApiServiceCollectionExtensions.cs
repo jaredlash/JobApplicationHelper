@@ -32,6 +32,21 @@ public static class ApiServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddApiHttpClients(this IServiceCollection services)
+    {
+
+        services.AddApiHttpClient<JobRequirementsApiClient>();
+        services.AddApiHttpClient<CoverLettersApiClient>();
+        services.AddApiHttpClient<ExperiencesApiClient>();
+        services.AddApiHttpClient<LocationsApiClient>();
+        services.AddApiHttpClient<JobApplicationsApiClient>();
+        services.AddApiHttpClient<BackgroundJobsApiClient>();
+        services.AddApiHttpClient<IApiHealthService, ApiHealthService>();
+
+        return services;
+    }
+
+
     public static IServiceCollection AddApiHttpClient<TClient>(this IServiceCollection services)
         where TClient : class
     {
