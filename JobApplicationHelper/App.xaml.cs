@@ -1,25 +1,16 @@
 ﻿using JobApplicationHelper.DependencyInjection;
-using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Services.Api;
-using JobApplicationHelper.Services.BackgroundJobs;
-using JobApplicationHelper.Services.Experiences;
-using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
-using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using System.Windows;
-using WpfApplication = System.Windows.Application;
 
 namespace JobApplicationHelper;
 
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : WpfApplication
+public partial class App : Application
 {
     public static IHost? AppHost { get; private set; }
 
@@ -27,143 +18,10 @@ public partial class App : WpfApplication
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.Configuration.Sources.Clear();
-        builder.Configuration
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-
-        builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
-        builder.Services.AddOptions<ApiOptions>()
-            .BindConfiguration("Api")
-            .ValidateDataAnnotations()
-            .Validate(
-                options =>
-                {
-                    if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri))
-                        return false;
-
-                    return uri.Scheme == Uri.UriSchemeHttp
-                        || uri.Scheme == Uri.UriSchemeHttps;
-                },
-                "Api:BaseUrl must be a valid HTTP or HTTPS URL.")
-            .ValidateOnStart();
-
-        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<CoverLettersApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<ExperiencesApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<LocationsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<JobApplicationsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<BackgroundJobsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
-            (serviceProvider, client) =>
-            {
-                var options = serviceProvider
-                    .GetRequiredService<IOptions<ApiOptions>>()
-                    .Value;
-
-                client.BaseAddress = new Uri(options.BaseUrl);
-            });
-
-        builder.Services.AddSingleton<IBackgroundJobNotificationService>(serviceProvider =>
-        {
-            var backgroundJobsApiClient = serviceProvider.GetRequiredService<BackgroundJobsApiClient>();
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, $"{options.BaseUrl}hubs/background-jobs");
-        });
-
-        builder.Services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
-        builder.Services.AddTransient<ExperiencesImportService>();
-
-
-        builder.Services.AddSingleton<MainWindow>();
-        builder.Services.AddTransient<MainWindowViewModel>();
-
-        builder.Services.AddTransient<JobRequirementsViewModel>();
-        builder.Services.AddTransient<CoverLetterViewModel>();
-        builder.Services.AddTransient<DraftWindowViewModel>(sp =>
-        {
-            var navigation = new DraftNavigation();
-            var draftParameters = new CoverLetterDraftParameters();
-
-            var jobRequirements =
-                ActivatorUtilities.CreateInstance<JobRequirementsViewModel>(
-                    sp,
-                    [navigation, draftParameters]);
-
-            var coverLetter =
-                ActivatorUtilities.CreateInstance<CoverLetterViewModel>(
-                    sp,
-                    [navigation, draftParameters]);
-
-            var viewModel = new DraftWindowViewModel(
-                jobRequirements,
-                coverLetter);
-            navigation.Initialize(viewModel);
-
-            return viewModel;
-        });
-        builder.Services.AddKeyedTransient<Window, DraftWindow>(typeof(DraftWindowViewModel));
-
-        builder.Services.AddViewWithViewModel<VerificationResultDialogViewModel, VerificationResultDialog>();
-        builder.Services.AddViewWithViewModel<ExperiencesViewModel, ExperiencesView>();
-        builder.Services.AddViewWithViewModel<ImportExperiencesViewModel, ImportExperiencesView>();
-        builder.Services.AddViewWithViewModel<ExperiencesImportResultViewModel, ExperiencesImportResultView>();
-        builder.Services.AddViewWithViewModel<ComparePendingExperienceViewModel, ComparePendingExperienceView>();
-        builder.Services.AddViewWithViewModel<ConfirmDialogViewModel, ConfirmDialogView>();
-        builder.Services.AddViewWithViewModel<AlertDialogViewModel, AlertDialogView>();
-        builder.Services.AddViewWithViewModel<ExperienceEditViewModel, ExperienceEditView>();
-        builder.Services.AddViewWithViewModel<EditSkillsViewModel, EditSkillsView>();
-        builder.Services.AddViewWithViewModel<EditContextsViewModel, EditContextsView>();
-
-        builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
-        builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
-        builder.Services.AddTransient<DraftWindow>();
-        builder.Services.AddSingleton<IOpenWindowRegistry, OpenWindowRegistry>();
-        builder.Services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-        builder.Services.AddSingleton<IWindowService, WindowService.WindowService>();
+        builder.Services.AddApiOptions();
+        builder.Services.AddApiHttpClients();
+        builder.Services.AddApplicationServices();
+        builder.Services.AddWindowServices();
 
 
         AppHost = builder.Build();
@@ -173,17 +31,25 @@ public partial class App : WpfApplication
     protected override async void OnStartup(StartupEventArgs e)
     {
         await AppHost!.StartAsync();
+        base.OnStartup(e);
 
         var mainWindow = AppHost.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
-
-        base.OnStartup(e);
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
-        await AppHost!.StopAsync();
-        base.OnExit(e);
+        try
+        {
+            if (AppHost is not null)
+            {
+                await AppHost.StopAsync();
+                AppHost.Dispose();
+            }
+        }
+        finally
+        {
+            base.OnExit(e);
+        }
     }
-
 }
