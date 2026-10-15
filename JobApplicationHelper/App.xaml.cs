@@ -90,12 +90,6 @@ public partial class App : WpfApplication
             client.BaseAddress = new Uri(options.BaseUrl);
         });
 
-        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
         builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
             (serviceProvider, client) =>
             {
@@ -160,7 +154,6 @@ public partial class App : WpfApplication
 
         builder.Services.AddTransient<IFolderLauncher, FolderLauncher>();
         builder.Services.AddTransient<IFileChooserDialog, FileChooserDialog>();
-        builder.Services.AddTransient<DraftWindow>();
         builder.Services.AddSingleton<IOpenWindowRegistry, OpenWindowRegistry>();
         builder.Services.AddSingleton<IViewModelFactory, ViewModelFactory>();
         builder.Services.AddSingleton<IWindowService, WindowService.WindowService>();
