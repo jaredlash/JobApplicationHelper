@@ -31,22 +31,7 @@ public partial class App : WpfApplication
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
-        //builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
-        builder.Services.AddOptions<ApiOptions>()
-            .BindConfiguration("Api")
-            .ValidateDataAnnotations()
-            .Validate(
-                options =>
-                {
-                    if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri))
-                        return false;
-
-                    return uri.Scheme == Uri.UriSchemeHttp
-                        || uri.Scheme == Uri.UriSchemeHttps;
-                },
-                "Api:BaseUrl must be a valid HTTP or HTTPS URL.")
-            .ValidateOnStart();
+        builder.Services.AddApiOptions();
 
         builder.Services.AddApiHttpClient<JobRequirementsApiClient>();
         builder.Services.AddApiHttpClient<CoverLettersApiClient>();
@@ -60,8 +45,9 @@ public partial class App : WpfApplication
         {
             var backgroundJobsApiClient = serviceProvider.GetRequiredService<BackgroundJobsApiClient>();
             var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+            var hubUri = new Uri(new Uri(options.BaseUrl), "hubs/background-jobs");
 
-            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, $"{options.BaseUrl}hubs/background-jobs");
+            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, hubUri.ToString());
         });
 
         builder.Services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
