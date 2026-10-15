@@ -41,19 +41,7 @@ public partial class App : WpfApplication
         builder.Services.AddApiHttpClient<BackgroundJobsApiClient>();
         builder.Services.AddApiHttpClient<IApiHealthService, ApiHealthService>();
 
-        builder.Services.AddSingleton<IBackgroundJobNotificationService>(serviceProvider =>
-        {
-            var backgroundJobsApiClient = serviceProvider.GetRequiredService<BackgroundJobsApiClient>();
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-            var hubUri = new Uri(new Uri(options.BaseUrl), "hubs/background-jobs");
-
-            return new SignalRBackgroundJobNotificationService(backgroundJobsApiClient, hubUri.ToString());
-        });
-
-        builder.Services.AddTransient<IBackgroundJobPollingService, BackgroundJobPollingService>();
-        builder.Services.AddTransient<ExperiencesImportService>();
-
-
+        builder.Services.AddApplicationServices();
         builder.Services.AddWindowServices();
 
 
