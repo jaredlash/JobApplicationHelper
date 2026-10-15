@@ -93,16 +93,15 @@
                 <TextBlock Grid.Column="1" Text="Dates" VerticalAlignment="Center" Margin="16,0,8,0" FontWeight="SemiBold">
                     <TextBlock.ToolTip>
                         <ToolTip>
-                            <TextBlock TextWrapping="Wrap" MaxWidth="320"
-                           Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
+                            <TextBlock TextWrapping="Wrap" MaxWidth="320" Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
                         </ToolTip>
                     </TextBlock.ToolTip>
                 </TextBlock>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" SpellCheck.IsEnabled="False" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
                     <TextBlock Text="to" VerticalAlignment="Center" Margin="8,0"/>
-                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." SpellCheck.IsEnabled="False" Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
                 </StackPanel>
             </Grid>
 
