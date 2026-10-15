@@ -27,12 +27,11 @@ public partial class App : WpfApplication
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.Configuration.Sources.Clear();
         builder.Configuration
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
-        builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+        //builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
         builder.Services.AddOptions<ApiOptions>()
             .BindConfiguration("Api")
@@ -49,56 +48,13 @@ public partial class App : WpfApplication
                 "Api:BaseUrl must be a valid HTTP or HTTPS URL.")
             .ValidateOnStart();
 
-        builder.Services.AddHttpClient<JobRequirementsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<CoverLettersApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<ExperiencesApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<LocationsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<JobApplicationsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<BackgroundJobsApiClient>((serviceProvider, client) =>
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
-            client.BaseAddress = new Uri(options.BaseUrl);
-        });
-
-        builder.Services.AddHttpClient<IApiHealthService, ApiHealthService>(
-            (serviceProvider, client) =>
-            {
-                var options = serviceProvider
-                    .GetRequiredService<IOptions<ApiOptions>>()
-                    .Value;
-
-                client.BaseAddress = new Uri(options.BaseUrl);
-            });
+        builder.Services.AddApiHttpClient<JobRequirementsApiClient>();
+        builder.Services.AddApiHttpClient<CoverLettersApiClient>();
+        builder.Services.AddApiHttpClient<ExperiencesApiClient>();
+        builder.Services.AddApiHttpClient<LocationsApiClient>();
+        builder.Services.AddApiHttpClient<JobApplicationsApiClient>();
+        builder.Services.AddApiHttpClient<BackgroundJobsApiClient>();
+        builder.Services.AddApiHttpClient<IApiHealthService, ApiHealthService>();
 
         builder.Services.AddSingleton<IBackgroundJobNotificationService>(serviceProvider =>
         {
