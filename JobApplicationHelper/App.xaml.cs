@@ -49,8 +49,17 @@ public partial class App : WpfApplication
 
     protected override async void OnExit(ExitEventArgs e)
     {
-        await AppHost!.StopAsync();
-        base.OnExit(e);
+        try
+        {
+            if (AppHost is not null)
+            {
+                await AppHost.StopAsync();
+                AppHost.Dispose();
+            }
+        }
+        finally
+        {
+            base.OnExit(e);
+        }
     }
-
 }
