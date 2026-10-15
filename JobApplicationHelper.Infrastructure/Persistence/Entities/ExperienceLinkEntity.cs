@@ -8,7 +8,7 @@ public sealed class ExperienceLinkEntity
 
     public string Url { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     public ExperienceEntity Experience { get; set; } = null!;
 }

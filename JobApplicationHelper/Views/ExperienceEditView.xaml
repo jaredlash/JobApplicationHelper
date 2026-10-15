@@ -28,9 +28,15 @@
     </Window.Resources>
 
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-              HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="12">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -90,19 +96,22 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <TextBlock Grid.Column="1" Text="Dates" VerticalAlignment="Center" Margin="16,0,8,0" FontWeight="SemiBold">
-                    <TextBlock.ToolTip>
-                        <ToolTip>
-                            <TextBlock TextWrapping="Wrap" MaxWidth="320"
-                           Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
-                        </ToolTip>
-                    </TextBlock.ToolTip>
-                </TextBlock>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,8,0">
+                    <TextBlock Text="Dates" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Style="{StaticResource HelpHintStyle}">
+                        <Run Text="[?]" BaselineAlignment="Superscript"/>
+                        <TextBlock.ToolTip>
+                            <ToolTip>
+                                <TextBlock TextWrapping="Wrap" MaxWidth="320" Text="Enter a year (2024), year and month (2024-03), or full date (2024-03-15). Either date can be left blank."/>
+                            </ToolTip>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                    <TextBox Width="105" ToolTip="Start date, e.g. 2021 or 2021-06" SpellCheck.IsEnabled="False" Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
                     <TextBlock Text="to" VerticalAlignment="Center" Margin="8,0"/>
-                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                    <TextBox Width="105" ToolTip="End date, e.g. 2023-09. Leave blank if ongoing." SpellCheck.IsEnabled="False" Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
                 </StackPanel>
             </Grid>
 
@@ -135,14 +144,36 @@
             </StackPanel>
 
             <!-- Contexts -->
-            <Label Grid.Row="6" Grid.Column="0" Content="Contexts" VerticalAlignment="Top" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal">
+                <Label Content="Contexts" FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource HelpHintStyle}">
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <TextBlock MaxWidth="300" TextWrapping="Wrap"
+                                Text="The type of work performed, for example 'Backend Development'"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <StackPanel Grid.Row="6" Grid.Column="1" Margin="5">
                 <TextBlock Text="{Binding ContextsText}" TextWrapping="Wrap" />
                 <Button Content="Edit contexts" HorizontalAlignment="Left" Margin="0,5,0,0" Command="{Binding EditContextsCommand}"/>
             </StackPanel>
 
             <!-- Evidence -->
-            <Label Grid.Row="7" Grid.Column="0" Content="Evidence" VerticalAlignment="Top" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="7" Grid.Column="0" Orientation="Horizontal">
+                <Label Content="Evidence" FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource HelpHintStyle}">
+                    <Run Text="[?]" BaselineAlignment="Superscript"/>
+                    <TextBlock.ToolTip>
+                        <ToolTip>
+                            <TextBlock MaxWidth="300" TextWrapping="Wrap"
+                                Text="Accomplishments from the experience such as those found on a CV/resume"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <StackPanel Grid.Row="7" Grid.Column="1" Margin="5">
                 <ItemsControl ItemsSource="{Binding Evidence}">
                     <ItemsControl.ItemTemplate>
@@ -223,19 +254,18 @@
                  VerticalScrollBarVisibility="Auto"
                  Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <!-- Save / Cancel -->
-            <StackPanel Grid.Row="10" Grid.Column="1"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="5,15,5,5">
-                <Button Content="Cancel"
+            <!-- Save / Cancel removed from scrollable area - buttons placed below -->
+            </Grid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="12,8,12,12">
+            <Button Content="Cancel"
                     MinWidth="85" Margin="5"
                     Command="{Binding CancelCommand}"/>
-                <Button Content="Save"
+            <Button Content="Save"
                     MinWidth="85" Margin="5"
                     IsDefault="True"
                     Command="{Binding SaveCommand}"/>
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        </StackPanel>
+    </Grid>
 </Window>

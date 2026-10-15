@@ -199,7 +199,7 @@ public sealed class ExperienceRepository : IExperienceRepository
                 Id = Guid.NewGuid(),
                 ExperienceId = entity.Id,
                 Url = link.Trim(),
-                Description = null
+                Description = string.Empty
             });
         }
 

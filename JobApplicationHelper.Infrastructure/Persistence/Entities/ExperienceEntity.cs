@@ -6,7 +6,7 @@ public sealed class ExperienceEntity
 {
     public Guid Id { get; set; }
 
-    public string Title { get; set; } = "";
+    public string Title { get; set; } = string.Empty;
 
     public ExperienceType Type { get; set; }
 
@@ -24,9 +24,9 @@ public sealed class ExperienceEntity
 
     public int? EndYear { get; set; }
 
-    public string Summary { get; set; } = "";
+    public string Summary { get; set; } = string.Empty;
 
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 
     public string? LegacyId { get; set; }
 
