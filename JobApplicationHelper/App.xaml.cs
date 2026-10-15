@@ -1,25 +1,16 @@
 ﻿using JobApplicationHelper.DependencyInjection;
-using JobApplicationHelper.Domain.Models;
-using JobApplicationHelper.Services.Api;
-using JobApplicationHelper.Services.BackgroundJobs;
-using JobApplicationHelper.Services.Experiences;
-using JobApplicationHelper.ViewModels;
 using JobApplicationHelper.Views;
-using JobApplicationHelper.WindowService;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using System.Windows;
-using WpfApplication = System.Windows.Application;
 
 namespace JobApplicationHelper;
 
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : WpfApplication
+public partial class App : Application
 {
     public static IHost? AppHost { get; private set; }
 
